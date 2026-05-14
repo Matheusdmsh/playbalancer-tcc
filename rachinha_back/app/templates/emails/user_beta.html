@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>Convite para o Beta do Rachinha.com no Android</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #000000; font-family: 'Inter', sans-serif; }
+        .wrapper { width: 100%; background-color: #000000; padding: 40px 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header img { width: 32px; height: 32px; vertical-align: middle; margin-right: 8px; }
+        .header .title { font-size: 20px; font-weight: bold; color: #ffffff; display: inline-block; vertical-align: middle; }
+        .header .title span { color: #22c55e; }
+        .content-card { padding: 40px; text-align: center; }
+        .content-card h1 { font-size: 32px; font-weight: 800; color: #ffffff; line-height: 1.2; margin: 0 0 15px; }
+        .content-card p { font-size: 16px; color: #a1a1aa; line-height: 1.6; max-width: 450px; margin: 0 auto 30px; }
+        .cta-button { display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+
+        .steps-section { margin-top: 40px; text-align: left; background-color: #18181B; border: 1px solid #27272a; border-radius: 12px; padding: 30px; }
+        .steps-header { text-align: center; margin-bottom: 30px; }
+        .steps-header h2 { font-size: 24px; font-weight: 700; color: #ffffff; margin: 0 0 10px; }
+        .step { display: flex; align-items: flex-start; margin-bottom: 25px; }
+        .step-number { background-color: #22c55e; color: #ffffff; border-radius: 50%; width: 30px; height: 30px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 20px; }
+        .step-content h3 { font-size: 18px; font-weight: 600; color: #ffffff; margin: 0 0 5px; }
+        .step-content p { font-size: 14px; color: #a1a1aa; margin: 0; line-height: 1.5; }
+
+        .alert-section { margin-top: 30px; background-color: #2c2121; border: 1px solid #7f1d1d; border-radius: 8px; padding: 20px; display: flex; align-items: center; }
+        .alert-icon { width: 24px; height: 24px; color: #f87171; margin-right: 15px; flex-shrink: 0; }
+        .alert-text { font-size: 14px; color: #fca5a5; line-height: 1.5; }
+
+        .footer { padding: 40px 20px 20px; text-align: center; font-size: 12px; color: #52525b; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="header">
+                <img src="https://rachinha.com/assets/logo.svg" alt="Logo">
+                <span class="title">rachinha<span>.com</span></span>
+            </div>
+
+            <div class="content-card">
+                <h1>Você foi convidado para o Beta no Android!</h1>
+                <p>Olá, {{ name }}! Estamos felizes em convidar você para testar nosso novo aplicativo Android em primeira mão.</p>
+            </div>
+
+            <div class="steps-section">
+                <div class="steps-header">
+                    <h2>Como acessar o Beta</h2>
+                </div>
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Torne-se um testador</h3>
+                        <p>Você precisa estar logado na Conta Google que foi adicionada à nossa lista de testes.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Acesse a Play Store</h3>
+                        <p>Clique no botão abaixo para ir diretamente à página do aplicativo na Google Play Store.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Baixe o Aplicativo</h3>
+                        <p>Na página da Play Store, você verá a opção para instalar a versão beta do aplicativo. Toque em "Instalar" e comece a usar!</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="https://play.google.com/store/apps/details?id=com.rachinha.atena" class="cta-button">Ir para a Play Store</a>
+                </div>
+            </div>
+
+            <div class="alert-section">
+                <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                <p class="alert-text"><strong>Acesso Restrito:</strong> Lembre-se que o link de download só funcionará se você estiver na lista de testadores e logado na conta de e-mail correta no seu dispositivo.</p>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2025 Rachinha.com. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

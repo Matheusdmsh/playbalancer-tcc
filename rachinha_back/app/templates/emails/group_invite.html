@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>Bem-vindo à Turma</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #000000; font-family: 'Inter', sans-serif; }
+        .wrapper { width: 100%; background-color: #000000; padding: 40px 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header img { width: 32px; height: 32px; vertical-align: middle; margin-right: 8px; }
+        .header .title { font-size: 20px; font-weight: bold; color: #ffffff; display: inline-block; vertical-align: middle; }
+        .header .title span { color: #22c55e; }
+        
+        .main-title { text-align: center; margin-bottom: 30px; }
+        .main-title h1 { font-size: 28px; font-weight: 800; color: #ffffff; margin: 0; }
+        .main-title p { font-size: 16px; color: #a1a1aa; margin: 10px 0 0; }
+        
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .feature-card { background-color: #18181B; border: 1px solid #27272a; border-radius: 12px; padding: 25px; text-align: center; }
+        .feature-icon { width: 48px; height: 48px; margin: 0 auto 15px; background-color: rgba(34, 197, 94, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .feature-icon svg { width: 24px; height: 24px; color: #22c55e; }
+        .feature-card h3 { font-size: 16px; font-weight: 600; color: #ffffff; margin: 0 0 5px; }
+        .feature-card p { font-size: 14px; color: #a1a1aa; margin: 0; line-height: 1.5; }
+        
+        .cta-section { margin-top: 30px; text-align: center; }
+        .cta-button { display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+        
+        .footer { padding: 40px 20px 20px; text-align: center; font-size: 12px; color: #52525b; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="header">
+                <img src="https://rachinha.com/assets/logo.svg" alt="Logo">
+                <span class="title">rachinha<span>.com</span></span>
+            </div>
+
+            <div class="main-title">
+                <h1>Você agora faz parte da<br>"{{ group_name }}"</h1>
+                <p>Adicionado por <strong>{{ owner_name }}</strong>.</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                    <h3>Chat Integrado</h3>
+                    <p>Converse com a galera no chat exclusivo da turma.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg></div>
+                    <h3>Agenda de Rachas</h3>
+                    <p>Fique por dentro de todos os jogos marcados.</p>
+                </div>
+                 <div class="feature-card">
+                    <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></div>
+                    <h3>Gestão de Caixa</h3>
+                    <p>Acompanhe os pagamentos de forma transparente.</p>
+                </div>
+                 <div class="feature-card">
+                    <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div>
+                    <h3>Separação de Times</h3>
+                    <p>Veja os times que o app equilibra e separa para o racha.</p>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <a href="{{ group_link }}" class="cta-button">Ver a Turma</a>
+            </div>
+
+            <div class="footer">
+                <p>© 2025 Rachinha.com. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

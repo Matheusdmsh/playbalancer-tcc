@@ -1,0 +1,143 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 142.1 70.6% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 142.3 70% 10%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 142.1 70.6% 45.3%;
+    --sidebar: 240 10% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-ring: 142.1 70.6% 45.3%;
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  input, select, textarea, button {
+    font-family: inherit;
+  }
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+
+
+  @keyframes cardSlideOut {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+  }
+
+  @keyframes cardSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .card-transitioning {
+    animation: cardSlideOut 0.15s ease-out, cardSlideIn 0.15s ease-out 0.15s;
+  }
+
+  @keyframes cardExitToLeft {
+    from {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-28px) scale(0.96);
+    }
+  }
+
+  @keyframes cardExitToRight {
+    from {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(28px) scale(0.96);
+    }
+  }
+
+  @keyframes cardEnterFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(28px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  @keyframes cardEnterFromLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-28px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  .card-exit-to-left {
+    animation: cardExitToLeft 0.3s ease-in-out forwards;
+  }
+
+  .card-exit-to-right {
+    animation: cardExitToRight 0.3s ease-in-out forwards;
+  }
+
+  .card-enter-from-right {
+    animation: cardEnterFromRight 0.3s ease-in-out forwards;
+  }
+
+  .card-enter-from-left {
+    animation: cardEnterFromLeft 0.3s ease-in-out forwards;
+  }
+}
+

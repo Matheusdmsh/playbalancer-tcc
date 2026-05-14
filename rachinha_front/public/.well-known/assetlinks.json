@@ -1,0 +1,16 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.rachinha.atena",
+      "sha256_cert_fingerprints": [
+        "64:DF:3C:D2:E1:08:E9:2B:80:55:0F:8C:38:3A:60:93:44:CE:50:60:19:BF:07:2C:99:A4:CA:BA:C9:AD:72:29",
+        "2A:BA:1D:58:3B:01:7E:51:32:02:92:A5:3F:93:8A:56:7A:F7:6C:3A:2E:3F:AA:E9:0F:E3:35:38:77:4D:47:31"
+      ]
+    }
+  }
+]

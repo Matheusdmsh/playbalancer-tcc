@@ -1,0 +1,44 @@
+
+# Base image
+FROM python:3.11-slim AS builder
+
+#Define o diretório de trabalho
+WORKDIR /app
+
+# Instala ferramentas de compilação se necessário (ex: gcc)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Etapa 2 - Runner
+FROM python:3.11-slim AS runner
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Cria um usuário não-root para segurança
+RUN addgroup --system --gid 1001 python && \
+    adduser --system --uid 1001 --ingroup python --home /home/python python
+
+# Copia dependências Python instaladas globalmente no builder
+COPY --from=builder /usr/local /usr/local
+
+# Copia código da aplicação
+COPY --chown=python:python . .
+
+# Define variáveis de ambiente
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+USER python
+
+EXPOSE 8000
+
+# Comando para rodar o servidor (sem --reload para produção)
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

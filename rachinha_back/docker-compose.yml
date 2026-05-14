@@ -1,0 +1,43 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: rachinha_backend
+    restart: always
+    ports:
+      - "127.0.0.1:8001:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017
+      - DB_NAME=rachinha
+      - ROOT_PATH=/rachinha
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - JWT_SECRET=${JWT_SECRET}
+      - BMAIL_API_URL=${BMAIL_API_URL}
+      - BMAIL_CLIENT_ID=${BMAIL_CLIENT_ID}
+      - BMAIL_CLIENT_SECRET=${BMAIL_CLIENT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - GOOGLE_ANDROID_CLIENT_ID=${GOOGLE_ANDROID_CLIENT_ID}
+      - GOOGLE_IOS_CLIENT_ID=${GOOGLE_IOS_CLIENT_ID}
+      - APPLE_BUNDLE_ID=${APPLE_BUNDLE_ID}
+      - APPLE_SERVICE_ID=${APPLE_SERVICE_ID}
+      - STORAGE_API_URL=${STORAGE_API_URL}
+      - SERVICE_CLIENT_ID=${SERVICE_CLIENT_ID}
+      - SERVICE_CLIENT_SECRET=${SERVICE_CLIENT_SECRET}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:5
+    container_name: rachinha_mongo
+    restart: always
+    ports:
+      - "127.0.0.1:27019:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
