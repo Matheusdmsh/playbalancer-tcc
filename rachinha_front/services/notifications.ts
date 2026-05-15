@@ -81,7 +81,7 @@ export class NotificationSocket {
     this.onUnreadUpdate = onUnreadUpdate;
     this.onError = onError;
 
-    const wsBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/^http/, "ws");
+    const wsBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001").replace(/^http/, "ws");
     const token = Cookies.get(TOKEN_COOKIE_NAME);
     if (!token) {
         onError("Usuário não autenticado para conectar ao WebSocket.");

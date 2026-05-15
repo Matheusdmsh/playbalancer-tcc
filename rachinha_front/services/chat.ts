@@ -74,7 +74,7 @@ export class GroupChatSocket {
     // Alterado o URL de fallback para apontar para o backend local por padrão.
     // Para produção, defina a variável de ambiente NEXT_PUBLIC_API_URL.
     const wsBaseUrl = (
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
     ).replace(/^http/, "ws");
     const wsUrl = `${wsBaseUrl}/groups/chat/ws/${groupId}?token=${Cookies.get(TOKEN_COOKIE_NAME)}`;
 

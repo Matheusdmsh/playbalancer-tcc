@@ -6,7 +6,7 @@ const TOKEN_COOKIE_NAME = 'rachinha_token';
 
 // A URL base agora aponta diretamente para o endpoint da API.
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/rachinha',
   headers: {
     "Content-Type": "application/json",
   },
