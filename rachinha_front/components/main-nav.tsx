@@ -56,14 +56,14 @@ function MainNavContent() {
         <Link href="/home" className="flex items-center gap-2">
           <span className="flex items-center">
             <Image
-              src="/assets/logo.svg"
-              alt="Logo Rachinha.com"
+              src="/assets/logobalanca.svg"
+              alt="Logo PlayBalance"
               width={32}
               height={32}
             />
           </span>
           <span className="text-xl font-bold">
-            rachinha<span className="text-green-500">.com</span>
+            <span className="text-green-500">Play</span>Balance
           </span>
         </Link>
         <div className="flex items-center gap-4">

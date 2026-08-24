@@ -369,7 +369,7 @@ async def approve_court_booking(
     notification = NotificationCreate(
         user_id=booking['user_id'],
         notification_type="booking_approved",
-        message=f"Sua reserva para {court.get('name', 'a quadra')} foi aprovada! Um chat foi criado para você.",
+        message=f"Sua reserva para {court.get('name', 'a quadra')} foi aprovada!",
         related_id=booking_id,
         link=f"/user/booking/{booking_id}"
     )

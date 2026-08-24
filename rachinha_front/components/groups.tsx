@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus,CircleFadingPlus , Users, Clock, MapPin, DollarSign, Calendar, Calendar1, Flag, Search, Award, ArrowUpDown, SlidersHorizontal } from "lucide-react"
+import { Plus,CircleFadingPlus , Users, Clock, MapPin, DollarSign, Calendar, Calendar1, Flag, Search, Award, SlidersHorizontal } from "lucide-react"
 import { CreateGroupWizard } from "./create-group-wizard"
 import { getSportIcon } from "@/lib/getSportIcon"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -28,7 +28,6 @@ export function Groups() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedModalities, setSelectedModalities] = useState<string[]>([])
   const [selectedDays, setSelectedDays] = useState<string[]>([])
-  const [sortBy, setSortBy] = useState<"nome" | "recente" | "antigo">("recente")
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
@@ -152,29 +151,18 @@ export function Groups() {
   }
 
   // Função para filtrar e ordenar grupos
-  const filteredGroups = groups
-    .filter(group => {
-      // Filtro por nome
-      const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      // Filtro por modalidade (se houver seleções, verifica inclusão; senão mostra todas)
-      const matchesModality = selectedModalities.length === 0 || (group.modality && selectedModalities.some(m => m.toLowerCase() === group.modality?.toLowerCase()))
-      
-      // Filtro por dia da semana (se houver seleções, verifica inclusão; senão mostra todas)
-      const matchesDay = selectedDays.length === 0 || (group.recurrence && group.recurrence.some(day => selectedDays.some(selectedDay => selectedDay.toLowerCase() === day.toLowerCase())))
-      
-      return matchesSearch && matchesModality && matchesDay
-    })
-    .sort((a, b) => {
-      if (sortBy === "nome") {
-        return a.name.localeCompare(b.name, 'pt-BR')
-      } else if (sortBy === "recente") {
-        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
-      } else if (sortBy === "antigo") {
-        return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
-      }
-      return 0
-    })
+  const filteredGroups = groups.filter(group => {
+    // Filtro por nome
+    const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase())
+
+    // Filtro por modalidade (se houver seleções, verifica inclusão; senão mostra todas)
+    const matchesModality = selectedModalities.length === 0 || (group.modality && selectedModalities.some(m => m.toLowerCase() === group.modality?.toLowerCase()))
+
+    // Filtro por dia da semana (se houver seleções, verifica inclusão; senão mostra todas)
+    const matchesDay = selectedDays.length === 0 || (group.recurrence && group.recurrence.some(day => selectedDays.some(selectedDay => selectedDay.toLowerCase() === day.toLowerCase())))
+
+    return matchesSearch && matchesModality && matchesDay
+  })
 
   if (isLoading) {
     // Skeleton loader: simula barra de pesquisa + filtros + cards
@@ -341,43 +329,6 @@ export function Groups() {
               </PopoverContent>
             </Popover>
 
-            {/* Filtro de ordenação */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full md:w-auto h-9 rounded-full px-4 text-xs font-medium uppercase tracking-wide bg-black/30 border-[#083818] text-green-100 hover:bg-black/40 hover:border-green-400"
-                >
-                  <ArrowUpDown className="h-3 w-3 text-green-400" />
-                  Ordenar: {sortBy === "nome" ? "Nome" : sortBy === "recente" ? "Recente" : "Antigo"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 bg-zinc-900 border-zinc-700 p-3">
-                <div className="space-y-3">
-                  <p className="text-sm font-medium text-white">Ordenar por:</p>
-                  <div className="space-y-2">
-                    {[
-                      { value: "nome" as const, label: "Nome (A-Z)" },
-                      { value: "recente" as const, label: "Mais Recentes" },
-                      { value: "antigo" as const, label: "Mais Antigos" },
-                    ].map((option) => (
-                      <div
-                        key={option.value}
-                        onClick={() => setSortBy(option.value)}
-                        className={`p-2 rounded cursor-pointer transition-colors ${
-                          sortBy === option.value
-                            ? "bg-green-900/50 text-green-400"
-                            : "hover:bg-zinc-800 text-zinc-300"
-                        }`}
-                      >
-                        {option.label}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-
             {/* Botão Novo Grupo */}
             <Button
               variant="outline"
@@ -506,43 +457,6 @@ export function Groups() {
               </PopoverContent>
             </Popover>
 
-            {/* Filtro de ordenação */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full md:w-auto h-9 rounded-full px-4 text-xs font-medium uppercase tracking-wide bg-black/30 border-[#083818] text-green-100 hover:bg-black/40 hover:border-green-400"
-                >
-                  <ArrowUpDown className="h-3 w-3 text-green-400" />
-                  Ordenar: {sortBy === "nome" ? "Nome" : sortBy === "recente" ? "Recente" : "Antigo"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 bg-zinc-900 border-zinc-700 p-3">
-                <div className="space-y-3">
-                  
-                  <p className="text-sm font-medium text-white">Ordenar por:</p>
-                  <div className="space-y-2">
-                    {[
-                      { value: "nome" as const, label: "Nome (A-Z)" },
-                      { value: "recente" as const, label: "Mais Recentes" },
-                      { value: "antigo" as const, label: "Mais Antigos" },
-                    ].map((option) => (
-                      <div
-                        key={option.value}
-                        onClick={() => setSortBy(option.value)}
-                        className={`p-2 rounded cursor-pointer transition-colors ${
-                          sortBy === option.value
-                            ? "bg-green-900/50 text-green-400"
-                            : "hover:bg-zinc-800 text-zinc-300"
-                        }`}
-                      >
-                        {option.label}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
           </div>
 
           {/* Botão Novo Grupo */}

@@ -40,14 +40,14 @@ export default function AndroidBetaPage() {
             <Link href="/" className="flex items-center gap-2">
               <span className="flex items-center">
                 <Image
-                  src="/assets/logo.svg"
-                  alt="Logo Rachinha.com"
+                  src="/assets/logobalanca.svg"
+                  alt="Logo PlayBalance"
                   width={32}
                   height={32}
                 />
               </span>
               <span className="text-xl font-bold">
-                rachinha<span className="text-green-500">.com</span>
+                <span className="text-green-500">Play</span>Balance
               </span>
             </Link>
 
@@ -74,7 +74,7 @@ export default function AndroidBetaPage() {
                     Organize seu esporte favorito. Viva o jogo.
                 </h1>
                 <p className="text-lg text-zinc-400 mt-6">
-                    Menos tempo organizando. Mais tempo jogando. Deixe tudo mais simples com o Rachinha.com.
+                    Menos tempo organizando. Mais tempo jogando. Deixe tudo mais simples com o PlayBalance.
                 </p>
             </div>
             <div className="flex justify-center items-center">
@@ -96,7 +96,7 @@ export default function AndroidBetaPage() {
             <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">Tudo que seu racha precisa</h2>
                 <p className="text-zinc-400 max-w-2xl mx-auto">
-                Menos tempo organizando. Mais tempo jogando. Cuide da turma, dos jogos e das cotnas em um só lugar. 
+                Menos tempo organizando. Mais tempo jogando. Cuide da turma, dos jogos e das contas em um só lugar. 
                 </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -115,7 +115,7 @@ export default function AndroidBetaPage() {
                   </div>
                   <h3 className="text-xl font-bold mb-2">Marque o próximo jogo</h3>
                   <p className="text-zinc-400">
-                      Crie jogos únicos ou recorrentes e confirme a presença dos jogadores com facilidade. 
+                      Crie partidas pontuais e confirme a presença dos jogadores com facilidade. 
                   </p>
               </div>
 
@@ -136,7 +136,7 @@ export default function AndroidBetaPage() {
       <footer className="border-t border-zinc-800 py-12">
         <div className="container mx-auto px-4 text-center">
             <p className="text-zinc-500 text-sm">
-              © {new Date().getFullYear()} Rachinha.com. Todos os direitos reservados.
+              © {new Date().getFullYear()} PlayBalance. Todos os direitos reservados.
             </p>
         </div>
       </footer>

@@ -241,11 +241,11 @@ async def register(user: UserCreate, db=Depends(get_db)):
     if user.is_placeholder is False:
         try:
             verification_token = create_email_verification_token(str(user_id))
-            verification_link = f"https://rachinha.com/user/verify-email/{verification_token}"
+            verification_link = f"{settings.FRONTEND_URL.rstrip('/')}/user/verify-email/{verification_token}"
 
             await email_sender.send_email(
                 template_name="welcome",
-                subject="É O SEU NOME NA LISTA! Bem-vindo(a) {{ name }} ao Rachinha.com! 🏆",
+                subject="Bem-vindo(a) ao PlayBalance, {{ name }}! 🏆",
                 recipients=[{
                     "email": user.email,
                     "variables": {
@@ -273,11 +273,11 @@ async def resend_verification(db=Depends(get_db), current_user=Depends(get_curre
 
     try:
         verification_token = create_email_verification_token(str(user["_id"]))
-        verification_link = f"https://rachinha.com/user/verify-email/{verification_token}"
+        verification_link = f"{settings.FRONTEND_URL.rstrip('/')}/user/verify-email/{verification_token}"
 
         await email_sender.send_email(
             template_name="welcome",
-            subject="É O SEU NOME NA LISTA! Bem-vindo(a) {{ name }} ao Rachinha.com! 🏆",
+            subject="Bem-vindo(a) ao PlayBalance, {{ name }}! 🏆",
             recipients=[{
                 "email": user["email"],
                 "variables": {

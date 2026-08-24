@@ -81,7 +81,7 @@ export default function RachinhaLayout({
           <Activity className="h-5 w-5 text-white" />
         </span>
         <span className="text-xl font-bold font-mono tracking-tight text-white">
-          rachinha<span className="text-red-500">admin</span>
+          PlayBalance <span className="text-red-500">Admin</span>
         </span>
       </div>
 
@@ -158,7 +158,7 @@ export default function RachinhaLayout({
           <Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)} className="text-zinc-400">
             <Menu className="h-5 w-5" />
           </Button>
-          <span className="ml-4 font-mono font-bold text-red-500">Rachinha | Admin</span>
+          <span className="ml-4 font-mono font-bold text-red-500">PlayBalance | Admin</span>
         </header>
 
         <main className="flex-1 overflow-auto p-4 md:p-8">

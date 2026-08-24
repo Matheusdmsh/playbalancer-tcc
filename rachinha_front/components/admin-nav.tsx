@@ -80,14 +80,14 @@ export function AdminNav({ isCollapsed = false, onToggleCollapse, onMobileMenuTo
         <Link href="/admin" className="flex items-center gap-2 md:gap-4 md:ml-0 absolute left-1/2 -translate-x-1/2 md:relative md:left-auto md:translate-x-0">
           <span className="flex items-center">
             <img
-              src="/assets/logo.svg"
-              alt="Logo Rachinha.com"
+              src="/assets/logobalanca.svg"
+              alt="Logo PlayBalance"
               width={24}
               height={24}
             />
           </span>
           <span className="text-base md:text-xl font-bold whitespace-nowrap">
-            rachinha<span className="text-green-500">.com</span> <span className="text-zinc-500 font-normal">| Admin</span>
+            <span className="text-green-500">Play</span>Balance <span className="text-zinc-500 font-normal">| Admin</span>
           </span>
         </Link>
 

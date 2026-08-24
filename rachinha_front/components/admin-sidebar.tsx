@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
-import { Building, Calendar, Home, MessageCircle, User, Menu, ShieldAlert } from "lucide-react"
+import { Building, Calendar, Home, User, Menu, ShieldAlert } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { RoleSwitcher } from "@/components/role-switcher"
 import { useEffect, useState } from "react"
@@ -31,11 +31,6 @@ export const adminNavItems = [
     name: "Reservas",
     href: "/admin/booking",
     icon: Calendar,
-  },
-  {
-    name: "Mensagens",
-    href: "/admin/chat",
-    icon: MessageCircle,
   },
 ]
 
@@ -160,7 +155,7 @@ export function AdminSidebar({ collapsed = false, onToggleCollapse, mobileOpen =
                   collapsed ? "md:w-0 md:opacity-0" : "md:w-auto md:opacity-100"
                 )}
               >
-                Rachinha Admin
+                PlayBalance Admin
               </span>
             </Link>
           </div>

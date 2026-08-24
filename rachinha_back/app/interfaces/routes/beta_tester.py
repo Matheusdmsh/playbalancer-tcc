@@ -19,7 +19,7 @@ async def collect_email(email: EmailCollectionRequest, db=Depends(get_db)):
     try:
         await email_sender.send_email(
             template_name="user_beta",
-            subject="Você foi convidado para o Beta do Rachinha.com no Android",
+            subject="Você foi convidado para o PlayBalance",
             recipients=[{"email": email.email, "variables": {"name": email.email.split("@")[0]}}]
 
         )

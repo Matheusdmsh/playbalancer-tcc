@@ -6,8 +6,8 @@ import { AlertTriangle, ChevronLeft } from "lucide-react";
 
 export default function DeleteAccountPage() {
   const userEmail = "labsatena@gmail.com";
-  const emailSubject = "Solicitação de Exclusão de Conta e Dados - Rachinha.com";
-  const emailBody = "Olá, gostaria de solicitar a exclusão permanente da minha conta e de todos os meus dados associados à plataforma Rachinha.com. Por favor, confirme o recebimento desta solicitação e me informe sobre os próximos passos.\n\nObrigado.";
+  const emailSubject = "Solicitação de Exclusão de Conta e Dados - PlayBalance";
+  const emailBody = "Olá, gostaria de solicitar a exclusão permanente da minha conta e de todos os meus dados associados à plataforma PlayBalance. Por favor, confirme o recebimento desta solicitação e me informe sobre os próximos passos.\n\nObrigado.";
 
   const mailtoLink = `mailto:${userEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
 
@@ -20,14 +20,14 @@ export default function DeleteAccountPage() {
             <Link href="/" className="flex items-center gap-2">
               <span className="flex items-center">
                 <Image
-                  src="/assets/logo.svg"
-                  alt="Logo Rachinha.com"
+                  src="/assets/logobalanca.svg"
+                  alt="Logo PlayBalance"
                   width={32}
                   height={32}
                 />
               </span>
               <span className="text-xl font-bold text-white">
-                rachinha<span className="text-green-500">.com</span>
+                <span className="text-green-500">Play</span>Balance
               </span>
             </Link>
             <Link href="/">
@@ -56,7 +56,7 @@ export default function DeleteAccountPage() {
                 <div>
                     <h3 className="font-bold">Atenção: Ação Irreversível</h3>
                     <p className="text-sm mt-1">
-                        Ao solicitar a exclusão, todos os seus dados serão permanentemente removidos, incluindo seu perfil, turmas, histórico de rachas e mensagens. Você não poderá recuperar sua conta após a conclusão do processo.
+                        Ao solicitar a exclusão, todos os seus dados serão permanentemente removidos, incluindo seu perfil, turmas e histórico de rachas. Você não poderá recuperar sua conta após a conclusão do processo.
                     </p>
                 </div>
             </div>
@@ -67,7 +67,6 @@ export default function DeleteAccountPage() {
                 <li>Suas informações de perfil (nome, e-mail, foto, etc.).</li>
                 <li>Sua participação em todas as turmas.</li>
                 <li>Seu histórico de rachas e presenças.</li>
-                <li>Todas as suas mensagens nos chats das turmas.</li>
               </ul>
             </div>
             
@@ -95,7 +94,7 @@ export default function DeleteAccountPage() {
       <footer className="border-t border-zinc-800 mt-12">
         <div className="container mx-auto px-4 py-6 text-center text-zinc-500 text-sm">
           <p>
-            © {new Date().getFullYear()} Rachinha.com. Todos os direitos
+            © {new Date().getFullYear()} PlayBalance. Todos os direitos
             reservados.
           </p>
         </div>

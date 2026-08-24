@@ -34,14 +34,15 @@ export function InviteLinkSheet({
   const { toast } = useToast();
 
   const canGenerateLink = isGroupAdmin(group, currentUser?._id);
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
 
   useEffect(() => {
     if (group?.invite_token) {
-      setInviteLink(`https://rachinha.com/user/group/join/${group.invite_token}`);
+      setInviteLink(`${appUrl}/user/group/join/${group.invite_token}`);
     } else {
       setInviteLink("");
     }
-  }, [group]);
+  }, [appUrl, group]);
 
   // Auto-gerar link quando o sheet abre e não há link (se for admin)
   useEffect(() => {

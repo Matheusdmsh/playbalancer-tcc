@@ -5,8 +5,6 @@ from typing import Optional, Literal
 NotificationType = Literal[
     "group_invitation", 
     "booking_invitation", 
-    "new_group_message", 
-    "new_booking_message",
     'booking_removal'
 ]
 

@@ -4,8 +4,6 @@ import { Inter, Rajdhani } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
-import Script from "next/script"
-import { GoogleOAuthProvider } from "@react-oauth/google"
 
 
 const inter = Inter({ subsets: ["latin"] })
@@ -16,10 +14,10 @@ const rajdhani = Rajdhani({
 })
 
 export const metadata: Metadata = {
-  title: "Rachinha - Organize rachas e reserva de Quadras",
+  title: "PlayBalance",
   description: "Organize seus rachas, encontre e reserve quadras esportivas perto de você",
   icons: {
-    icon: "/assets/logo.svg",
+    icon: "/assets/logobalanca.svg",
   },
     
 }
@@ -32,14 +30,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`${inter.className} ${rajdhani.variable}`}>
-        <Script
-          src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/auth/js/appleid.auth.js"
-          strategy="afterInteractive"
-        />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <GoogleOAuthProvider clientId="305125317838-3igdlb4t8qmfkeeo993gg5ufo828359g.apps.googleusercontent.com">
-            {children}
-          </GoogleOAuthProvider>
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>

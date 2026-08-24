@@ -300,7 +300,7 @@ export default function UserHomePage() {
       return `Semana que vem você tem ${nextWeekBookings.length} ${nextWeekBookings.length === 1 ? "partida" : "partidas"}!`
     }
 
-    return "Nada marcado?! Vamos organizar a próxima partida!"
+    return "Marque a próxima partida e coloque a galera em quadra!"
   }, [
     currentWeekEnd,
     currentWeekStart,
@@ -333,10 +333,10 @@ export default function UserHomePage() {
               <div className="order-2 flex flex-1 min-w-0 items-center sm:order-1">
                 <div className="min-w-0"> {/* min-w-0 é essencial para o texto quebrar linha em flexbox */}
                   <h1 className="text-xl font-bold text-white break-words sm:text-2xl">
-                    Fala, {firstName}! 🔥
+                    Fala, {firstName}! 
                   </h1>
                   <p className="text-sm text-zinc-300 sm:text-base">
-                    Bora pro jogo?
+                    Seu próximo jogo começa aqui.
                   </p>
                   <p className="mt-1 text-sm leading-snug text-green-300 break-words sm:mt-2">
                     {headerContextLine}

@@ -295,10 +295,6 @@ class BookingService:
             if not booking_obj:
                 continue # Pula para a próxima se a reserva não for encontrada
 
-            # Extrai a data e hora corretas do objeto da reserva
-            booking_start_time = booking_obj['start_time']
-            booking_end_time = booking_obj['end_time']
-
             for member_id in invited_members:
                 if member_id not in booking_obj.get('players', []) and member_id not in booking_obj.get('reserve_players', []):
                     invite_data = {
@@ -323,44 +319,6 @@ class BookingService:
                         )
                         await self.notification_service.create_and_send_notification(notification)
 
-                    invited_user = await self.user_repo.get_user_by_id(member_id)
-                    if invited_user and invited_user.get('is_placeholder') is False:
-                        try:
-                            inviter_name = (await self.user_repo.get_user_by_id(user_id)).get('name', 'Um amigo')
-                            subject = 'CONVOCADO! {{ inviter_name }}, te convidou para um jogo!'
-                            if member_id == user_id:
-                                subject = 'Você agendou com sucesso!'
-
-                            # Pega o alt do location se existir, senão usa o nome da quadra
-                            court_name = None
-                            if booking_obj.get('location') and isinstance(booking_obj['location'], dict):
-                                court_name = booking_obj['location'].get('alt')
-                            if not court_name:
-                                court_name = court.get('name', 'Quadra') if court else 'Quadra Offline'
-                            
-                            await self.email_sender.send_email(
-                                template_name='booking_invite',
-                                subject=subject,
-                                recipients=[{
-                                    'email': invited_user['email'],
-                                    'variables': {
-                                        'name': invited_user['name'].split(' ')[0],
-                                        'inviter_name': inviter_name,
-                                        'court_name': court_name,
-                                        'court_address': court.get('address', 'Endereço não informado') if court else 'Não aplicável',
-                                        'booking_code': booking_id,
-                                        'date': booking_start_time.strftime('%A, %d %b').capitalize(),
-                                        'time': f'{booking_start_time.strftime("%H:%M")} - {booking_end_time.strftime("%H:%M")}',
-                                        'modality': data['modality'],
-                                        'price_per_person': f'R$ {data.get("price_per_person", 0):.2f}',
-                                        'accept_invite_link': f'https://rachinha.com/bookings/{booking_id}/accept-invite',
-                                        'decline_invite_link': f'https://rachinha.com/bookings/{booking_id}/decline-invite'
-                                    }
-                                }]
-                            )
-                        except Exception as e:
-                            print(f'Erro ao enviar e-mail de convite para {invited_user["email"]}: {e}')
-
         return ids
 
     async def add_player_to_booking(self, user_id: str, booking_id: str, player_id: str, skill_level: float) -> dict:
@@ -371,11 +329,11 @@ class BookingService:
         if not await self._can_manage_booking(booking, user_id):
             raise ValueError('Você não tem permissão para adicionar jogadores a esta reserva.')
 
+        if booking.get('status_list') is False:
+            raise ValueError('Lista fechada.')
+
         if player_id in booking.get('players', []):
             raise ValueError('Jogador já está na lista de jogadores.')
-        
-        if player_id in booking.get('reserve_players', []):
-            raise ValueError('Jogador já está na lista de reserva.')
         
         if booking.get('associated_group_id') and self.group_repo:
             group = await self.group_repo.get_by_id(booking['associated_group_id'])
@@ -399,9 +357,6 @@ class BookingService:
                 )
                 await self.notification_service.create_and_send_notification(notification)
 
-            if player_id in booking.get('reserve_players', []):
-                await self.booking_repo.remove_reserve_player_from_booking(booking_id, player_id)
-
             if self.invite_repo:
                 invite_data = {
                     'booking_id': booking_id,
@@ -415,53 +370,24 @@ class BookingService:
                     await self.invite_repo.create_invite(invite_data)
 
             return {'status': 'added_to_players'}
-        else:
-            await self.booking_repo.add_reserve_player_to_booking(booking_id, player_id, skill_level)
-
-            if self.notification_service:
-                owner_user = await self.user_repo.get_user_by_id(user_id)
-                notification = NotificationCreate(
-                    user_id=player_id,
-                    notification_type="booking_invitation",
-                    message=f"{owner_user['name']} adicionou você à lista de espera de um jogo.",
-                    related_id=booking_id,
-                    link=f"/user/booking/{booking_id}"
-                )
-                await self.notification_service.create_and_send_notification(notification)
-            
-            if self.invite_repo:
-                invite_data = {
-                    'booking_id': booking_id,
-                    'user_id': player_id,
-                    'status': 'accepted'
-                }
-                existing_invite = await self.invite_repo.get_invite_by_booking_and_user(booking_id, player_id)
-                if existing_invite:
-                    await self.invite_repo.update_invite_status(existing_invite['_id'], 'accepted')
-                else:
-                    await self.invite_repo.create_invite(invite_data)
-
-            return {'status': 'added_to_reserve'}
+        raise ValueError('Partida lotada.')
 
     async def join_booking_by_link(self, booking_id: str, user_id: str) -> dict:
         booking = await self.booking_repo.get_by_id(booking_id)
         if not booking:
             raise ValueError('Reserva não encontrada.')
 
+        if booking.get('status_list') is False:
+            raise ValueError('Lista fechada.')
+
         if user_id in booking.get('players', []):
             raise ValueError('Você já está nesta reserva.')
         
-        if user_id in booking.get('reserve_players', []):
-            raise ValueError('Você já está na lista de reserva desta reserva.')
-
         if len(booking.get('players', [])) < booking.get('max_players', 0) or booking.get('max_players', 0) == 0:
             await self.booking_repo.add_player_to_booking(booking_id, user_id, skill_level=0)
-            if user_id in booking.get('reserve_players', []):
-                await self.booking_repo.remove_reserve_player_from_booking(booking_id, user_id)
             return {'status': 'added_to_players', 'booking_id': booking_id}
-        else:
-            await self.booking_repo.add_reserve_player_to_booking(booking_id, user_id, skill_level=0)
-            return {'status': 'added_to_reserve', 'booking_id': booking_id}
+
+        raise ValueError('Partida lotada.')
 
     async def list_bookings_by_ids(self, booking_ids: List[str]) -> List[dict]:
         """
@@ -734,10 +660,6 @@ class BookingService:
             await self.invite_repo.update_invite_status(invite_id, 'accepted')
             return {'status': 'already_in_players', 'booking_id': booking['_id']}
 
-        elif any(str(p['id']) == str(user_id) for p in booking.get('reserve_players', [])):
-            await self.invite_repo.update_invite_status(invite_id, 'accepted')
-            return {'status': 'already_in_reserve', 'booking_id': booking['_id']}
-
         if booking.get('associated_group_id') and self.group_repo:
             group = await self.group_repo.get_by_id(booking['associated_group_id'])
             if group and 'members' in group:
@@ -750,10 +672,7 @@ class BookingService:
             await self.booking_repo.add_player_to_booking(booking['_id'], user_id, skill_level)
             await self.invite_repo.update_invite_status(invite_id, 'accepted')
             return {'status': 'added_to_players', 'booking_id': booking['_id']}
-        else:
-            await self.booking_repo.add_reserve_player_to_booking(booking['_id'], user_id, skill_level)
-            await self.invite_repo.update_invite_status(invite_id, 'accepted')
-            return {'status': 'added_to_reserve', 'booking_id': booking['_id']}
+        raise ValueError('Partida lotada.')
 
     async def decline_invite(self, user_id: str, invite_id: str) -> dict:
         invite = await self.invite_repo.get_invite_by_id(invite_id)
@@ -770,11 +689,6 @@ class BookingService:
 
             if any(str(player['id']) == str(user_id) for player in booking.get('players', [])):
                 await self.booking_repo.remove_player_from_booking(booking['_id'], user_id)
-                reserve_players = booking.get('reserve_players', [])
-                if reserve_players:
-                    next_player_object = reserve_players[0]
-                    await self.booking_repo.add_player_to_booking(booking['_id'], next_player_object['id'], next_player_object['skill_level'])
-                    await self.booking_repo.remove_reserve_player_from_booking(booking['_id'], next_player_object['id'])
             elif any(str(player['id']) == str(user_id) for player in booking.get('reserve_players', [])):
                 await self.booking_repo.remove_reserve_player_from_booking(booking['_id'], user_id)
 
@@ -811,13 +725,11 @@ class BookingService:
 
             if action == 'add':
                 if member_id not in current_player_ids and member_id not in current_reserve_player_ids:
-                    should_notify = False
                     existing_invite = await self.invite_repo.get_invite_by_booking_and_user(booking_id, member_id)
 
                     if existing_invite:
                         if existing_invite.get('status') != 'pending':
                             await self.invite_repo.update_invite_status(existing_invite['_id'], 'pending')
-                            should_notify = True
                     else:
                         invite_data = {
                             'booking_id': booking_id,
@@ -825,28 +737,6 @@ class BookingService:
                             'status': 'pending'
                         }
                         await self.invite_repo.create_invite(invite_data)
-                        should_notify = True
-
-                    if should_notify and self.email_sender and user['is_placeholder'] is False:
-                        try:
-                            await self.email_sender.send_email(
-                                template_name='booking_invite',
-                                subject='Você foi convidado para um rachinha de grupo!',
-                                recipients=[{
-                                    'email': user['email'],
-                                    'variables': {
-                                        'name': user['name'].split(' ')[0],
-                                        'booking_id': booking_id,
-                                        'inviter_name': (await self.user_repo.get_user_by_id(booking['owner_id'])).get('name', 'O dono do grupo'),
-                                        'court_name': (await self.court_repo.get_by_id(booking['court_id'])).get('name', 'Quadra') if self.court_repo else 'Quadra',
-                                        'start_time': booking['start_time'].strftime('%d/%m/%Y %H:%M'),
-                                        'end_time': booking['end_time'].strftime('%d/%m/%Y %H:%M')
-                                    }
-                                }]
-                            )
-                            print(f'Convite de booking de grupo enviado para {user["email"]}')
-                        except Exception as e:
-                            print(f'Erro ao enviar e-mail de convite de grupo para {user["email"]}: {e}')
 
             elif action == 'remove':
                 if member_id in current_player_ids:
@@ -891,11 +781,6 @@ class BookingService:
 
         if is_in_players:
             await self.booking_repo.remove_player_from_booking(booking_id, user_id)
-            reserve_players = booking.get('reserve_players', [])
-            if reserve_players:
-                next_player_object = reserve_players[0] 
-                await self.booking_repo.add_player_to_booking(booking_id, next_player_object['id'], next_player_object['skill_level'])
-                await self.booking_repo.remove_reserve_player_from_booking(booking_id, next_player_object['id'])
             if self.invite_repo:
                 existing_invite = await self.invite_repo.get_invite_by_booking_and_user(booking_id, user_id)
                 if existing_invite:

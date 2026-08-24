@@ -6,26 +6,14 @@ import { useEffect, useMemo, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Camera, IdCardLanyard, Edit, Save, User2, Lock, AtSign, Mail, Phone, LogOut, Share2, Trash2, Plus } from "lucide-react"
+import { Camera, IdCardLanyard, Edit, Save, User2, Lock, AtSign, Mail, Phone, LogOut, Plus } from "lucide-react"
 import { Eye, EyeOff } from "lucide-react"
 import { Loader2 } from "lucide-react"
-import { FcGoogle } from "react-icons/fc"
-import { FaApple } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetOverlay, SheetHeader, SheetTitle, SheetDescription, SheetClose } from "@/components/ui/sheet"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/components/ui/use-toast"
@@ -34,9 +22,7 @@ import { changePassword, editCurrentUser, getCurrentUser } from "@/services/user
 import { User } from "@/interface/users"
 import { uploadUserImage } from "@/services/storageService"
 import { ImageCropModal } from "@/components/ImageCropModal"
-import { GoogleLoginButton } from "@/components/google-login-button"
-import { AppleLoginButton } from "@/components/apple-login-button";
-import { logout, getConnections, disconnectProvider, getToken, checkGoogleStatus, googleLink } from "@/services/authService"
+import { logout } from "@/services/authService"
 import { ProfileCardCarousel } from "@/components/profile-card-carousel"
 import { UserProfileCard } from "@/components/card/user-profile-card"
 import { getProfileSelectableCardIndex, PROFILE_CARD_CATALOG } from "@/components/card/card.config"
@@ -80,10 +66,8 @@ export default function UserProfile() {
   // Estados para controlar os sheets laterais
   const [showInfoSheet, setShowInfoSheet] = useState(false);
   const [showPasswordSheet, setShowPasswordSheet] = useState(false);
-  const [showConnectionsSheet, setShowConnectionsSheet] = useState(false);
   const [showCardTemplateSheet, setShowCardTemplateSheet] = useState(false);
   const [isProfileCardPreviewOpen, setIsProfileCardPreviewOpen] = useState(false);
-  const [connections, setConnections] = useState<any[]>([]);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [selectedCardIndex, setSelectedCardIndex] = useState(0);
@@ -92,10 +76,6 @@ export default function UserProfile() {
   const [cardDraftNickname, setCardDraftNickname] = useState("");
   const [cardDraftPhotoPreview, setCardDraftPhotoPreview] = useState<string | undefined>(undefined);
   const [cardDraftPhotoFile, setCardDraftPhotoFile] = useState<File | null>(null);
-  
-  // Modal de desconexão
-  const [isDisconnectModalOpen, setIsDisconnectModalOpen] = useState(false);
-  const [providerToDisconnect, setProviderToDisconnect] = useState<string | null>(null);
   
 
   // Preferências do usuário
@@ -349,41 +329,8 @@ const getUserFormValues = (user: User) => ({
       }
     }
 
-    async function fetchConnections() {
-        try {
-            const data = await getConnections();
-            setConnections(data);
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
     fetchUser()
-    fetchConnections()
    }, [profileForm, toast])
-
-  const handleDisconnect = async (provider: string) => {
-    setProviderToDisconnect(provider);
-    setIsDisconnectModalOpen(true);
-  };
-
-  const confirmDisconnect = async () => {
-    if (!providerToDisconnect) return;
-    
-    try {
-        await disconnectProvider(providerToDisconnect);
-        setConnections(connections.filter(c => c.provider !== providerToDisconnect));
-        toast({ title: "Conexão removida", description: "Vínculo desfeito com sucesso." });
-    } catch (error: any) {
-        toast({ title: "Erro", description: error.message, variant: "destructive" });
-    } finally {
-        setIsDisconnectModalOpen(false);
-        setProviderToDisconnect(null);
-    }
-  };
-
-  const hasGoogle = connections.some(c => c.provider === "google");
-  const hasApple = connections.some(c => c.provider === "apple");
 
   const selectedCardOption = PROFILE_CARD_CATALOG[selectedCardIndex] ?? PROFILE_CARD_CATALOG[0]
   const selectedCardTemplate = selectedCardOption.id
@@ -597,23 +544,13 @@ const getUserFormValues = (user: User) => ({
               </div>
             </button>
             <button
-              onClick={() => setShowConnectionsSheet(true)}
-              className="w-full flex items-center gap-4 p-4 rounded-lg bg-zinc-900 border border-zinc-800 hover:bg-zinc-800/60 transition-colors text-left"
-            >
-              <Share2 className="h-6 w-6 text-green-400 flex-shrink-0" />
-              <div className="flex flex-col">
-                <span className="font-medium text-white text-base">Conexões</span>
-                <span className="text-xs text-zinc-400">Vincule suas redes sociais</span>
-              </div>
-            </button>
-            <button
               onClick={() => logout()}
               className="w-full flex items-center gap-4 p-4 rounded-lg bg-zinc-900 border border-red-900/40 hover:bg-red-900/20 transition-colors text-left"
             >
               <LogOut className="h-6 w-6 text-red-500 flex-shrink-0" />
               <div className="flex flex-col">
                 <span className="font-medium text-red-500 text-base">Sair da conta</span>
-                <span className="text-xs text-red-400/70">Desconectar do Rachinha</span>
+                <span className="text-xs text-red-400/70">Desconectar do PlayBalance</span>
               </div>
             </button>
           </div>
@@ -832,82 +769,6 @@ const getUserFormValues = (user: User) => ({
               </form>
             </SheetContent>
           </Sheet>
-          <Sheet open={showConnectionsSheet} onOpenChange={setShowConnectionsSheet}>
-            <SheetContent
-              side={isMobile ? "bottom" : "right"}
-              className={isMobile
-                ? "bg-zinc-900 border-zinc-800 w-full max-w-none h-auto max-h-[85vh] rounded-t-2xl p-6 overflow-y-auto"
-                : "bg-zinc-900 border-zinc-800 w-full max-w-sm h-full shadow-xl p-8 overflow-y-auto pt-16"
-              }
-            >
-              <SheetHeader className="flex flex-row items-center gap-4 pb-6">
-                <Share2 className="h-7 w-7 text-green-400 flex-shrink-0" />
-                <div className="flex flex-col text-left">
-                  <SheetTitle className="text-lg">Conexões</SheetTitle>
-                  <SheetDescription className="text-zinc-400">Gerencie suas contas vinculadas</SheetDescription>
-                </div>
-              </SheetHeader>
-              
-              <div className="space-y-6 mt-6">
-                {/* Google Connection */}
-                <div className="p-4 rounded-xl bg-black border border-zinc-800 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <FcGoogle className="h-8 w-8" />
-                        <div className="flex flex-col">
-                            <span className="font-bold text-sm">Google</span>
-                            <span className="text-xs text-zinc-500">{hasGoogle ? "Conectado" : "Não conectado"}</span>
-                        </div>
-                    </div>
-                    {hasGoogle ? (
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-red-500 hover:bg-red-500/10"
-                            onClick={() => handleDisconnect("google")}
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    ) : (
-                        <div className="w-40">
-                            <GoogleLoginButton 
-                                mode="link" 
-                                onSuccess={() => getConnections().then(setConnections)} 
-                            />
-                        </div>
-                    )}
-                  </div>
-
-                {/* Apple Connection */}
-                <div className="p-4 rounded-xl bg-black border border-zinc-800 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <FaApple className="h-8 w-8 text-white" />
-                        <div className="flex flex-col">
-                            <span className="font-bold text-sm">Apple</span>
-                            <span className="text-xs text-zinc-500">{hasApple ? "Conectado" : "Não conectado"}</span>
-                        </div>
-                    </div>
-                    {hasApple ? (
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-red-500 hover:bg-red-500/10"
-                            onClick={() => handleDisconnect("apple")}
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    ) : (
-                        <div className="w-40">
-                            <AppleLoginButton 
-                                mode="link" 
-                                onSuccess={() => getConnections().then(setConnections)} 
-                            />
-                        </div>
-                    )}
-                  </div>
-                  </div>
-            </SheetContent>
-          </Sheet>
-
           <Sheet open={showCardTemplateSheet} onOpenChange={setShowCardTemplateSheet}>
             <SheetContent
               side={isMobile ? "bottom" : "right"}
@@ -1013,28 +874,6 @@ const getUserFormValues = (user: User) => ({
           </DialogPortal>
         </Dialog>
         </div>
-      <AlertDialog open={isDisconnectModalOpen} onOpenChange={setIsDisconnectModalOpen}>
-        <AlertDialogContent className="bg-zinc-900 border-zinc-800">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-white text-xl">Confirmar Desconexão</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400">
-              Tem certeza que deseja desconectar o <strong>{providerToDisconnect}</strong>? 
-              Você não poderá mais entrar usando esta conta até vinculá-la novamente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDisconnect}
-              className="bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-900/20"
-            >
-              Sim, desconectar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   </div>
 );

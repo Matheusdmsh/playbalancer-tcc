@@ -12,14 +12,14 @@ export default function PrivacyPolicyPage() {
             <Link href="/" className="flex items-center gap-2">
               <span className="flex items-center">
                 <Image
-                  src="/assets/logo.svg"
-                  alt="Logo Rachinha.com"
+                  src="/assets/logobalanca.svg"
+                  alt="Logo PlayBalance"
                   width={32}
                   height={32}
                 />
               </span>
               <span className="text-xl font-bold text-white">
-                rachinha<span className="text-green-500">.com</span>
+                <span className="text-green-500">Play</span>Balance
               </span>
             </Link>
             <Link href="/">
@@ -46,12 +46,12 @@ export default function PrivacyPolicyPage() {
           <section>
             <p className="text-lg">
               Bem-vindo à Política de Privacidade do{" "}
-              <span className="font-bold text-white">Rachinha.com</span>. A
+              <span className="font-bold text-white">PlayBalance</span>. A
               sua privacidade e a segurança dos seus dados são de extrema
               importância para nós. Este documento descreve como coletamos,
               usamos, armazenamos e protegemos suas informações pessoais ao
               utilizar nossa plataforma. Ao se cadastrar e usar o
-              Rachinha.com, você concorda com as práticas descritas nesta
+              PlayBalance, você concorda com as práticas descritas nesta
               política.
             </p>
           </section>
@@ -85,11 +85,9 @@ export default function PrivacyPolicyPage() {
                 lista de jogadores confirmados.
               </li>
               <li>
-                <strong>Comunicações e Notificações:</strong> Armazenamos as
-                mensagens trocadas no chat dos grupos para manter o histórico
-                da conversa. Também gerenciamos as notificações enviadas, como
-                convites para grupos e rachas, para garantir que você se
-                mantenha informado.
+                <strong>Comunicações e Notificações:</strong> Gerenciamos as
+                notificações enviadas, como convites para grupos e rachas,
+                para garantir que você se mantenha informado.
               </li>
               <li>
                 <strong>Informações de Autenticação Externa:</strong> Se você
@@ -118,8 +116,8 @@ export default function PrivacyPolicyPage() {
               </li>
               <li>
                 <strong>Comunicação:</strong> Para enviar notificações
-                importantes sobre seus rachas, convites, novas mensagens no
-                chat e outras informações relevantes para o uso da plataforma.
+                importantes sobre seus rachas, convites e outras informações
+                relevantes para o uso da plataforma.
               </li>
               <li>
                 <strong>Segurança:</strong> Para verificar sua identidade,
@@ -237,7 +235,7 @@ export default function PrivacyPolicyPage() {
       <footer className="border-t border-zinc-800 mt-12">
         <div className="container mx-auto px-4 py-6 text-center text-zinc-500 text-sm">
           <p>
-            © {new Date().getFullYear()} Rachinha.com. Todos os direitos
+            © {new Date().getFullYear()} PlayBalance. Todos os direitos
             reservados.
           </p>
         </div>

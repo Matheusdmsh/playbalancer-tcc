@@ -74,34 +74,6 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader>
-            <CardTitle>Mensagens Recentes</CardTitle>
-            <CardDescription>Conversas com usuários</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[1, 2].map((i) => (
-                <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-zinc-800">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-zinc-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">João Silva</p>
-                    <p className="text-xs text-zinc-400 truncate">
-                      Olá! Gostaria de saber se a quadra está disponível...
-                    </p>
-                  </div>
-                  <div className="text-xs text-zinc-500">2h atrás</div>
-                </div>
-              ))}
-
-              <div className="flex items-center justify-center p-3">
-                <p className="text-sm text-zinc-500">Sem mais mensagens</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )

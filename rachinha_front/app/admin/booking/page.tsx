@@ -246,14 +246,6 @@ export default function AdminReservations() {
                         </Button>
                       </div>
                     )}
-                    {booking.status === 'confirmed' && (
-                      <div className="flex gap-2 mt-4">
-                        <Button variant="outline" size="sm" className="border-zinc-700 hover:bg-zinc-800"
-                          onClick={() => window.location.href = `/admin/chat`}>
-                          Chat da Reserva
-                        </Button>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               )

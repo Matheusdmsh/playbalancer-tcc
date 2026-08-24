@@ -81,14 +81,14 @@ export function UserNav({ isCollapsed = false, onToggleCollapse, onMobileMenuTog
         <Link href="/" className="flex items-center gap-2 md:gap-4 md:ml-0 absolute left-1/2 -translate-x-1/2 md:relative md:left-auto md:translate-x-0">
           <span className="flex items-center">
             <img
-              src="/assets/logo.svg"
-              alt="Logo Rachinha.com"
+              src="/assets/logobalanca.svg"
+              alt="Logo PlayBalance"
               width={26}
               height={26}
             />
           </span>
-          <span className="text-base md:text-x2 font-bold">
-            rachinha<span className="text-green-400">.com</span>
+          <span className="text-base md:text-xl font-bold">
+            <span className="text-green-400">Play</span>Balance
           </span>
         </Link>
 

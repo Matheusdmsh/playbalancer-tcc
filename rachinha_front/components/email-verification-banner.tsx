@@ -55,7 +55,7 @@ export function EmailVerificationBanner() {
     <div className="bg-yellow-500/20 border-b border-yellow-500/50 text-yellow-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
       <div className="flex items-center gap-2 text-center sm:text-left">
         <AlertTriangle className="h-5 w-5 flex-shrink-0 text-yellow-500" />
-        <p>Email não confirmado. Você precisa confirmar o seu email para usar todos os recursos do Rachinha.</p>
+        <p>E-mail não confirmado. Confirme seu e-mail para usar todos os recursos do PlayBalance.</p>
       </div>
       <Button 
         onClick={handleResend} 

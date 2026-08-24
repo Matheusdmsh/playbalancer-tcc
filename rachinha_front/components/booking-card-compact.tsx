@@ -16,7 +16,7 @@ interface BookingCardCompactProps {
   onCancelBooking: (booking: any) => void;
   handlePresence: (bookingId: string, action: "confirm" | "cancel") => void;
   invite?: any;
-  buttonState?: "confirm" | "cancel" | "disabled" | "not_invited" | "waiting";
+  buttonState?: "confirm" | "cancel" | "disabled" | "not_invited" | "full";
 }
 
 export const BookingCardCompact: React.FC<BookingCardCompactProps> = ({

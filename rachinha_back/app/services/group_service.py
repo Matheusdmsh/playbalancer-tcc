@@ -10,10 +10,7 @@ from datetime import datetime, timezone
 
 from app.services.notification_service import NotificationService
 from app.interfaces.schemas.notification import NotificationCreate
-from app.utils.email_sender import EmailSender
-
-
-email_sender = EmailSender()
+from app.core.config import settings
 
 def convert_object_ids(data):
     if isinstance(data, list):
@@ -139,7 +136,7 @@ class GroupService:
         token = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
         await self.group_repo.update_partial(group_id, {"invite_token": token})
         
-        return f"https://rachinha.com/user/group/join/{token}"
+        return f"{settings.FRONTEND_URL.rstrip('/')}/user/group/join/{token}"
 
     async def join_group_by_invite_link(self, token: str, current_user_id: str) -> dict:
         """Adiciona um usuário a um grupo usando um token de convite."""
@@ -232,22 +229,6 @@ class GroupService:
                 link=f"/user/group/{group_id}"
             )
             await self.notification_service.create_and_send_notification(notification)
-
-        if success:
-            member = await self.user_repo.get_user_by_id(member_id)
-            if member.get('is_placeholder') is False:
-                await email_sender.send_email(
-                    template_name="group_invite",
-                    subject="BEM VINDO AO TIME! Você foi adicionado ao grupo {{ group_name }}",
-                    recipients=[{
-                        "email": member['email'],
-                    "variables": {
-                        "group_name": group['name'],
-                        "owner_name": group_owner['name'],
-                        "group_link": f"https://rachinha.com/group/{group_id}"
-                    }
-                }]
-            )
 
         if success and self.booking_service:
             await self.booking_service.sync_group_member_to_bookings(group_id, member_id, 'add')

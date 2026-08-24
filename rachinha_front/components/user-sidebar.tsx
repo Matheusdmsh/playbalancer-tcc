@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
-import { Calendar, MessageCircle, Users, Menu, ShieldAlert, Home } from "lucide-react"
+import { Calendar, Users, Menu, ShieldAlert, Home } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { RoleSwitcher } from "@/components/role-switcher"
 import { useEffect, useState } from "react"
@@ -34,11 +34,6 @@ export const userNavItems = [ // Add 'export' here
     name: "Agenda",
     href: "/user/booking",
     icon: Calendar,
-  },
-  {
-    name: "Mensagens",
-    href: "/user/chat",
-    icon: MessageCircle,
   },
 ]
 
@@ -163,7 +158,7 @@ export function UserSidebar({ collapsed = false, onToggleCollapse, mobileOpen = 
                   collapsed ? "md:w-0 md:opacity-0" : "md:w-auto md:opacity-100"
                 )}
               >
-                Rachinha Admin
+                PlayBalance Admin
               </span>
             </Link>
           </div>

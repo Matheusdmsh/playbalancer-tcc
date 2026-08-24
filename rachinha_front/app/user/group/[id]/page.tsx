@@ -20,10 +20,8 @@ import {
   Edit,
   Share2,
   Link2,
-  MessageCircle,
   Flag,
   Calendar,
-  MailPlus,
   CalendarPlus,
   Banknote,
   BanknoteArrowUp,
@@ -94,9 +92,7 @@ import { User } from "@/interface/users";
 import { EditBookingSheet } from "@/components/edit-booking-sheet";
 import { CancelBookingDialog } from "@/components/cancel-booking-dialog";
 import { cancelBooking } from "@/services/bookings";
-import { UpdateGhostUserSheet } from "@/components/update-ghost-user-sheet";
 import { EditGroupSheet } from "@/components/edit-group-sheet";
-import { ChatSheet } from "@/components/chat-sheet";
 import { BookingHistorySheet } from "@/components/booking-history-sheet";
 import { ProfileCardCarousel } from "@/components/profile-card-carousel";
 import { getSportIcon } from "@/lib/getSportIcon";
@@ -119,16 +115,12 @@ export default function GroupDashboardPage() {
   const [balance, setBalance] = useState<Balance | null>(null);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [bookingToEdit, setBookingToEdit] = useState<Booking | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const [isUpdateGhostUserModalOpen, setIsUpdateGhostUserModalOpen] = useState(false);
-  const [memberToUpdate, setMemberToUpdate] = useState<User | null>(null);
 
   // Estados para interatividade da UI
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
@@ -268,11 +260,6 @@ export default function GroupDashboardPage() {
     setIsCancelModalOpen(true);
   };
 
-  const handleInviteGhostMemberClick = (member: User) => {
-    setMemberToUpdate(member);
-    setIsUpdateGhostUserModalOpen(true);
-  };
-  
   // --- Efeito para Buscar os Dados da API ---
   const fetchData = async () => {
     if (!groupId) return;
@@ -884,17 +871,6 @@ export default function GroupDashboardPage() {
                   enabled={!!isGroupAdmin}
                 />
               )}
-              {member.is_placeholder && isGroupAdmin && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-black border-[#27272a] hover:border-green-400 hover:text-green-400 backdrop-blur-sm group"
-                  onClick={() => handleInviteGhostMemberClick(member)}
-                >
-                  <MailPlus className="h-4 w-4 group-hover:text-green-400" />
-                  Convidar
-                </Button>
-              )}
             </div>
           </div>
         ))}
@@ -1115,15 +1091,6 @@ export default function GroupDashboardPage() {
           </Button>
         )}
 
-        <Button
-          variant="outline"
-          className="bg-black border-[#27272a] hover:border-green-400 hover:text-green-400 backdrop-blur-sm"
-          onClick={() => setIsChatOpen(true)}
-        >
-          <MessageCircle className="h-4 w-4 " />
-          <span className="hidden md:inline">Chat</span>
-        </Button>
-
         {isGroupAdmin && (
           <Button
             variant="outline"
@@ -1190,9 +1157,6 @@ export default function GroupDashboardPage() {
                   <UserPlus className="h-4 w-4" />
                 </Button>
               )}
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsChatOpen(true)}>
-                <MessageCircle className="h-4 w-4" />
-              </Button>
             </div>
           </div>
 
@@ -1276,7 +1240,6 @@ export default function GroupDashboardPage() {
               onCancelBooking={handleCancelBookingClick}
               onViewHistory={() => setIsHistorySheetOpen(true)}
               onCreateBooking={isGroupAdmin ? () => setIsBookingModalOpen(true) : undefined}
-              onOpenChat={() => setIsChatOpen(true)}
               voteableBookingIds={voteableBookingIds}
               onOpenVoteSheet={openVoteSheetForBooking}
               cardClassName="border-0 bg-transparent shadow-none"
@@ -1308,7 +1271,6 @@ export default function GroupDashboardPage() {
               onCancelBooking={handleCancelBookingClick}
               onViewHistory={() => setIsHistorySheetOpen(true)}
               onCreateBooking={isGroupAdmin ? () => setIsBookingModalOpen(true) : undefined}
-              onOpenChat={() => setIsChatOpen(true)}
               voteableBookingIds={voteableBookingIds}
               onOpenVoteSheet={openVoteSheetForBooking}
             />
@@ -1359,15 +1321,6 @@ export default function GroupDashboardPage() {
         booking={bookingToCancel}
         isCancelling={isCancelling}
       />
-      <UpdateGhostUserSheet
-        open={isUpdateGhostUserModalOpen}
-        onOpenChange={setIsUpdateGhostUserModalOpen}
-        member={memberToUpdate}
-        onInviteSent={async () => {
-          await refreshMembersOnly();
-          setIsUpdateGhostUserModalOpen(false);
-        }}
-      />
       {group && (
         <EditGroupSheet
           open={isSettingsOpen}
@@ -1389,13 +1342,6 @@ export default function GroupDashboardPage() {
         }}
         disabledUserIds={(group?.members || []).map((member) => member.id)}
       />
-      {group && (
-        <ChatSheet
-          open={isChatOpen}
-          onOpenChange={setIsChatOpen}
-          group={group}
-        />
-      )}
       <BookingHistorySheet
         open={isHistorySheetOpen}
         onOpenChange={setIsHistorySheetOpen}
@@ -1491,7 +1437,6 @@ const PartidasSection = ({
   onCancelBooking,
   onViewHistory,
   onCreateBooking,
-  onOpenChat,
   cardClassName,
   voteableBookingIds,
   onOpenVoteSheet,
@@ -1511,7 +1456,6 @@ const PartidasSection = ({
   onCancelBooking: (booking: Booking) => void;
   onViewHistory?: () => void;
   onCreateBooking?: () => void;
-  onOpenChat?: () => void;
   cardClassName?: string;
   voteableBookingIds?: Set<string>;
   onOpenVoteSheet?: (booking: Booking) => void;
@@ -1658,7 +1602,7 @@ const PartidasSection = ({
                 {isGroupAdmin ? (
                   <CalendarPlus className="h-7 w-7 text-green-400" />
                 ) : (
-                  <MessageCircle className="h-7 w-7 text-green-400" />
+                  <ClipboardList className="h-7 w-7 text-green-400" />
                 )}
               </div>
               <h3 className="text-lg font-semibold text-zinc-100">
@@ -1667,7 +1611,7 @@ const PartidasSection = ({
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">
                 {isGroupAdmin
                   ? "Puxe a fila e crie a primeira partida do grupo para já deixar a agenda rodando."
-                  : "Hora de agitar a turma: manda uma mensagem no chat e tenta puxar a próxima resenha da galera."}
+                  : "Aguarde até que um administrador crie a próxima partida para o grupo."}
               </p>
               <div className="mt-5 flex justify-center">
                 {isGroupAdmin && onCreateBooking ? (
@@ -1678,15 +1622,6 @@ const PartidasSection = ({
                   >
                     <CalendarPlus className="h-4 w-4 text-green-400 group-hover:text-green-400" />
                     Criar nova partida
-                  </Button>
-                ) : onOpenChat ? (
-                  <Button
-                    variant="outline"
-                    className="bg-black border-[#27272a] hover:border-green-400 hover:text-green-400 backdrop-blur-sm group"
-                    onClick={onOpenChat}
-                  >
-                    <MessageCircle className="h-4 w-4 group-hover:text-green-400" />
-                    Agitar no chat
                   </Button>
                 ) : null}
               </div>

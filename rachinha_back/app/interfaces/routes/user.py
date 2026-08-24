@@ -59,12 +59,12 @@ async def create_ghost_user(user: UserCreate, db=Depends(get_db), current_user=D
         try:
             await email_sender.send_email(
                 template_name="ghost_user_invite",
-                subject="Entre para a Pelada, você foi convidado para o rachinha.com!",
+                subject="Você foi convidado para o PlayBalance!",
                 recipients=[{
                     "email": user.email,
                     "variables": {
                         "name": user.name.split(" ")[0],
-                        "create_account_link": "https://rachinha.com/login"
+                        "create_account_link": f"{settings.FRONTEND_URL.rstrip('/')}/login"
                     }
                 }]
             )
@@ -100,12 +100,12 @@ async def add_email_to_ghost_user(
     try:
         await email_sender.send_email(
             template_name="ghost_user_invite",
-            subject="Entre para a Pelada, você foi convidado para o rachinha.com!",
+            subject="Você foi convidado para o PlayBalance!",
             recipients=[{
                 "email": update_data.email,
                 "variables": {
                     "name": user_to_update["name"].split(" ")[0],
-                    "create_account_link": "https://rachinha.com/login"
+                        "create_account_link": f"{settings.FRONTEND_URL.rstrip('/')}/login"
                 }
             }]
         )
@@ -222,7 +222,7 @@ async def forgot_password(request: ForgotPasswordRequest, db=Depends(get_db)):
     if user.get("is_placeholder") is False:
         try:
             reset_token = create_password_reset_token(str(user["_id"]))
-            reset_link = f"https://rachinha.com/user/reset-password-form/{reset_token}" # Este link deve levar a um formulário no frontend
+            reset_link = f"{settings.FRONTEND_URL.rstrip('/')}/user/reset-password-form/{reset_token}"
 
             await email_sender.send_email(
                 template_name="password_reset", # Novo template de e-mail

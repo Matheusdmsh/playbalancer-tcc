@@ -71,7 +71,9 @@ class EmailSender:
         access_token = await self._get_access_token()
         email_send_url = f"{self.bmail_api_url}/email/send"
 
-        html_content = self._load_template(template_name)
+        html_content = self._load_template(template_name).replace(
+            "{{ app_url }}", settings.FRONTEND_URL.rstrip("/")
+        )
 
         payload = {
             "subject": subject,

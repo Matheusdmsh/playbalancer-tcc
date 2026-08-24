@@ -172,7 +172,7 @@ export function GoogleAuthModal({ tempToken, onClose }: GoogleAuthModalProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="linkPassword">Sua senha do Rachinha.com</Label>
+              <Label htmlFor="linkPassword">Sua senha do PlayBalance</Label>
               <Input
                 id="linkPassword"
                 type="password"

@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { addDays, format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,16 +22,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, CalendarPlus, MapPin, ArrowRight, ArrowLeft, CalendarDays, Repeat, CalendarCheck } from "lucide-react";
+import { Loader2, CalendarPlus, MapPin, ArrowRight, ArrowLeft, CalendarCheck } from "lucide-react";
 import { SportField } from "@/components/sport-field";
 import { PriceField } from "@/components/price-field";
 import { DurationField } from "@/components/duration-field";
 import { TimeField } from "@/components/time-field";
 import { DateField } from "@/components/date-field";
-import { OccurrencesField } from "@/components/occurrences-field";
 import { MaxPlayersField } from "@/components/max-players-field";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -41,8 +37,6 @@ import { createBooking } from "@/services/bookings";
 
 // Schema de validação atualizado
 const formSchema = z.object({
-  type: z.enum(["Pontual", "Semanal"]),
-  occurrences: z.string().optional(),
   courtName: z.string().min(3, { message: "O nome da quadra é obrigatório." }),
   date: z.date(),
   startTime: z
@@ -79,10 +73,6 @@ const pageOneBaseSchema = z.object({
   duration: z.number().min(1, { message: "A duração mínima é de 1 hora." }),
   sport: z.string().min(1, { message: "Selecione um esporte." }),
   maxPlayers: z.string().min(1, { message: "Selecione o máximo de jogadores." }),
-});
-
-const pageOneWeeklySchema = pageOneBaseSchema.extend({
-  occurrences: z.string().min(1, { message: "Selecione por quantas semanas repetir." }),
 });
 
 interface CreateBookingSheetProps {
@@ -167,14 +157,12 @@ export function CreateBookingSheet({
     const suggestedDate = getSuggestedDateFromGroup();
     const durationMinutes = group?.duration ? group.duration : 60;
     return {
-      type: "Pontual" as const,
       date: suggestedDate,
       courtName: group?.arena || group?.court_name || group?.location?.alt || "",
       startTime: getStartTimeFromGroup(),
       duration: durationMinutes / 60,
       sport: group?.modality || "",
       maxPlayers: String(group?.max_players || "10"),
-      occurrences: "2",
       price: group?.price ?? undefined,
       price_type: (group?.price_type as "per_person" | "total_split" | undefined) || undefined,
     };
@@ -183,21 +171,6 @@ export function CreateBookingSheet({
   const form = useForm<FormValues, any, FormValues>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: getDefaultValues(),
-  });
-
-  const bookingType = useWatch({
-    control: form.control,
-    name: "type",
-  });
-
-  const selectedDate = useWatch({
-    control: form.control,
-    name: "date",
-  });
-
-  const repeatCount = useWatch({
-    control: form.control,
-    name: "occurrences",
   });
 
   useEffect(() => {
@@ -210,13 +183,8 @@ export function CreateBookingSheet({
 
   const handleNextPage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const type = form.getValues("type");
     const values = form.getValues();
-
-    const result =
-      type === "Semanal"
-        ? pageOneWeeklySchema.safeParse(values)
-        : pageOneBaseSchema.safeParse(values);
+    const result = pageOneBaseSchema.safeParse(values);
 
     if (result.success) {
       setCurrentPage(2);
@@ -276,10 +244,7 @@ export function CreateBookingSheet({
         max_players: parseInt(data.maxPlayers, 10),
         associated_group_id: groupId,
         recurrence_type: "weekly",
-        occurrences:
-          data.type === "Semanal"
-            ? parseInt(data.occurrences || "1", 10)
-            : 1,
+        occurrences: 1,
         status_list: true,
         price: data.price ? Number(data.price) : null,
         price_type: data.price_type?.trim() ? data.price_type : null,
@@ -330,74 +295,13 @@ export function CreateBookingSheet({
             <div className="flex-1 overflow-y-auto px-4 py-3 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent hover:scrollbar-thumb-zinc-600">
               <div className="space-y-4 pb-4">
                 {currentPage === 1 && (
-                  <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Tabs
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          className="w-full"
-                        >
-                          <TabsList className="grid w-full grid-cols-2 rounded-full bg-zinc-800/70 ">
-                            <TabsTrigger
-                              value="Pontual"
-                              className="rounded-full text-xs gap-2 text-zinc-300 data-[state=active]:rounded-full data-[state=active]:bg-green-600/20 data-[state=active]:text-green-400 data-[state=active]:border data-[state=active]:border-green-500/40"
-                            >
-                              <CalendarDays className="h-3.5 w-3.5" />
-                              Pontual
-                            </TabsTrigger>
-                            <TabsTrigger
-                              value="Semanal"
-                              className="rounded-full text-xs gap-2 text-zinc-300 data-[state=active]:rounded-full data-[state=active]:bg-green-600/20 data-[state=active]:text-green-400 data-[state=active]:border data-[state=active]:border-green-500/40"
-                            >
-                              <Repeat className="h-3.5 w-3.5" />
-                              Semanal
-                            </TabsTrigger>
-                          </TabsList>
-                        </Tabs>
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                {currentPage === 1 && (
                   <div className="space-y-4">
-                  {bookingType === "Pontual" && (
                     <DateField
                       control={form.control}
                       name="date"
                       label="Data do Racha"
                       placeholder="Data"
                     />
-                  )}
-
-                  {bookingType === "Semanal" && (
-                    <div className="space-y-4">
-                      <DateField
-                        control={form.control}
-                        name="date"
-                        label="Data Inicial"
-                        placeholder="Data inicial"
-                      />
-                      <OccurrencesField
-                        control={form.control}
-                        name="occurrences"
-                        label="Repetir por"
-                        placeholder="Semanas"
-                        minWeeks={2}
-                        maxWeeks={12}
-                      />
-
-                      {selectedDate && (
-                        <div className="rounded-lg border border-green-800 bg-green-950/40 p-3 text-xs text-green-300">
-                          O racha se repetirá toda {format(selectedDate, "EEEE", { locale: ptBR })} de {format(selectedDate, "dd/MM", { locale: ptBR })} até {format(addDays(selectedDate, (Math.max(1, parseInt(repeatCount || "1", 10)) - 1) * 7), "dd/MM", { locale: ptBR })}.
-                        </div>
-                      )}
-
-                    </div>
-                  )}
 
                   <div className="grid grid-cols-2 gap-4">
                     <TimeField

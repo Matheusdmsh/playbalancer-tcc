@@ -27,38 +27,35 @@ export function TermsModal({ open, onOpenChange, onAccept }: TermsModalProps) {
         <ScrollArea className="h-[60vh] mt-4 pr-4">
           <div className="space-y-6 text-sm">
             <section>
-              <h3 className="text-lg font-bold mb-2">1. Termos de Uso da Plataforma Rachinha.com</h3>
+              <h3 className="text-lg font-bold mb-2">1. Termos de Uso da Plataforma PlayBalance</h3>
               <p className="text-zinc-400 mb-2">
-                Bem-vindo à plataforma Rachinha.com. Ao acessar ou utilizar nossos serviços, você concorda com estes termos
+                Bem-vindo à plataforma PlayBalance. Ao acessar ou utilizar nossos serviços, você concorda com estes termos
                 e condições. Por favor, leia-os cuidadosamente.
               </p>
               <p className="text-zinc-400 mb-2">
-                1.1 A plataforma Rachinha.com é um serviço de intermediação entre proprietários de quadras esportivas e
-                usuários que desejam reservá-las.
+                1.1 A plataforma PlayBalance é um serviço de organização de grupos, partidas esportivas e registros do caixa da turma.
               </p>
               <p className="text-zinc-400 mb-2">
-                1.2 Ao se cadastrar como administrador, você declara ser o proprietário legítimo ou representante
-                autorizado do espaço esportivo anunciado.
+                1.2 Ao administrar uma turma, você declara ter autorização para organizar as atividades e os participantes daquele grupo.
               </p>
               <p className="text-zinc-400 mb-2">
-                1.3 O Rachinha.com não se responsabiliza pela qualidade das quadras ou serviços oferecidos pelos
-                administradores, atuando apenas como intermediária.
+                1.3 O PlayBalance não se responsabiliza pela realização da partida ou pelas condições do local, que são definidas pelos organizadores.
               </p>
             </section>
 
             <section>
-              <h3 className="text-lg font-bold mb-2">2. Responsabilidades dos Administradores</h3>
+              <h3 className="text-lg font-bold mb-2">2. Responsabilidades dos Organizadores</h3>
               <p className="text-zinc-400 mb-2">
-                2.1 Como administrador, você é responsável por fornecer informações precisas e atualizadas sobre seu
-                espaço esportivo, incluindo disponibilidade, preços e condições.
+                2.1 Como organizador, você é responsável por fornecer informações precisas e atualizadas sobre a turma,
+                as partidas e suas condições de participação.
               </p>
               <p className="text-zinc-400 mb-2">
-                2.2 É sua responsabilidade manter seu espaço em condições adequadas para uso, conforme anunciado na
-                plataforma.
+                2.2 É responsabilidade do organizador comunicar aos participantes eventuais mudanças de data, horário,
+                local ou capacidade da partida.
               </p>
               <p className="text-zinc-400 mb-2">
-                2.3 Você deve respeitar as reservas confirmadas através da plataforma e garantir que o espaço esteja
-                disponível nos horários reservados.
+                2.3 Você deve respeitar as confirmações registradas na plataforma e garantir que as informações da
+                partida estejam atualizadas.
               </p>
               <p className="text-zinc-400 mb-2">
                 2.4 É proibido discriminar usuários com base em raça, gênero, orientação sexual, religião ou qualquer
@@ -67,23 +64,17 @@ export function TermsModal({ open, onOpenChange, onAccept }: TermsModalProps) {
             </section>
 
             <section>
-              <h3 className="text-lg font-bold mb-2">3. Pagamentos e Comissões</h3>
+              <h3 className="text-lg font-bold mb-2">3. Registros Financeiros</h3>
               <p className="text-zinc-400 mb-2">
-                3.1 O Rachinha.com cobra uma comissão de 10% sobre cada reserva realizada através da plataforma.
+                3.1 O PlayBalance não cobra comissão pelo uso das funcionalidades de organização de grupos e partidas.
               </p>
               <p className="text-zinc-400 mb-2">
-                3.2 Os pagamentos são processados através de nosso sistema seguro e transferidos para sua conta bancária
-                em até 7 dias úteis após a conclusão da reserva.
+                3.2 Os valores registrados no caixa têm caráter informativo para os membros da turma. O PlayBalance não
+                processa pagamentos nem realiza transferências bancárias.
               </p>
-              <p className="text-zinc-400 mb-2">3.3 Em caso de cancelamento, nossa política prevê:</p>
-              <ul className="list-disc pl-6 text-zinc-400 mb-2">
-                <li>Cancelamento com mais de 48h de antecedência: reembolso total ao usuário</li>
-                <li>Cancelamento entre 24h e 48h: reembolso de 50% ao usuário</li>
-                <li>Cancelamento com menos de 24h: sem reembolso</li>
-              </ul>
+              <p className="text-zinc-400 mb-2">3.3 Cada turma define internamente como serão realizados seus pagamentos e reembolsos.</p>
               <p className="text-zinc-400 mb-2">
-                3.4 O Rachinha.com se reserva o direito de reter pagamentos em caso de disputas ou violações dos termos de
-                uso.
+                3.4 O organizador é responsável pela conferência dos registros financeiros lançados na turma.
               </p>
             </section>
 
@@ -94,8 +85,8 @@ export function TermsModal({ open, onOpenChange, onAccept }: TermsModalProps) {
                 necessários sobre esse conteúdo.
               </p>
               <p className="text-zinc-400 mb-2">
-                4.2 Você concede à Rachinha.com uma licença não exclusiva para usar, reproduzir e exibir o conteúdo
-                publicado, com o propósito de promover seu espaço e a plataforma.
+                4.2 Você concede ao PlayBalance uma licença não exclusiva para usar, reproduzir e exibir o conteúdo
+                publicado, com o propósito de operar e apresentar a plataforma.
               </p>
               <p className="text-zinc-400 mb-2">
                 4.3 É proibido publicar conteúdo que viole direitos autorais, marcas registradas ou outros direitos de
@@ -106,7 +97,7 @@ export function TermsModal({ open, onOpenChange, onAccept }: TermsModalProps) {
             <section>
               <h3 className="text-lg font-bold mb-2">5. Privacidade e Dados Pessoais</h3>
               <p className="text-zinc-400 mb-2">
-                5.1 O Rachinha.com coleta e processa dados pessoais de acordo com sua Política de Privacidade, disponível em
+                5.1 O PlayBalance coleta e processa dados pessoais de acordo com sua Política de Privacidade, disponível em
                 [link].
               </p>
               <p className="text-zinc-400 mb-2">
@@ -120,7 +111,7 @@ export function TermsModal({ open, onOpenChange, onAccept }: TermsModalProps) {
                 <li>Excluir esses dados quando não forem mais necessários</li>
               </ul>
               <p className="text-zinc-400 mb-2">
-                5.3 Você concorda em notificar o Rachinha.com imediatamente em caso de violação de dados ou acesso não
+                5.3 Você concorda em notificar o PlayBalance imediatamente em caso de violação de dados ou acesso não
                 autorizado.
               </p>
             </section>
@@ -128,7 +119,7 @@ export function TermsModal({ open, onOpenChange, onAccept }: TermsModalProps) {
             <section>
               <h3 className="text-lg font-bold mb-2">6. Suspensão e Encerramento</h3>
               <p className="text-zinc-400 mb-2">
-                6.1 O Rachinha.com se reserva o direito de suspender ou encerrar sua conta de administrador em caso de
+                6.1 O PlayBalance se reserva o direito de suspender ou encerrar sua conta de administrador em caso de
                 violação destes termos ou de reclamações fundamentadas de usuários.
               </p>
               <p className="text-zinc-400 mb-2">
@@ -143,7 +134,7 @@ export function TermsModal({ open, onOpenChange, onAccept }: TermsModalProps) {
             <section>
               <h3 className="text-lg font-bold mb-2">7. Alterações nos Termos</h3>
               <p className="text-zinc-400 mb-2">
-                7.1 O Rachinha.com pode alterar estes termos a qualquer momento, notificando os administradores por email.
+                7.1 O PlayBalance pode alterar estes termos a qualquer momento, notificando os administradores por e-mail.
               </p>
               <p className="text-zinc-400 mb-2">
                 7.2 O uso continuado da plataforma após as alterações constitui aceitação dos novos termos.
@@ -161,7 +152,7 @@ export function TermsModal({ open, onOpenChange, onAccept }: TermsModalProps) {
                 permanecerão em vigor.
               </p>
               <p className="text-zinc-400 mb-2">
-                8.4 A falha do Rachinha.com em fazer cumprir qualquer direito ou disposição destes termos não constitui
+                8.4 A falha do PlayBalance em fazer cumprir qualquer direito ou disposição destes termos não constitui
                 renúncia a tal direito ou disposição.
               </p>
             </section>

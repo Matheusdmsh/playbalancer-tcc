@@ -6,7 +6,7 @@ const TOKEN_COOKIE_NAME = 'rachinha_token';
 export interface Notification {
   _id: string;
   user_id: string;
-  notification_type: "group_invitation" | "booking_invitation" | "new_group_message" | "new_booking_message" | 'booking_removal';
+  notification_type: "group_invitation" | "booking_invitation" | 'booking_removal';
   message: string;
   related_id: string;
   link: string;

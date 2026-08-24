@@ -2,7 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowRight, Calendar, ChevronRight, MessageCircle, ShieldCheck, Users, ClipboardList } from "lucide-react"
+import { ArrowRight, Calendar, ChevronRight, ShieldCheck, Users, ClipboardList } from "lucide-react"
 
 export default function LandingPage() {
   return (
@@ -153,18 +153,6 @@ export default function LandingPage() {
               </CardContent>
             </Card>
             
-            <Card className="bg-zinc-900 border-zinc-800 text-center">
-              <CardContent className="pt-8">
-                <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-4 mx-auto">
-                  <MessageCircle className="h-8 w-8 text-green-500" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">Chat Integrado</h3>
-                <p className="text-zinc-400">
-                  Converse com a galera em um chat exclusivo para a turma e também em um chat para cada racha.
-                </p>
-              </CardContent>
-            </Card>
-
             <Card className="bg-zinc-900 border-zinc-800 text-center">
               <CardContent className="pt-8">
                 <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-4 mx-auto">

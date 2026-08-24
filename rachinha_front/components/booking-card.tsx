@@ -12,7 +12,6 @@ import {
   Flag,
   MapPin,
   CalendarCheck2,
-  CalendarSync,
   CalendarX2,
   CalendarClock,
   Ghost,
@@ -186,7 +185,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   const showAdminActions = isGroupAdmin && !isInlineVoteCard;
   const theme = getSportTheme(booking?.modality, variant, isToday);
 
-  let buttonState: "confirm" | "cancel" | "disabled" | "not_invited" | "waiting" = "not_invited";
+  let buttonState: "confirm" | "cancel" | "disabled" | "not_invited" | "full" = "not_invited";
 
   if (invite) {
     if (!booking.status_list) {
@@ -194,7 +193,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
     } else if (invite.status === "accepted") {
       buttonState = "cancel";
     } else if (isListFull && !userInList) {
-      buttonState = "waiting";
+      buttonState = "full";
     } else {
       buttonState = "confirm";
     }
@@ -462,15 +461,15 @@ export const BookingCard: React.FC<BookingCardProps> = ({
                 </Button>
               )}
 
-              {buttonState === "waiting" && (
+              {buttonState === "full" && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full cursor-pointer bg-blue-800 hover:bg-blue-700/20 border-blue-400 hover:border-blue-400 hover:text-blue-400 backdrop-blur-sm group"
-                  onClick={() => handlePresence(booking._id, "confirm")}
+                  className="w-full cursor-not-allowed border-zinc-700 bg-zinc-900 text-zinc-400"
+                  disabled
                 >
-                  <CalendarSync className="h-4 w-4 text-blue-400 mr-2" />
-                  Entrar na Espera
+                  <Users className="h-4 w-4 mr-2" />
+                  Partida lotada
                 </Button>
               )}
 

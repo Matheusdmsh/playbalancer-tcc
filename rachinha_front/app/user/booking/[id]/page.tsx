@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Star, Users, Calendar, Clock, ArrowLeft, Swords, Crown, UserPlus, Trash2, ChevronLeft, ChevronRight, History, Edit, CalendarCheck2, CalendarClock, CalendarSync, CalendarX2, X, Ghost, LockKeyhole, UnlockKeyhole, Check, Share2, TriangleAlert, SlidersHorizontal, LoaderCircle } from "lucide-react";
+import { Star, Users, Calendar, Clock, ArrowLeft, Swords, Crown, UserPlus, Trash2, ChevronLeft, ChevronRight, History, Edit, CalendarCheck2, CalendarClock, CalendarX2, X, Ghost, LockKeyhole, UnlockKeyhole, Check, Share2, TriangleAlert, SlidersHorizontal, LoaderCircle } from "lucide-react";
 
 // --- Componentes UI ---
 import { Button } from "@/components/ui/button";
@@ -160,7 +160,6 @@ export default function BookingDetailPage() {
     currentIndex: number;
   } | null>(null);
   const [isConfirmedListExpanded, setIsConfirmedListExpanded] = useState(true);
-  const [isReserveListExpanded, setIsReserveListExpanded] = useState(false);
   const [isMyTeamExpanded, setIsMyTeamExpanded] = useState(true);
   const [isVoteSheetOpen, setIsVoteSheetOpen] = useState(false);
   const [votesByPlayerId, setVotesByPlayerId] = useState<Record<string, BookingPlayerVote>>({});
@@ -361,10 +360,6 @@ export default function BookingDetailPage() {
           const id = getPlayerId(p);
           if (id) allUserIds.add(id);
       });
-      bookingData.reserve_players.forEach(p => {
-          const id = getPlayerId(p);
-          if (id) allUserIds.add(id);
-      });
 
       let groupData = null;
       if (bookingData.associated_group_id) {
@@ -521,7 +516,7 @@ export default function BookingDetailPage() {
     lines.push("");
     lines.push(`Bora pro jogo! ⚽`);
     lines.push("");
-    lines.push(`Sorteio feito pelo rachinha.com 🔥`);
+    lines.push(`Sorteio feito pelo PlayBalance ⚖️`);
     lines.push("Para conhecer, acesse nosso site!");
 
     return lines.join("\n");
@@ -547,8 +542,7 @@ export default function BookingDetailPage() {
     }
   };
 
-  const renderDrawCards = (playerIds: string[], previewLabel: string) => {
-    const getInitials = (name?: string) => (name?.match(/\b\w/g) || []).slice(0, 2).join("").toUpperCase();
+  const renderDrawList = (playerIds: string[]) => {
     const sortedIds = [...playerIds].sort((a, b) => {
       const aPlaceholder = Boolean(playersInfo.get(a)?.is_placeholder);
       const bPlaceholder = Boolean(playersInfo.get(b)?.is_placeholder);
@@ -556,73 +550,24 @@ export default function BookingDetailPage() {
       return aPlaceholder ? 1 : -1;
     });
 
-    const teamCards: NonNullable<typeof teamPreview>["cards"] = sortedIds.map((id) => {
-      const info = playersInfo.get(id);
-      const player = booking?.players.find((p) => getPlayerId(p) === id);
-      const skillLevel = player?.skill_level ?? 0;
-
-      if (!info?.is_placeholder) {
-        const displayName = getCardDisplayName(info?.name, info?.nickname);
-        return {
-          name: displayName.toUpperCase(),
-          username: `@${info?.username || "jogador"}`,
-          photoUrl: info?.photo_url,
-          initials: getInitials(info?.name),
-          skillLevel,
-          variant: info?.active_card_template,
-          missingPhotoNode: undefined as React.ReactNode,
-        };
-      }
-
-      const firstName = (info?.name || "Jogador").trim().split(/\s+/)[0] || "Jogador";
-      return {
-        name: firstName.toUpperCase(),
-        username: "@convidado",
-        photoUrl: undefined,
-        initials: undefined,
-        skillLevel,
-        variant: "v5",
-        missingPhotoNode: <Ghost className="h-full w-full" /> as React.ReactNode,
-      };
-    });
-
     return (
-      <HorizontalScroll fadeColor="#1f1f2200">
-        {sortedIds.map((id, cardIndex) => {
-          const cardData = teamCards[cardIndex];
+      <ul className="space-y-2">
+        {sortedIds.map((id) => {
+          const info = playersInfo.get(id);
+          const isGuest = Boolean(info?.is_placeholder);
+          const name = isGuest
+            ? (info?.name || "Convidado").trim().split(/\s+/)[0]
+            : getCardDisplayName(info?.name, info?.nickname);
 
           return (
-            <button
-              key={id}
-              type="button"
-              className="group relative shrink-0 w-[130px] snap-start cursor-zoom-in"
-              onClick={() => {
-                setTeamPreview({
-                  teamLabel: previewLabel,
-                  cards: teamCards,
-                  currentIndex: cardIndex,
-                });
-                setIsTeamCardPreviewOpen(true);
-              }}
-            >
-              <span className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 z-20 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-medium text-zinc-200 opacity-0 transition-opacity duration-200 group-hover:opacity-100 whitespace-nowrap">
-                Clique para ampliar
-              </span>
-              <UserProfileCard
-                name={cardData.name}
-                username={cardData.username}
-                photoUrl={cardData.photoUrl}
-                initials={cardData.initials}
-                missingPhotoNode={cardData.missingPhotoNode}
-                skillLevel={cardData.skillLevel}
-                variant={cardData.variant}
-                sport={booking?.modality ? { name: booking.modality, icon: getSportIcon(booking.modality) } : undefined}
-                overlayPreset="standard"
-              />
-            </button>
+            <li key={id} className="flex items-center gap-2 rounded-md border border-zinc-700 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-100">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-green-400" />
+              <span className="min-w-0 flex-1 truncate font-medium">{name || "Jogador"}</span>
+              {isGuest && <span className="text-xs text-zinc-400">Convidado</span>}
+            </li>
           );
         })}
-      </HorizontalScroll>
+      </ul>
     );
   };
 
@@ -644,17 +589,16 @@ export default function BookingDetailPage() {
       );
     }
 
-    if (buttonState === "waiting") {
+    if (buttonState === "full") {
       return (
         <Button
           variant="outline"
           size="sm"
-          className={`cursor-pointer bg-blue-800 border-blue-400 hover:border-blue-400 hover:text-blue-400 hover:bg-blue-700/40 backdrop-blur-sm ${isPresenceDisabled ? "opacity-60 cursor-not-allowed" : ""} ${className}`.trim()}
-          onClick={() => handlePresence(booking._id, "confirm")}
-          disabled={isPresenceDisabled}
+          className={`cursor-not-allowed border-zinc-700 bg-zinc-900 text-zinc-400 ${className}`.trim()}
+          disabled
         >
-          <CalendarSync className="h-4 w-4 text-blue-400" />
-          <span>Entrar na Espera</span>
+          <LockKeyhole className="h-4 w-4" />
+          <span>Partida lotada</span>
         </Button>
       );
     }
@@ -808,14 +752,6 @@ export default function BookingDetailPage() {
     const emptyCards = Array.from({ length: emptyCount }, (_, index) => createEmptyBookingSlotCard(index + 1));
 
     return [...filledCards, ...emptyCards];
-  }, [booking, playersInfo]);
-
-  const reserveSlotCards = useMemo(() => {
-    if (!booking) return [];
-
-    return booking.reserve_players
-      .map((playerEntry) => buildBookingSlotCard(playerEntry))
-      .filter((card): card is BookingSlotCardData => Boolean(card));
   }, [booking, playersInfo]);
 
   const confirmedCardsLayout = useMemo(() => {
@@ -1076,10 +1012,6 @@ export default function BookingDetailPage() {
       const id = getPlayerId(p);
       if (id) ids.add(id);
     });
-    booking.reserve_players.forEach(p => {
-      const id = getPlayerId(p);
-      if (id) ids.add(id);
-    });
     return Array.from(ids);
   }, [booking]);
 
@@ -1198,7 +1130,7 @@ export default function BookingDetailPage() {
                 >
                   <div className="overflow-hidden">
                     <div className={`px-3 pb-3 pt-1 transition-all duration-300 ease-out ${isMyTeamExpanded ? "translate-y-0" : "-translate-y-2"}`}>
-                      {renderDrawCards(teams.teams[myTeamIndex], `Time ${myTeamIndex + 1}`)}
+                      {renderDrawList(teams.teams[myTeamIndex])}
                     </div>
                   </div>
                 </div>
@@ -1231,7 +1163,7 @@ export default function BookingDetailPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {renderDrawCards(teams.leftOut || [], "Ficaram de fora")}
+                {renderDrawList(teams.leftOut || [])}
                 <div className="flex justify-stretch">
                   <Button
                     type="button"
@@ -1289,9 +1221,9 @@ export default function BookingDetailPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
           {teams.teams.map((team, index) => (
             <Card key={index} className="bg-zinc-800/80 border-zinc-700">
-              <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 px-6 pt-6 pb-0">
+              <CardHeader className="space-y-2 px-4 pt-4 pb-2">
                 <CardTitle className="flex items-center gap-2 text-white">
-                  <span className="truncate">Time {index + 1}</span>
+                  <span>Time {index + 1}</span>
                   {myTeamIndex === index && (
                     <Badge className="border-green-400/40 bg-green-500/15 text-green-200 hover:bg-green-500/15">
                       <Swords className="h-4 w-4 pr-1 text-green-400" />
@@ -1299,12 +1231,12 @@ export default function BookingDetailPage() {
                     </Badge>
                   )}
                 </CardTitle>
-                <CardDescription className="shrink-0 text-right text-zinc-300">
+                <CardDescription className="text-zinc-300">
                   Nível do Time: <span className="font-bold">{formatTeamLevel(teams.team_skills_sum[index], team.length)} </span>
                 </CardDescription>
               </CardHeader>
               <CardContent className="px-4 py-0">
-                {renderDrawCards(team, `Time ${index + 1}`)}
+                {renderDrawList(team)}
               </CardContent>
             </Card>
           ))}
@@ -1325,7 +1257,7 @@ export default function BookingDetailPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="px-4 pt-0">
-                {renderDrawCards(teams.leftOut || [], "Ficaram de fora")}
+                {renderDrawList(teams.leftOut || [])}
               </CardContent>
             </Card>
           )}
@@ -1476,7 +1408,7 @@ export default function BookingDetailPage() {
   const userInList = booking.players.some(p => getPlayerId(p) === currentUser?._id);
   const isPresenceDisabled = isPast;
   
-  let buttonState: "confirm" | "cancel" | "disabled" | "not_invited" | "waiting" = "not_invited";
+  let buttonState: "confirm" | "cancel" | "disabled" | "not_invited" | "full" = "not_invited";
   if (!booking.status_list) {
     buttonState = "disabled";
   } else if (userInList) {
@@ -1485,7 +1417,7 @@ export default function BookingDetailPage() {
     if (invite.status === "accepted") {
       buttonState = "cancel";
     } else if (isListFull) {
-      buttonState = "waiting";
+      buttonState = "full";
     } else {
       buttonState = "confirm";
     }
@@ -1712,43 +1644,6 @@ export default function BookingDetailPage() {
                 </div>
               </div>
 
-              {booking.reserve_players.length > 0 && (
-                <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40 pt-1 transition-colors hover:border-zinc-700">
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-between px-3 py-2 text-left transition-colors hover:bg-zinc-900/50"
-                    onClick={() => setIsReserveListExpanded((prev) => !prev)}
-                    aria-expanded={isReserveListExpanded}
-                  >
-                    <div className="flex items-center gap-2">
-                      <ChevronRight className={`h-4 w-4 text-zinc-400 transition-transform duration-300 ${isReserveListExpanded ? "rotate-90" : "rotate-0"}`} />
-                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-300">Lista de Espera</span>
-                      <span className="rounded-full border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-[11px] font-medium text-zinc-200">
-                        {booking.reserve_players.length}
-                      </span>
-                    </div>
-                  </button>
-
-                  <div
-                    className={`grid transition-all duration-300 ease-out ${isReserveListExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
-                  >
-                    <div className="overflow-hidden">
-                      <div className={`px-3 pb-3 pt-1 transition-all duration-300 ease-out ${isReserveListExpanded ? "translate-y-0" : "-translate-y-2"}`}>
-                        <HorizontalScroll fadeColor="#1f1f2200">
-                          {reserveSlotCards.map((card) =>
-                            renderRosterCard({
-                              card,
-                              cards: reserveSlotCards,
-                              label: "Lista de espera",
-                              className: "w-[92px] sm:w-[104px] shrink-0 snap-start",
-                            })
-                          )}
-                        </HorizontalScroll>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
 
@@ -1826,7 +1721,7 @@ export default function BookingDetailPage() {
               <SheetTitle className="text-xl">Opções da lista</SheetTitle>
             </div>
             <SheetDescription className="text-left text-xs text-zinc-400">
-              Gerencie confirmados e lista de espera, edite habilidades e adicione jogadores do grupo.
+              Gerencie os confirmados, edite habilidades e adicione jogadores do grupo.
             </SheetDescription>
           </SheetHeader>
 
@@ -1841,36 +1736,40 @@ export default function BookingDetailPage() {
                 })}
               </div>
 
-              {booking.reserve_players.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 border-t border-zinc-700" />
-                  <p className="text-xs text-zinc-400 uppercase font-semibold tracking-wider whitespace-nowrap">Lista de Espera</p>
-                  <div className="flex-1 border-t border-zinc-700" />
-                </div>
-                {renderBookingPlayersList({
-                  players: booking.reserve_players,
-                  interactive: true,
-                  emptyMessage: "Nenhum jogador na lista de espera.",
-                })}
-              </div>
-              )}
             </div>
           </div>
 
           <div className="shrink-0 bg-zinc-900/95 px-6 pt-0 pb-4 backdrop-blur-sm">
             {groupInfo && isGroupAdmin && (
-              <Button
-                variant="outline"
-                className="cursor-pointer w-full bg-black border-[#27272a] hover:border-green-400 hover:text-green-400 backdrop-blur-sm group"
-                disabled={isMatchLocked}
-                onClick={() => {
-                  setIsAdminOptionsOpen(false);
-                  setIsInvitePlayersOpen(true);
-                }}
-              >
-                <UserPlus className="h-4 w-4" />Adicionar do Grupo
-              </Button>
+              isListFull ? (
+                <Button
+                  variant="outline"
+                  className="w-full cursor-not-allowed border-zinc-700 bg-zinc-800 text-zinc-400"
+                  disabled
+                >
+                  <LockKeyhole className="h-4 w-4" />Lista completa
+                </Button>
+              ) : !booking.status_list ? (
+                <Button
+                  variant="outline"
+                  className="w-full cursor-not-allowed border-zinc-700 bg-zinc-800 text-zinc-400"
+                  disabled
+                >
+                  <LockKeyhole className="h-4 w-4" />Lista fechada
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="cursor-pointer w-full bg-black border-[#27272a] hover:border-green-400 hover:text-green-400 backdrop-blur-sm group"
+                  disabled={isMatchLocked}
+                  onClick={() => {
+                    setIsAdminOptionsOpen(false);
+                    setIsInvitePlayersOpen(true);
+                  }}
+                >
+                  <UserPlus className="h-4 w-4" />Adicionar do Grupo
+                </Button>
+              )
             )}
           </div>
         </SheetContent>
@@ -2353,9 +2252,7 @@ function PlayerCard({ player, playerInfo, isOwner, canRemove, canEditSkill, isBo
         <div className="flex items-center gap-2">
           <StarRating
             currentSkill={
-              booking.players.find(bp => getPlayerId(bp) === player.user_id)?.skill_level ?? 
-              booking.reserve_players.find(bp => getPlayerId(bp) === player.user_id)?.skill_level ?? 
-              player.skill_level ?? 0
+              booking.players.find(bp => getPlayerId(bp) === player.user_id)?.skill_level ?? player.skill_level ?? 0
             }
             onSkillUpdate={onSkillUpdate}
             enabled={canEditSkill}
