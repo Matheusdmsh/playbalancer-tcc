@@ -83,7 +83,7 @@ async def apple_login(request: AppleLoginRequest, db=Depends(get_db)):
                 'phone_number': '',
                 'sport_ratings': {},
                 'is_placeholder': False,
-                'active_card_template': 'v4'
+                'active_card_template': 'v1'
             }
             user_id = await repo.create_user(user_data)
             user = await repo.find_by_id(str(user_id))
@@ -126,7 +126,7 @@ async def apple_login(request: AppleLoginRequest, db=Depends(get_db)):
             "updated_at": user["updated_at"].isoformat() if isinstance(user.get("updated_at"), datetime) else str(user.get("updated_at")),
             "photo_url": user.get("photo_url", ""),
             "phone_number": user.get("phone_number", ""),
-            "active_card_template": user.get("active_card_template", "v4")
+            "active_card_template": user.get("active_card_template", "v1")
         }
     }
 
@@ -205,7 +205,7 @@ async def register(user: UserCreate, db=Depends(get_db)):
                 "is_placeholder": False,
                 "is_email_verified": False, # Start email verification process
                 "updated_at": datetime.now(timezone.utc),
-                "active_card_template": existing_user.get("active_card_template", "v4"),
+                "active_card_template": existing_user.get("active_card_template", "v1"),
             }
             if user.phone_number:
                 update_data["phone_number"] = user.phone_number
@@ -229,7 +229,7 @@ async def register(user: UserCreate, db=Depends(get_db)):
                 'phone_number': user.phone_number,
                 'sport_ratings': {},
                 'is_placeholder': False,
-                'active_card_template': 'v4'
+                'active_card_template': 'v1'
             }
             user_id = await repo.create_user(user_data)
     else: # This is a ghost user creation, should be handled in a separate endpoint
@@ -675,7 +675,7 @@ async def google_register(data: GoogleRegister, request: Request, db=Depends(get
         "photo_url": payload.get("photo_url"),
         "sport_ratings": {},
         "is_placeholder": False,
-        "active_card_template": "v4"
+        "active_card_template": "v1"
     }
 
     user_id = await user_repo.create_user(user_data)

@@ -1,3 +1,5 @@
+import type { CardVariant } from "@/components/card/card.types";
+
 export interface User {
   _id: any;
   id: string;
@@ -16,5 +18,5 @@ export interface User {
   phone_number?: string;
   is_placeholder?: boolean;
   sport_ratings?: Record<string, number>;
-  active_card_template?: "v0" | "v1" | "v2" | "v3" | "v4" | "v5" | "v4-slim" | "v5-slim";
+  active_card_template?: CardVariant;
 }

@@ -709,7 +709,7 @@ export default function BookingDetailPage() {
         photoUrl: undefined,
         initials: undefined,
         skillLevel,
-        variant: "v5",
+        variant: "v1",
         missingPhotoNode: <Ghost className="h-full w-full" />,
         isGuest: true,
       };
@@ -735,7 +735,7 @@ export default function BookingDetailPage() {
     photoUrl: undefined,
     initials: undefined,
     skillLevel: 0,
-    variant: "v5",
+    variant: "v1",
     missingPhotoNode: <UserPlus className="h-full w-full" />,
     isGuest: false,
     isEmpty: true,

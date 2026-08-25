@@ -51,7 +51,7 @@ async def create_ghost_user(user: UserCreate, db=Depends(get_db), current_user=D
         "sport_ratings": {},
         'photo_url': '',
         'phone_number': user.phone_number,
-        'active_card_template': 'v4'
+        'active_card_template': 'v1'
     }
     user_id = await repo.create_user(user_data)
 
@@ -118,7 +118,7 @@ async def add_email_to_ghost_user(
 async def get_my_profile(current_user=Depends(get_current_user)):
     user = current_user.copy()
     user["_id"] = str(user["_id"])
-    user["active_card_template"] = user.get("active_card_template", "v4")
+    user["active_card_template"] = user.get("active_card_template", "v1")
     return user
 
 

@@ -1,0 +1,96 @@
+<svg width="1080" height="1350" viewBox="0 0 1080 1350" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Prévia do card PlayBalance</title>
+  <desc>Card autoral PlayBalance com identidade verde neon, marca no topo e nome do jogador na base.</desc>
+
+  <defs>
+    <linearGradient id="cardBackground" x1="184" y1="76" x2="906" y2="1270" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101713"/>
+      <stop offset="0.5" stop-color="#080B09"/>
+      <stop offset="1" stop-color="#030504"/>
+    </linearGradient>
+
+    <linearGradient id="borderGradient" x1="122" y1="104" x2="936" y2="1240" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C9FF68"/>
+      <stop offset="0.48" stop-color="#70ED2B"/>
+      <stop offset="1" stop-color="#31B817"/>
+    </linearGradient>
+
+    <linearGradient id="namePlate" x1="540" y1="957" x2="540" y2="1191" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101612" stop-opacity="0"/>
+      <stop offset="0.42" stop-color="#101612" stop-opacity="0.88"/>
+      <stop offset="1" stop-color="#050705"/>
+    </linearGradient>
+
+    <radialGradient id="ambientGlow" cx="0" cy="0" r="1" gradientTransform="translate(540 532) rotate(90) scale(430 430)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#82F438" stop-opacity="0.15"/>
+      <stop offset="0.58" stop-color="#60D727" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#60D727" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="logoGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#C9FF68"/>
+      <stop offset="0.55" stop-color="#78F12B"/>
+      <stop offset="1" stop-color="#46C818"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <clipPath id="cardClip">
+      <path d="M138 70H942C968.51 70 990 91.49 990 118V1052.5C990 1093.88 966.154 1131.54 928.771 1149.31L570.916 1319.43C551.37 1328.72 528.63 1328.72 509.084 1319.43L151.229 1149.31C113.846 1131.54 90 1093.88 90 1052.5V118C90 91.49 111.49 70 138 70Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Forma exclusiva do card -->
+  <path d="M138 70H942C968.51 70 990 91.49 990 118V1052.5C990 1093.88 966.154 1131.54 928.771 1149.31L570.916 1319.43C551.37 1328.72 528.63 1328.72 509.084 1319.43L151.229 1149.31C113.846 1131.54 90 1093.88 90 1052.5V118C90 91.49 111.49 70 138 70Z" fill="url(#cardBackground)"/>
+
+  <g clip-path="url(#cardClip)">
+    <circle cx="540" cy="532" r="430" fill="url(#ambientGlow)"/>
+
+    <!-- Elementos abstratos inspirados em equilíbrio e movimento -->
+    <circle cx="540" cy="554" r="300" stroke="#A5FF54" stroke-opacity="0.055" stroke-width="2"/>
+    <circle cx="540" cy="554" r="220" stroke="#A5FF54" stroke-opacity="0.045" stroke-width="2"/>
+    <path d="M176 742C339 617 741 617 904 742" stroke="#8CF13E" stroke-opacity="0.07" stroke-width="3"/>
+    <path d="M190 800C370 690 710 690 890 800" stroke="#8CF13E" stroke-opacity="0.04" stroke-width="3"/>
+
+    <!-- As iniciais serão substituídas dinamicamente no componente React -->
+    <text x="540" y="650" text-anchor="middle" fill="#FFFFFF" fill-opacity="0.24" font-family="Inter, Arial, sans-serif" font-size="240" font-weight="800" letter-spacing="8">MA</text>
+
+    <rect x="90" y="880" width="900" height="420" fill="url(#namePlate)"/>
+  </g>
+
+  <!-- Contornos PlayBalance -->
+  <path d="M138 70H942C968.51 70 990 91.49 990 118V1052.5C990 1093.88 966.154 1131.54 928.771 1149.31L570.916 1319.43C551.37 1328.72 528.63 1328.72 509.084 1319.43L151.229 1149.31C113.846 1131.54 90 1093.88 90 1052.5V118C90 91.49 111.49 70 138 70Z" stroke="url(#borderGradient)" stroke-width="8"/>
+  <path d="M154 92H926C949.196 92 968 110.804 968 134V1041.5C968 1074.65 948.895 1104.82 918.946 1119.05L561.469 1288.99C547.876 1295.45 532.124 1295.45 518.531 1288.99L161.054 1119.05C131.105 1104.82 112 1074.65 112 1041.5V134C112 110.804 130.804 92 154 92Z" stroke="#B8FF62" stroke-opacity="0.28" stroke-width="2"/>
+
+  <!-- Logo PlayBalance vetorial -->
+  <g transform="translate(442 124) scale(0.305)" fill="none" stroke="url(#logoGradient)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" filter="url(#softGlow)">
+    <circle cx="256" cy="72" r="16" fill="#D9FF9B"/>
+    <circle cx="190" cy="128" r="11" fill="#D9FF9B"/>
+    <circle cx="322" cy="128" r="11" fill="#D9FF9B"/>
+    <circle cx="256" cy="164" r="11" fill="#D9FF9B"/>
+    <circle cx="150" cy="176" r="14" fill="#D9FF9B"/>
+    <circle cx="362" cy="176" r="14" fill="#D9FF9B"/>
+    <circle cx="256" cy="208" r="17" fill="#D9FF9B"/>
+    <path d="M256 88L190 128L150 176M256 88L322 128L362 176M190 128L256 164L322 128M150 176L256 208L362 176M190 128L256 208M322 128L256 208M256 88V208"/>
+    <path d="M150 190L116 260M150 190L184 260M362 190L328 260M362 190L396 260"/>
+    <path d="M104 260H196M316 260H408M108 260Q150 304 192 260M320 260Q362 304 404 260"/>
+    <path d="M256 226L232 374H280L256 226Z" fill="url(#logoGradient)"/>
+    <path d="M212 400H300M188 428H324M172 448H340"/>
+  </g>
+
+  <text x="540" y="302" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="54" font-weight="800" letter-spacing="-1">
+    <tspan fill="#B8FF62">Play</tspan><tspan fill="#FFFFFF">Balance</tspan>
+  </text>
+
+  <!-- O texto MATHEUS será substituído pela propriedade name no componente React -->
+  <text x="540" y="1090" text-anchor="middle" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="82" font-weight="900" letter-spacing="4">MATHEUS</text>
+  <rect x="390" y="1128" width="300" height="5" rx="2.5" fill="url(#borderGradient)"/>
+</svg>
+
+

@@ -6,7 +6,7 @@ import { Crown, ShieldPlus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { RatingStars, normalizeSkillRating } from "@/components/ui/rating-stars"
 
-import { DEFAULT_CARD_FONT_FAMILY, DEFAULT_CARD_SCALE, getCardOverlayPreset, resolveCardVariant } from "./card.config"
+import { DEFAULT_CARD_FONT_FAMILY, DEFAULT_CARD_SCALE, DEFAULT_VARIANT, getCardOverlayPreset, resolveCardVariant } from "./card.config"
 import { CARD_CATALOG } from "./card.catalog"
 import type { CardSvgComponent } from "./card.catalog"
 import {
@@ -131,9 +131,9 @@ export function UserProfileCard({
   const hasMeasuredWidth = measuredWidth > 0
 
   const scale = DEFAULT_CARD_SCALE
-  const resolvedVariant = resolveCardVariant(variant, { preferSlim, fallback: "v5" })
+  const resolvedVariant = resolveCardVariant(variant, { preferSlim, fallback: DEFAULT_VARIANT })
   const cardDefinition = CARD_CATALOG[resolvedVariant]
-  const SvgComponent: CardSvgComponent = cardDefinition.component ?? CARD_CATALOG.v5.component ?? EMPTY_CARD_COMPONENT
+  const SvgComponent: CardSvgComponent = cardDefinition.component ?? CARD_CATALOG.v1.component ?? EMPTY_CARD_COMPONENT
   const aspectRatio = cardDefinition.aspectRatio
   const resolvedOverlays = getCardOverlayPreset(overlayPreset, resolvedVariant)
 
@@ -185,9 +185,9 @@ export function UserProfileCard({
           className="pointer-events-none absolute flex items-center justify-center font-bold text-white/30 select-none leading-none"
           style={{
             left: "50%",
-            top: "37%",
+            top: `${(cardDefinition.initialsY ?? 0.37) * 100}%`,
             transform: "translate(-50%, -50%)",
-            fontSize: measuredWidth * 0.23 * scale,
+            fontSize: measuredWidth * (cardDefinition.initialsFontSize ?? 0.23) * scale,
           }}
         >
           {displayInitials}

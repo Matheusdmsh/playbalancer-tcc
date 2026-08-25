@@ -11,7 +11,7 @@ class UserCreate(BaseModel):
     role: List[str] = Field(default_factory=lambda: ["user"])
     phone_number: Optional[str] = None
     is_placeholder: bool = False
-    active_card_template: str = "v4"
+    active_card_template: str = "v1"
 
 class UserLogin(BaseModel):
     username: str
@@ -27,7 +27,7 @@ class UserResponse(BaseModel):
     photo_url: Optional[str] = None
     phone_number: Optional[str] = None
     sport_ratings: Dict[str, float] = Field(default_factory=dict)
-    active_card_template: str = "v4"
+    active_card_template: str = "v1"
     created_at: datetime
     updated_at: datetime
     is_active: bool
@@ -59,7 +59,7 @@ class UserInDB(UserCreate):
     phone_number: Optional[str] = None
     sport_ratings: Dict[str, float] = Field(default_factory=dict)
     is_placeholder: bool = False
-    active_card_template: str = "v4"
+    active_card_template: str = "v1"
 
 
 class ForgotPasswordRequest(BaseModel):

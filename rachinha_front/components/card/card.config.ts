@@ -17,7 +17,7 @@ export type ProfileCardCatalogEntry = {
 
 export const DEFAULT_CARD_SCALE = 1.15
 
-export const DEFAULT_VARIANT: CardVariant = "v4"
+export const DEFAULT_VARIANT: CardVariant = "v1"
 export const DEFAULT_CARD_FONT_FAMILY = "var(--font-card-display), Inter, sans-serif"
 
 export const DEFAULT_OVERLAYS: ResolvedCardOverlayConfig = {
@@ -166,65 +166,47 @@ export const EMPTY_CARD_OVERLAYS: ResolvedCardOverlayConfig = {
 // - se não houver override para a variante, o card usa apenas o preset-base.
 // - `auto` ajusta o preset padrão daquela variante.
 // - presets específicos (`standard`, `slim`, `empty`) podem ser sobrescritos quando necessário.
-// Exemplo ativo: a V6 usa esporte e ícone do esporte em 22F0F6 no preset automático/padrão.
+// V1 e V2 exibem somente o nome do jogador; os demais dados permanecem ocultos.
+const PLAYBALANCE_ORIGINAL_OVERLAYS: CardVariantOverlayPresetOverrides = {
+  auto: {
+    name: {
+      show: true,
+      x: 0.5,
+      y: 0.79,
+      fontSize: 0.066,
+      maxWidthRatio: 0.72,
+      color: "#FFFFFF",
+      fontWeight: 900,
+      letterSpacing: 0.003,
+    },
+    username: { show: false },
+    sportText: { show: false },
+    sportIcon: { show: false },
+    roleIcon: { show: false },
+    stars: { show: false },
+  },
+  standard: {
+    name: {
+      show: true,
+      x: 0.5,
+      y: 0.79,
+      fontSize: 0.066,
+      maxWidthRatio: 0.72,
+      color: "#FFFFFF",
+      fontWeight: 900,
+      letterSpacing: 0.003,
+    },
+    username: { show: false },
+    sportText: { show: false },
+    sportIcon: { show: false },
+    roleIcon: { show: false },
+    stars: { show: false },
+  },
+}
+
 export const CARD_VARIANT_OVERLAY_PRESET_OVERRIDES: Partial<Record<CardVariant, CardVariantOverlayPresetOverrides>> = {
-  v6: {
-    auto: {
-      sportText: {
-        color: "#22F0F6",
-      },
-      sportIcon: {
-        color: "#22F0F6",
-      },
-    },
-    standard: {
-      sportText: {
-        color: "#22F0F6",
-      },
-      sportIcon: {
-        color: "#22F0F6",
-      },
-    },
-  },
-
-  v7: {
-    auto: {
-      sportText: {
-        color: "#16A34B",
-      },
-      sportIcon: {
-        color: "#16A34B",
-      },
-    },
-    standard: {
-      sportText: {
-        color: "#16A34B",
-      },
-      sportIcon: {
-        color: "#16A34B",
-      },
-    },
-  },
-
-  v8: {
-    auto: {
-      sportText: {
-        color: "#9A9A9A",
-      },
-      sportIcon: {
-        color: "#9A9A9A",
-      },
-    },
-    standard: {
-      sportText: {
-        color: "#9A9A9A",
-      },
-      sportIcon: {
-        color: "#9A9A9A",
-      },
-    },
-  },
-
+  v1: PLAYBALANCE_ORIGINAL_OVERLAYS,
+  v2: PLAYBALANCE_ORIGINAL_OVERLAYS,
 }
 
 function mergeOverlayConfig(
@@ -300,7 +282,7 @@ export function resolveCardVariant(
   value?: string | null,
   options?: { preferSlim?: boolean; fallback?: CardVariant }
 ): CardVariant {
-  const fallback = options?.fallback ?? "v5"
+  const fallback = options?.fallback ?? DEFAULT_VARIANT
   const normalized = typeof value === "string" ? value.trim() : ""
 
   const baseVariant = VALID_CARD_VARIANTS.includes(normalized as CardVariant)
@@ -326,7 +308,7 @@ export function resolveCardVariant(
 
 export function resolveProfileSelectableCardVariant(
   value?: string | null,
-  fallback: ProfileSelectableCardVariant = "v4"
+  fallback: ProfileSelectableCardVariant = "v1"
 ): ProfileSelectableCardVariant {
   const resolvedVariant = resolveCardVariant(value, { fallback })
   const baseVariant = resolvedVariant.endsWith("-slim")
