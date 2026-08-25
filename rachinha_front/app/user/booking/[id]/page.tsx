@@ -827,7 +827,6 @@ export default function BookingDetailPage() {
       <UserProfileCard
         name={card.name}
         username={card.username}
-        photoUrl={card.photoUrl}
         initials={card.initials}
         missingPhotoNode={card.missingPhotoNode}
         skillLevel={card.skillLevel}
@@ -2013,7 +2012,6 @@ export default function BookingDetailPage() {
                                   <UserProfileCard
                                     name={previewCard.name}
                                     username={previewCard.username}
-                                    photoUrl={previewCard.photoUrl}
                                     initials={previewCard.initials}
                                     missingPhotoNode={previewCard.missingPhotoNode}
                                     skillLevel={previewCard.skillLevel}

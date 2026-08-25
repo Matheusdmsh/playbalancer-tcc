@@ -5,7 +5,6 @@ import { useId } from "react"
 type PlayBalancePalette = "green" | "blue"
 
 type PlayBalanceOriginalCardProps = {
-  photoUrl: string
   className?: string
   palette: PlayBalancePalette
 }
@@ -36,7 +35,6 @@ const PALETTES = {
 } as const
 
 export function PlayBalanceOriginalCard({
-  photoUrl,
   className,
   palette,
 }: PlayBalanceOriginalCardProps) {
@@ -48,7 +46,6 @@ export function PlayBalanceOriginalCard({
   const namePlateId = `pb-name-plate-${instanceId}`
   const logoId = `pb-logo-${instanceId}`
   const clipId = `pb-clip-${instanceId}`
-  const photoShadeId = `pb-photo-shade-${instanceId}`
 
   const cardPath = "M138 70H942C968.51 70 990 91.49 990 118V1052.5C990 1093.88 966.154 1131.54 928.771 1149.31L570.916 1319.43C551.37 1328.72 528.63 1328.72 509.084 1319.43L151.229 1149.31C113.846 1131.54 90 1093.88 90 1052.5V118C90 91.49 111.49 70 138 70Z"
 
@@ -87,11 +84,6 @@ export function PlayBalanceOriginalCard({
           <stop offset="0.55" stopColor={colors.accentMiddle} />
           <stop offset="1" stopColor={colors.accentEnd} />
         </linearGradient>
-        <linearGradient id={photoShadeId} x1="540" y1="180" x2="540" y2="970" gradientUnits="userSpaceOnUse">
-          <stop stopColor={colors.backgroundEnd} stopOpacity="0.18" />
-          <stop offset="0.58" stopColor={colors.backgroundEnd} stopOpacity="0.05" />
-          <stop offset="1" stopColor={colors.backgroundEnd} stopOpacity="0.94" />
-        </linearGradient>
         <clipPath id={clipId}>
           <path d={cardPath} />
         </clipPath>
@@ -100,13 +92,6 @@ export function PlayBalanceOriginalCard({
       <path d={cardPath} fill={`url(#${backgroundId})`} />
 
       <g clipPath={`url(#${clipId})`}>
-        {photoUrl ? (
-          <>
-            <image href={photoUrl} x="112" y="92" width="856" height="900" preserveAspectRatio="xMidYMid slice" />
-            <rect x="90" y="70" width="900" height="1000" fill={`url(#${photoShadeId})`} />
-          </>
-        ) : null}
-
         <circle cx="540" cy="532" r="430" fill={`url(#${ambientId})`} />
         <circle cx="540" cy="554" r="300" stroke={colors.accentStart} strokeOpacity="0.055" strokeWidth="2" />
         <circle cx="540" cy="554" r="220" stroke={colors.accentStart} strokeOpacity="0.045" strokeWidth="2" />

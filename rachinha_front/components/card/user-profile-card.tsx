@@ -87,7 +87,6 @@ const EMPTY_CARD_COMPONENT: CardSvgComponent = () => null
 export function UserProfileCard({
   name,
   username,
-  photoUrl,
   initials,
   missingPhotoNode,
   skillLevel,
@@ -163,9 +162,9 @@ export function UserProfileCard({
       className={cn("relative w-full max-w-[420px]", className)}
       style={{ aspectRatio }}
     >
-      <SvgComponent photoUrl={photoUrl ?? ""} className="absolute inset-0 h-full w-full" />
+      <SvgComponent className="absolute inset-0 h-full w-full" />
 
-      {hasMeasuredWidth && !photoUrl && missingPhotoNode && (
+      {hasMeasuredWidth && missingPhotoNode && (
         <div
           className="pointer-events-none absolute flex items-center justify-center text-white/30"
           style={{
@@ -180,7 +179,7 @@ export function UserProfileCard({
         </div>
       )}
 
-      {hasMeasuredWidth && !photoUrl && !missingPhotoNode && displayInitials && (
+      {hasMeasuredWidth && !missingPhotoNode && displayInitials && (
         <div
           className="pointer-events-none absolute flex items-center justify-center font-bold text-white/30 select-none leading-none"
           style={{

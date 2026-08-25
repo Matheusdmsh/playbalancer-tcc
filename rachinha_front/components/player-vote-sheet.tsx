@@ -331,7 +331,6 @@ export function PlayerVoteSheet({
                       <UserProfileCard
                         name={activeCandidate.name.toUpperCase()}
                         username={`@${activeCandidate.username.toLowerCase()}`}
-                        photoUrl={activeCandidate.photoUrl}
                         initials={activeCandidate.initials}
                         skillLevel={activeCandidate.skillLevel}
                         variant={activeCandidate.cardVariant}

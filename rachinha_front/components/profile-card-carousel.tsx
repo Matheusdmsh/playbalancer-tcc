@@ -15,7 +15,6 @@ import {
 interface CardData {
   name?: string
   username: string
-  photoUrl?: string
   initials?: string
   skillLevel?: number
   memberSince?: string
@@ -162,9 +161,8 @@ return () => {
                     </span>
                   )}
                   <UserProfileCard
-                    name={cardData.name.toUpperCase()}
+                    name={(cardData.name ?? cardData.initials ?? cardData.username).toUpperCase()}
                     username={`@${cardData.username.toLowerCase()}`}
-                    photoUrl={cardData.photoUrl}
                     initials={cardData.initials}
                     skillLevel={cardData.skillLevel}
                     memberSince={cardData.memberSince}
@@ -238,9 +236,8 @@ return () => {
               {cards[previewCardIndex] && (
                 <div className="mx-auto w-[min(92vw,420px)]">
                   <UserProfileCard
-                    name={cards[previewCardIndex].name.toUpperCase()}
+                    name={(cards[previewCardIndex].name ?? cards[previewCardIndex].initials ?? cards[previewCardIndex].username).toUpperCase()}
                     username={`@${cards[previewCardIndex].username.toLowerCase()}`}
-                    photoUrl={cards[previewCardIndex].photoUrl}
                     initials={cards[previewCardIndex].initials}
                     skillLevel={cards[previewCardIndex].skillLevel}
                     memberSince={cards[previewCardIndex].memberSince}

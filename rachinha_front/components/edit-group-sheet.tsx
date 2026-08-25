@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect, ChangeEvent, useMemo, useRef } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import Image from "next/image"
 import { Loader2, Save, ChevronLeft, ChevronRight, User as UserIcon, ArrowBigUpDash, ArrowBigDownDash, MapPin, Settings, Lock, Zap, X, Check, Trophy, Wind, Dribbble, Flame, Hammer, Radio, Briefcase, HelpCircle, Users, Crown, ShieldPlus, Trash2, AlertCircle, MoreVertical } from "lucide-react"
 
 import {
@@ -39,8 +38,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { editGroup, Group, GroupUpdateData, addAdminToGroup, removeAdminFromGroup, deleteGroup, Player, transferGroupOwner, removeMemberFromGroup } from "@/services/groups"
-import { uploadGroupImage } from "@/services/storageService"
-import { ImageCropModal } from "@/components/ImageCropModal"
 import { UserRoleBadge } from "@/components/user-role-badge"
 import { isGroupOwner } from "@/lib/groupPermissions"
 import { getUsersByIds } from "@/services/users"
@@ -74,8 +71,6 @@ interface EditGroupSheetProps {
 const formSchema = z.object({
   name: z.string().min(3, { message: "O nome do grupo deve ter pelo menos 3 caracteres." }).max(100),
   modality: z.string().optional(),
-  photo: z.instanceof(File).optional(),
-  photo_url: z.string().optional(),
   arena: z.string().optional(),
   max_players: z.string().optional(),
   price: z.number().optional().nullable(),
@@ -139,12 +134,6 @@ export function EditGroupSheet({ open, onOpenChange, group, onGroupUpdated, curr
 
   const [currentScreen, setCurrentScreen] = useState<ScreenType>("menu")
   const { toast } = useToast()
-  const [imagePreview, setImagePreview] = useState<string | null>(group.photo_url || null)
-
-  const [cropModalOpen, setCropModalOpen] = useState(false)
-  const [imageToCrop, setImageToCrop] = useState<string | null>(null)
-  const [croppedImageFile, setCroppedImageFile] = useState<File | null>(null)
-
   const initialDuration = useMemo(() => {
     // Duration em minutos vem do backend
     if (group?.duration && typeof group.duration === 'number') {
@@ -174,7 +163,6 @@ export function EditGroupSheet({ open, onOpenChange, group, onGroupUpdated, curr
     defaultValues: {
       name: group.name,
       modality: group.modality || "",
-      photo_url: group.photo_url || "",
       arena: group.arena || "",
       max_players: "10",
       price: group.price ?? undefined,
@@ -189,7 +177,6 @@ export function EditGroupSheet({ open, onOpenChange, group, onGroupUpdated, curr
     form.reset({
       name: group.name,
       modality: group.modality || "",
-      photo_url: group.photo_url || "",
       arena: group.arena || "",
       max_players: "10",
       price: group.price ?? undefined,
@@ -198,9 +185,6 @@ export function EditGroupSheet({ open, onOpenChange, group, onGroupUpdated, curr
       start_time: toHHMM(group.start_time),
       duration: initialDuration,
     })
-    setImagePreview(group.photo_url || null)
-    setCroppedImageFile(null)
-
     const justOpened = open && !prevOpenRef.current
     if (justOpened) {
       setCurrentScreen("menu")
@@ -237,13 +221,6 @@ export function EditGroupSheet({ open, onOpenChange, group, onGroupUpdated, curr
         duration: duration,
       }
 
-      const photoFile = croppedImageFile || data.photo
-      if (photoFile) {
-        toast({ title: "Enviando nova imagem..." })
-        const imageUrl = await uploadGroupImage(photoFile, group._id)
-        updatedData.photo_url = imageUrl
-      }
-
       console.log("Enviando dados:", updatedData)
 
       const updatedGroup = await editGroup(group._id, updatedData)
@@ -263,24 +240,6 @@ export function EditGroupSheet({ open, onOpenChange, group, onGroupUpdated, curr
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImageToCrop(reader.result as string)
-        setCropModalOpen(true)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleCropComplete = (croppedImage: File) => {
-    form.setValue("photo", croppedImage)
-    setCroppedImageFile(croppedImage)
-    setImagePreview(URL.createObjectURL(croppedImage))
   }
 
 const handlePromoteToAdmin = async (userId: string) => {
@@ -444,7 +403,7 @@ const confirmRemoveMember = async () => {
                   </SheetTitle>
                   <SheetDescription className="text-xs text-left">
                     {currentScreen === "menu" && "Escolha o que deseja alterar"}
-                    {currentScreen === "infos" && "Nome e foto do grupo"}
+                    {currentScreen === "infos" && "Nome do grupo"}
                     {currentScreen === "quadra" && "Quadra, preço e tipo de valor"}
                     {currentScreen === "racha" && "Modalidade, dias e horários"}
                     {currentScreen === "permissoes" && "Gerencie os membros do grupo"}
@@ -465,7 +424,7 @@ const confirmRemoveMember = async () => {
                   <UserIcon className="h-5 w-5 text-green-400 flex-shrink-0" />
                   <div className="flex-1">
                     <div className="font-medium text-white">Infos do Grupo</div>
-                    <div className="text-xs text-zinc-400 mt-0.5">Nome e foto</div>
+                    <div className="text-xs text-zinc-400 mt-0.5">Nome do grupo</div>
                   </div>
                   <ChevronRight className="h-5 w-5 text-zinc-400" />
                 </div>
@@ -536,31 +495,6 @@ const confirmRemoveMember = async () => {
                             </span>
                             <Input placeholder="Ex: Racha de Terça" {...field} className="bg-zinc-800 border-zinc-700 pl-10" />
                           </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="photo"
-                    render={() => (
-                      <FormItem>
-                        <Label htmlFor="photo-upload-edit">Foto do Grupo</Label>
-                        {imagePreview && (
-                          <div className="mt-2 flex justify-center">
-                            <Image src={imagePreview} alt="Pré-visualização do grupo" width={80} height={80} className="rounded-full object-cover" />
-                          </div>
-                        )}
-                        <FormControl>
-                          <Input
-                            id="photo-upload-edit"
-                            type="file"
-                            accept="image/*"
-                            className="bg-zinc-800 border-zinc-700 file:text-white"
-                            onChange={handlePhotoChange}
-                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -867,12 +801,6 @@ const confirmRemoveMember = async () => {
           </div>
         </AlertDialogContent>
       </AlertDialog>
-      <ImageCropModal
-        isOpen={cropModalOpen}
-        onClose={() => setCropModalOpen(false)}
-        imageSrc={imageToCrop}
-        onCropComplete={handleCropComplete}
-      />
     </>
   )
 }

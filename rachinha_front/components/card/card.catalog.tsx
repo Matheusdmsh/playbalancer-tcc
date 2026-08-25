@@ -5,7 +5,7 @@ import SvgCardV2 from "@/assets/cards/v2/component"
 
 import type { BaseCardVariant, CardVariant } from "./card.types"
 
-export type CardSvgComponent = React.ComponentType<{ photoUrl: string; className?: string }>
+export type CardSvgComponent = React.ComponentType<{ className?: string }>
 export type CardAvailability = "active" | "disabled"
 
 export type CardCatalogEntry = {

@@ -61,7 +61,6 @@ export type CardOverlayPreset =
 export type UserProfileCardProps = {
   name?: string
   username: string
-  photoUrl?: string
   initials?: string
   missingPhotoNode?: React.ReactNode
   skillLevel?: number
@@ -69,7 +68,6 @@ export type UserProfileCardProps = {
   preferSlim?: boolean
   sport?: UserProfileSport
   memberSince?: string
-  onPhotoChange?: (file: File) => void
   groupRole?: "owner" | "admin"
   overlayPreset?: CardOverlayPreset
   className?: string

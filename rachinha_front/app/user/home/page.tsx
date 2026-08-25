@@ -355,7 +355,6 @@ export default function UserHomePage() {
                   <UserProfileCard
                     name={getCardDisplayName(user?.name, user?.nickname).toUpperCase()}
                     username={user?.username ? `@${user.username}` : "jogador"}
-                    photoUrl={user?.photo_url}
                     initials={getInitials(user?.name)}
                     skillLevel={user?.skill_level ?? 0}
                     variant={user?.active_card_template}
@@ -380,7 +379,6 @@ export default function UserHomePage() {
                 <UserProfileCard 
                   name={getCardDisplayName(user?.name, user?.nickname).toUpperCase()}
                   username={user?.username ? `@${user.username}` : "jogador"}
-                  photoUrl={user?.photo_url}
                   initials={getInitials(user?.name)}
                   skillLevel={user?.skill_level ?? 0}
                   variant={user?.active_card_template}

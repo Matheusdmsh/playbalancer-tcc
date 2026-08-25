@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Camera, IdCardLanyard, Edit, Save, User2, Lock, AtSign, Mail, Phone, LogOut, Plus } from "lucide-react"
+import { IdCardLanyard, Edit, Save, User2, Lock, AtSign, Mail, Phone, LogOut, Plus } from "lucide-react"
 import { Eye, EyeOff } from "lucide-react"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -20,8 +20,6 @@ import { useToast } from "@/components/ui/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { changePassword, editCurrentUser, getCurrentUser } from "@/services/users"
 import { User } from "@/interface/users"
-import { uploadUserImage } from "@/services/storageService"
-import { ImageCropModal } from "@/components/ImageCropModal"
 import { logout } from "@/services/authService"
 import { ProfileCardCarousel } from "@/components/profile-card-carousel"
 import { UserProfileCard } from "@/components/card/user-profile-card"
@@ -59,10 +57,7 @@ export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
-  const [avatar, setAvatar] = useState("/placeholder.svg?height=100&width=100")
   const [currentUser, setCurrentUser] = useState<User | null>(null)
-  const [cropModalOpen, setCropModalOpen] = useState(false);
-  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   // Estados para controlar os sheets laterais
   const [showInfoSheet, setShowInfoSheet] = useState(false);
   const [showPasswordSheet, setShowPasswordSheet] = useState(false);
@@ -72,10 +67,7 @@ export default function UserProfile() {
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [selectedCardIndex, setSelectedCardIndex] = useState(0);
   const [isSavingCardTemplate, setIsSavingCardTemplate] = useState(false);
-  const [isUploadingCardPhoto, setIsUploadingCardPhoto] = useState(false);
   const [cardDraftNickname, setCardDraftNickname] = useState("");
-  const [cardDraftPhotoPreview, setCardDraftPhotoPreview] = useState<string | undefined>(undefined);
-  const [cardDraftPhotoFile, setCardDraftPhotoFile] = useState<File | null>(null);
   
 
   // Preferências do usuário
@@ -139,7 +131,6 @@ export default function UserProfile() {
         const optimisticUser = mergeUserData(previousUser, optimisticPatch)
         if (optimisticUser) {
           setCurrentUser(optimisticUser)
-          setAvatar(optimisticUser.photo_url || "/placeholder.svg?height=100&width=100")
           profileForm.reset(getUserFormValues(optimisticUser))
         }
 
@@ -152,7 +143,6 @@ export default function UserProfile() {
         const mergedUser = mergeUserData(optimisticUser, updatedUser)
         if (mergedUser) {
           setCurrentUser(mergedUser)
-          setAvatar(mergedUser.photo_url || "/placeholder.svg?height=100&width=100")
           profileForm.reset(getUserFormValues(mergedUser))
         }
 
@@ -163,7 +153,6 @@ export default function UserProfile() {
         setIsEditing(false); // Desativa o modo de edição
     } catch (error: any) {
         setCurrentUser(previousUser)
-        setAvatar(previousUser.photo_url || "/placeholder.svg?height=100&width=100")
         profileForm.reset(getUserFormValues(previousUser))
         toast({
             title: "Erro ao atualizar",
@@ -244,36 +233,6 @@ const getUserFormValues = (user: User) => ({
   phone: user.phone_number || "",
 });
 
-  const handleCardPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setImageToCrop(event.target.result as string);
-          setCropModalOpen(true);
-        }
-      };
-      reader.readAsDataURL(file);
-      e.target.value = "";
-    }
-  };
-
-  const handleCropComplete = async (croppedImage: File) => {
-    if (!croppedImage || !currentUser) return
-
-    const previewUrl = URL.createObjectURL(croppedImage)
-    if (cardDraftPhotoPreview?.startsWith("blob:")) {
-      URL.revokeObjectURL(cardDraftPhotoPreview)
-    }
-    setCardDraftPhotoPreview(previewUrl)
-    setCardDraftPhotoFile(croppedImage)
-    toast({
-      title: "Prévia atualizada",
-      description: "A nova foto já está aparecendo no card.",
-    })
-  };
-
   const setDefaultPaymentMethod = (id: number) => {
     setPaymentMethods(
       paymentMethods.map((method) => ({
@@ -312,7 +271,6 @@ const getUserFormValues = (user: User) => ({
             username: user.username || "",
             phone: user.phone_number || "",
           })
-          setAvatar(user.photo_url || "/placeholder.svg?height=100&width=100")
         } else {
           throw new Error("Dados do usuário não encontrados.")
         }
@@ -336,8 +294,7 @@ const getUserFormValues = (user: User) => ({
   const selectedCardTemplate = selectedCardOption.id
 
   const previewNickname = showCardTemplateSheet ? cardDraftNickname : currentUser?.nickname
-  const previewPhoto = showCardTemplateSheet ? cardDraftPhotoPreview : undefined
-  const cardSheetBusy = isSavingCardTemplate || isUploadingCardPhoto
+  const cardSheetBusy = isSavingCardTemplate
   const profileCardDisplayName = getCardDisplayName(currentUser?.name, currentUser?.nickname).toUpperCase()
   const profileCardUsername = currentUser?.username ? `@${currentUser.username}` : "jogador"
   const profileCardMemberSince = currentUser?.created_at
@@ -355,22 +312,19 @@ const getUserFormValues = (user: User) => ({
     return PROFILE_CARD_CATALOG.map((option) => ({
       name,
       username,
-      photoUrl: previewPhoto || (avatar && !avatar.includes("placeholder") ? avatar : undefined),
       initials: getInitials(currentUser?.name),
       skillLevel: currentUser?.skill_level ?? 0,
       memberSince: currentUser?.created_at ? formatMemberSince(currentUser.created_at) : undefined,
       cardVariant: option.previewVariant,
       
     }));
-  }, [currentUser, previewNickname, previewPhoto, avatar]);
+  }, [currentUser, previewNickname]);
 
   useEffect(() => {
     if (!showCardTemplateSheet || !currentUser) return
 
     setSelectedCardIndex(getProfileSelectableCardIndex(currentUser.active_card_template))
     setCardDraftNickname(currentUser.nickname || "")
-    setCardDraftPhotoPreview(currentUser.photo_url || undefined)
-    setCardDraftPhotoFile(null)
   }, [showCardTemplateSheet, currentUser])
 
   const handleSaveCardTemplate = async () => {
@@ -380,34 +334,23 @@ const getUserFormValues = (user: User) => ({
 
     try {
       setIsSavingCardTemplate(true);
-      let nextPhotoUrl = currentUser.photo_url || undefined
-
-      if (cardDraftPhotoFile) {
-        setIsUploadingCardPhoto(true)
-        nextPhotoUrl = await uploadUserImage(cardDraftPhotoFile, currentUser._id)
-      }
-
       const optimisticUser = mergeUserData(previousUser, {
         active_card_template: selectedCardTemplate,
         nickname: cardDraftNickname,
-        ...(nextPhotoUrl ? { photo_url: nextPhotoUrl } : {}),
       })
 
       if (optimisticUser) {
         setCurrentUser(optimisticUser);
-        setAvatar(optimisticUser.photo_url || "/placeholder.svg?height=100&width=100")
         profileForm.reset(getUserFormValues(optimisticUser))
       }
 
       const updatedUser = await editCurrentUser({
         active_card_template: selectedCardTemplate,
         nickname: cardDraftNickname,
-        ...(nextPhotoUrl ? { photo_url: nextPhotoUrl } : {}),
       } as any);
       const mergedUser = mergeUserData(optimisticUser, updatedUser);
       if (mergedUser) {
         setCurrentUser(mergedUser);
-        setAvatar(mergedUser.photo_url || "/placeholder.svg?height=100&width=100")
         profileForm.reset(getUserFormValues(mergedUser))
       }
       toast({
@@ -417,7 +360,6 @@ const getUserFormValues = (user: User) => ({
       setShowCardTemplateSheet(false);
     } catch (error: any) {
       setCurrentUser(previousUser);
-      setAvatar(previousUser.photo_url || "/placeholder.svg?height=100&width=100")
       profileForm.reset(getUserFormValues(previousUser))
       toast({
         title: "Erro ao atualizar card",
@@ -425,7 +367,6 @@ const getUserFormValues = (user: User) => ({
         variant: "destructive",
       });
     } finally {
-      setIsUploadingCardPhoto(false)
       setIsSavingCardTemplate(false);
     }
   };
@@ -492,7 +433,6 @@ const getUserFormValues = (user: User) => ({
              <UserProfileCard
                name={profileCardDisplayName}
                username={profileCardUsername}
-               photoUrl={currentUser?.photo_url || undefined}
                initials={getInitials(currentUser?.name)}
                skillLevel={currentUser?.skill_level ?? 0}
                variant={currentUser?.active_card_template}
@@ -511,14 +451,6 @@ const getUserFormValues = (user: User) => ({
              Alterar card
            </Button>
          </div>
-
-
-        <ImageCropModal
-          isOpen={cropModalOpen}
-          onClose={() => setCropModalOpen(false)}
-          imageSrc={imageToCrop}
-          onCropComplete={handleCropComplete}
-        />
 
         {/* Coluna da direita - Menu de botões e sheets laterais */}
         <div className="w-full md:w-3/5 flex flex-col gap-4 mt-8 md:mt-0">
@@ -813,24 +745,6 @@ const getUserFormValues = (user: User) => ({
                     </div>
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <label htmlFor="card-photo-upload" className="flex-1">
-                        <span className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-zinc-100 transition-colors hover:border-green-400 hover:bg-green-800/40 hover:text-green-400">
-                          {isUploadingCardPhoto ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
-                          {cardDraftPhotoFile ? "Trocar foto" : "Alterar foto"}
-                        </span>
-                      </label>
-                      <input
-                        id="card-photo-upload"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleCardPhotoChange}
-                        disabled={cardSheetBusy}
-                      />
-                    </div>
-                  </div>
                 </div>
 
                 <Button
@@ -846,7 +760,7 @@ const getUserFormValues = (user: User) => ({
                   ) : (
                     <Save className="h-4 w-4 text-green-400" />
                   )}
-                  {isUploadingCardPhoto ? "Enviando imagem..." : isSavingCardTemplate ? "Salvando..." : "Salvar Card"}
+                  {isSavingCardTemplate ? "Salvando..." : "Salvar Card"}
                 </Button>
               </div>
             </SheetContent>
@@ -861,7 +775,6 @@ const getUserFormValues = (user: User) => ({
                   <UserProfileCard
                     name={profileCardDisplayName}
                     username={profileCardUsername}
-                    photoUrl={currentUser?.photo_url || undefined}
                     initials={getInitials(currentUser?.name)}
                     skillLevel={currentUser?.skill_level ?? 0}
                     memberSince={profileCardMemberSince}
