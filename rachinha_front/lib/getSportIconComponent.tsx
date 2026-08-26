@@ -7,7 +7,6 @@ import {
   Hammer,
   Radio,
   Briefcase,
-  Users,
   HelpCircle,
 } from "lucide-react"
 

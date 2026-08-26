@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Loader2, Save, ChevronLeft, ChevronRight, User as UserIcon, ArrowBigUpDash, ArrowBigDownDash, MapPin, Settings, Lock, Zap, X, Check, Trophy, Wind, Dribbble, Flame, Hammer, Radio, Briefcase, HelpCircle, Users, Crown, ShieldPlus, Trash2, AlertCircle, MoreVertical } from "lucide-react"
+import { Loader2, Save, ChevronLeft, ChevronRight, User as UserIcon, ArrowBigUpDash, ArrowBigDownDash, MapPin, Settings, Lock, Zap, X, Users, Crown, Trash2, AlertCircle, MoreVertical } from "lucide-react"
 
 import {
   Sheet,
@@ -25,10 +25,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import { useToast } from "@/components/ui/use-toast"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -37,7 +35,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { editGroup, Group, GroupUpdateData, addAdminToGroup, removeAdminFromGroup, deleteGroup, Player, transferGroupOwner, removeMemberFromGroup } from "@/services/groups"
+import { editGroup, Group, GroupUpdateData, addAdminToGroup, removeAdminFromGroup, deleteGroup, transferGroupOwner, removeMemberFromGroup } from "@/services/groups"
 import { UserRoleBadge } from "@/components/user-role-badge"
 import { isGroupOwner } from "@/lib/groupPermissions"
 import { getUsersByIds } from "@/services/users"
@@ -48,12 +46,8 @@ import { DurationField } from "@/components/duration-field"
 import { TimeField } from "@/components/time-field"
 import type { User } from "@/interface/users"
 import {
-  SPORTS,
   WEEK_DAYS,
-  DURATIONS,
-  PRICE_TYPE_DESCRIPTIONS,
   BUTTON_STYLES,
-  INPUT_STYLES,
   WEEKDAY_BUTTON_STYLES,
 } from "@/lib/groupFormConstants"
 import { useIsMobile } from "@/hooks/use-mobile"

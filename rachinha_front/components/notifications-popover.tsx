@@ -23,7 +23,7 @@ const formatRelativeTime = (dateString: string) => {
             addSuffix: true,
             locale: ptBR,
         });
-    } catch (error) {
+    } catch {
         return dateString;
     }
 };
@@ -84,7 +84,7 @@ export function NotificationsPopover() {
               await markAllAsRead();
               setUnreadCount(0);
               setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-          } catch (error: any) {
+          } catch {
               toast({ title: "Erro", description: "Não foi possível marcar as notificações como lidas.", variant: "destructive"});
           }
       }

@@ -4,7 +4,6 @@ import React from "react"
 import { usePathname } from "next/navigation"
 import { UserNav } from "@/components/user-nav"
 import { UserSidebar } from "@/components/user-sidebar"
-import { FeedbackButton } from "@/components/feedback-button"
 import { EmailVerificationBanner } from "@/components/email-verification-banner"
 
 

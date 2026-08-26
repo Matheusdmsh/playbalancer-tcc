@@ -11,7 +11,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 

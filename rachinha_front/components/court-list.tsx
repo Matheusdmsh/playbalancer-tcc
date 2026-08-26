@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState, useEffect, useCallback } from "react"
-import Image from "next/image"
 import { Heart, Loader2, ChevronLeft, ChevronRight, Star, Layers } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
@@ -51,7 +50,7 @@ export function CourtList({ sport, date, location, time }: CourtListProps) {
       if (Array.isArray(data)) {
         setFavorites(new Set(data))
       }
-    } catch (error) {
+    } catch {
       // Ignore if not logged in
     }
   }

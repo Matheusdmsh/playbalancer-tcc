@@ -2,26 +2,16 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   ChevronLeft,
   Users,
   Plus,
-  DollarSign,
   History,
   ClipboardList,
   UserPlus,
   ArrowUpCircle,
   ArrowDownCircle,
-  Trash2,
   Loader2,
-  Minus,
-  MoreVertical,
-  Edit,
-  Share2,
-  Link2,
-  Flag,
-  Calendar,
   CalendarPlus,
   Banknote,
   BanknoteArrowUp,
@@ -29,18 +19,9 @@ import {
   Wallet,
   X,
   MapPin,
-  Trophy,
-  Check,
-  CalendarCheck2,
-  CalendarSync,
-  CalendarX2,
-  CalendarClock,
-  CalendarFold,
-  Clock3,
   Settings,
   Ghost,
   Star,
-  Medal,
   Pencil
 } from "lucide-react";
 import { format as formatDateFns } from "date-fns";
@@ -48,10 +29,8 @@ import { ptBR } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
-import { Separator } from "@/components/ui/separator";
 import { RemoveMemberDialog } from "@/components/remove-member-dialog";
 import { CreateBookingSheet } from "@/components/create-booking-sheet";
 import { TransactionSheet } from "@/components/transaction-sheet";
@@ -60,22 +39,11 @@ import { UserRoleBadge } from "@/components/user-role-badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { RatingStars } from "@/components/ui/rating-stars";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 // --- Importando os Serviços da API ---
 import { getGroupById, Group, removeMemberFromGroup, addMemberToGroup, updateMemberSkillLevel } from "@/services/groups";
 import { BookingPlayerVote, getBookingsByGroupId, voteBookingPlayer } from "@/services/bookings";
-import {
-  getTransactionsForGroup,
-  getGroupBalance,
-  Transaction,
-  Balance,
-} from "@/services/transactions";
+import type { Balance } from "@/services/transactions";
 import {
   getUsersByIds,
   getCurrentUser,
@@ -123,10 +91,8 @@ export default function GroupDashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Estados para interatividade da UI
-  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
-  const [transactionType, setTransactionType] = useState<"revenue" | "expense">("revenue");
   const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<User | null>(null);
   const [isRemovingMember, setIsRemovingMember] = useState(false);
@@ -1231,7 +1197,6 @@ export default function GroupDashboardPage() {
               }}
               currentUser={currentUser}
               playersById={playersById}
-              group={group}
               isGroupAdmin={!!isGroupAdmin}
               formatDate={formatDate}
               formatCompactDate={formatCompactDate}
@@ -1262,7 +1227,6 @@ export default function GroupDashboardPage() {
               }}
               currentUser={currentUser}
               playersById={playersById}
-              group={group}
               isGroupAdmin={!!isGroupAdmin}
               formatDate={formatDate}
               formatCompactDate={formatCompactDate}
@@ -1428,7 +1392,6 @@ const PartidasSection = ({
   onRefreshBookings,
   currentUser,
   playersById,
-  group,
   isGroupAdmin,
   formatDate,
   formatCompactDate,
@@ -1447,7 +1410,6 @@ const PartidasSection = ({
   onRefreshBookings: () => Promise<void>;
   currentUser: User | null;
   playersById: Map<string, User>;
-  group: Group | null;
   isGroupAdmin: boolean;
   formatDate: (date: string) => string;
   formatCompactDate: (date: string) => string;
@@ -1555,8 +1517,6 @@ const PartidasSection = ({
               });
 
               const isVoteable = voteableBookingIds?.has(booking._id);
-              const titleDateTime = `${booking.modality || "Sem esporte"} • ${formatCompactDate(booking.start_time)} • ${formatTime(booking.start_time)}`;
-
               return (
                 <BookingCard
                   key={booking._id}

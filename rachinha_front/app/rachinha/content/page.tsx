@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import api from "@/services/api"
 import { Database, Folder, MapPin, Map, BarChart4 } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
 export default function ContentMetricsPage() {
   const [data, setData] = useState<any>(null)

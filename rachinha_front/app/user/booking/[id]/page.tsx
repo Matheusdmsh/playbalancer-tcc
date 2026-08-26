@@ -2,10 +2,9 @@
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Star, Users, Calendar, Clock, ArrowLeft, Swords, Crown, UserPlus, Trash2, ChevronLeft, ChevronRight, History, Edit, CalendarCheck2, CalendarClock, CalendarX2, X, Ghost, LockKeyhole, UnlockKeyhole, Check, Share2, TriangleAlert, SlidersHorizontal, LoaderCircle } from "lucide-react";
+import { Star, Users, Calendar, Clock, Swords, UserPlus, Trash2, ChevronLeft, ChevronRight, History, Edit, CalendarCheck2, CalendarClock, CalendarX2, X, Ghost, LockKeyhole, UnlockKeyhole, Check, Share2, TriangleAlert, SlidersHorizontal, LoaderCircle } from "lucide-react";
 
 // --- Componentes UI ---
 import { Button } from "@/components/ui/button";
@@ -25,14 +24,12 @@ import { Booking } from "@/interface/booking";
 import { User } from "@/interface/users";
 import { Group } from "@/services/groups";
 import { Invite } from "@/interface/invite";
-import { Switch } from "@/components/ui/switch";
 import { EditBookingSheet } from "@/components/edit-booking-sheet";
 import { CancelBookingDialog } from "@/components/cancel-booking-dialog";
 import { getSportIcon } from "@/lib/getSportIcon";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { UserProfileCard } from "@/components/card/user-profile-card";
-import { HorizontalScroll } from "@/components/horizontal-scroll";
 import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@/components/ui/dialog";
 import { RatingStars, normalizeSkillRating } from "@/components/ui/rating-stars";
 import useEmblaCarousel from "embla-carousel-react";
@@ -111,9 +108,6 @@ const formatTeamLevel = (totalSkillRaw: unknown, teamSize: number) => {
   const roundedLevel = Math.round(getTeamLevel(totalSkillRaw, teamSize) * 2) / 2;
   return roundedLevel.toFixed(1);
 };
-
-const CARD_SILHOUETTE_PATH =
-  "M107.609 83.1562V1065.41C107.609 1086.74 119.984 1106.15 139.333 1115.14L507.974 1286.42C528.089 1295.77 551.307 1295.77 571.422 1286.42L940.062 1115.14C959.411 1106.15 971.786 1086.74 971.786 1065.41V83.1562C971.786 63.8333 956.125 48.1719 936.802 48.1719H142.594C123.271 48.1719 107.609 63.8333 107.609 83.1562Z";
 
 // ============================================================================
 // COMPONENTE PRINCIPAL DA PÁGINA
@@ -216,7 +210,7 @@ export default function BookingDetailPage() {
         await updateBooking(booking._id, { status_list: checked });
         toast({ title: `Lista de presença ${checked ? 'habilitada' : 'desabilitada'}.` });
         refreshPageData();
-      } catch (error: any) {
+      } catch {
         toast({ title: "Erro", description: "Não foi possível atualizar o status da lista.", variant: "destructive" });
         setBooking((prev) => prev ? { ...prev, status_list: previousStatus } : prev);
       }
@@ -325,12 +319,6 @@ export default function BookingDetailPage() {
     }
   };
 
-  const isOwner = useMemo(() => {
-      if (!currentUser || !booking) return false;
-      const ownerId = getPlayerId(booking.owner_id) || booking.owner_id;
-      return ownerId === currentUser._id;
-  }, [booking, currentUser]);
-
   const isGroupAdmin = useMemo(() => {
       if (!currentUser || !groupInfo) return false;
       return (
@@ -392,7 +380,7 @@ export default function BookingDetailPage() {
             const user = await getCurrentUser();
             setCurrentUser(user);
             await fetchData();
-        } catch (error) {
+        } catch {
             toast({ title: "Erro de Autenticação", description: "Por favor, faça login para continuar.", variant: "destructive" });
             router.push('/login');
         }
@@ -494,10 +482,6 @@ export default function BookingDetailPage() {
 
   const buildTeamsShareMessage = () => {
     if (!booking || !teams) return "";
-
-    const hasGuestPlayers = teams.teams.some((team) =>
-      team.some((playerId) => Boolean(playersInfo.get(playerId)?.is_placeholder))
-    );
 
     const lines: string[] = [
       `🚨 TIMES DEFINIDOS! 🚨`,
@@ -958,11 +942,6 @@ export default function BookingDetailPage() {
     setIsEditModalOpen(true);
   };
 
-  const handleCancelBooking = (bookingData: Booking) => {
-    setBookingToCancel(bookingData);
-    setIsCancelModalOpen(true);
-  };
-
   const confirmCancelBooking = async () => {
     if (!bookingToCancel) return;
     setIsCancelling(true);
@@ -1037,20 +1016,6 @@ export default function BookingDetailPage() {
   const hoursAfterEnd = endTime ? (now.getTime() - endTime.getTime()) / (1000 * 60 * 60) : null;
   const isWithinVoteWindow = Boolean(hasEnded && hoursAfterEnd !== null && hoursAfterEnd <= 48);
   const canOpenVoteFlow = Boolean(booking && isWithinVoteWindow && isCurrentUserConfirmed && voteCandidates.length > 0);
-
-  const voteStatusMessage = !booking
-    ? null
-    : !hasEnded
-      ? "A avaliação abre depois que a partida termina."
-      : !isWithinVoteWindow
-        ? "A janela de avaliação (48h) já encerrou para esta partida."
-        : !isCurrentUserConfirmed
-          ? "Somente jogadores confirmados podem avaliar."
-          : voteCandidates.length === 0
-            ? "Nenhum jogador elegível para avaliação nesta partida."
-            : null;
-
-  const votedCount = voteCandidates.filter((candidate) => typeof votesByPlayerId[candidate.id] !== "undefined").length;
 
   const openVoteSheet = () => {
     if (!booking) return;
@@ -2454,7 +2419,7 @@ function StarRating({ currentSkill, onSkillUpdate, enabled, showFrame }: StarRat
 
                         try {
                           await onSkillUpdate(normalizedPendingSkill);
-                        } catch (error) {
+                        } catch {
                           setIsSaving(false);
                           setSavingTargetSkill(null);
                         }

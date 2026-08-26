@@ -3,34 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
-import { ArrowRight, Mail, Users, Calendar, WalletCards, ShieldCheck, CheckCircle } from "lucide-react";
-import { postBetaTester } from "@/services/beta_testers";
+import { Users, Calendar, WalletCards } from "lucide-react";
 
 export default function AndroidBetaPage() {
-  const [email, setEmail] = useState("");
-  const { toast } = useToast();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await postBetaTester(email);
-      toast({
-        title: "Inscrição recebida!",
-        description: "Seu e-mail foi adicionado à lista de espera do beta. Fique de olho na sua caixa de entrada!",
-      });
-      setEmail("");
-    } catch (error) {
-      toast({
-        title: "Erro ao inscrever",
-        description: "Não foi possível adicionar seu e-mail. Tente novamente mais tarde.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}

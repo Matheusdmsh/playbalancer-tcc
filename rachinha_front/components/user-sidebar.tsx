@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { RoleSwitcher } from "@/components/role-switcher"
 import { useEffect, useState } from "react"
 import { getCurrentUser } from "@/services/users"
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 
 
 

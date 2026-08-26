@@ -13,7 +13,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { searchUsers, UserSearchResult, createGhostUser, UserSearchParams, getUsersByIds } from "@/services/users";
 import { generateInviteLink, Group, addMemberToGroup } from "@/services/groups";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Loader2, UserPlus, Ghost, Share2, Link as LinkIcon, ChevronLeft, Copy, RefreshCw, Users } from "lucide-react";
+import { Loader2, UserPlus, Ghost, Link as LinkIcon, ChevronLeft, Copy, RefreshCw, Users } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { isGroupAdmin } from "@/lib/groupPermissions";
 import { User } from "@/interface/users";

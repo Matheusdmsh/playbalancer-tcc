@@ -6,18 +6,15 @@ import { useEffect, useMemo, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { IdCardLanyard, Edit, Save, User2, Lock, AtSign, Mail, Phone, LogOut, Plus } from "lucide-react"
+import { IdCardLanyard, Edit, Save, User2, Lock, AtSign, Mail, Phone, LogOut } from "lucide-react"
 import { Eye, EyeOff } from "lucide-react"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Sheet, SheetContent, SheetOverlay, SheetHeader, SheetTitle, SheetDescription, SheetClose } from "@/components/ui/sheet"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { useToast } from "@/components/ui/use-toast"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { changePassword, editCurrentUser, getCurrentUser } from "@/services/users"
 import { User } from "@/interface/users"
 import { logout } from "@/services/authService"
@@ -54,7 +51,6 @@ export default function UserProfile() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast()
   const isMobile = useIsMobile()
-  const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
@@ -70,13 +66,6 @@ export default function UserProfile() {
   const [cardDraftNickname, setCardDraftNickname] = useState("");
   
 
-  // Preferências do usuário
-  const [preferences, setPreferences] = useState({
-    emailNotifications: true,
-    smsNotifications: false,
-    favoritesSports: ["Futebol", "Futsal"],
-  })
- 
   // Formulário de perfil
   const profileForm = useForm<ProfileFormValues, any, ProfileFormValues>({
     resolver: zodResolver(profileFormSchema) as any,
@@ -98,24 +87,6 @@ export default function UserProfile() {
       confirmPassword: "",
     },
   });
-
-  // Cartões de pagamento
-  const [paymentMethods, setPaymentMethods] = useState([
-    {
-      id: 1,
-      type: "Visa",
-      number: "**** **** **** 1234",
-      expiry: "12/25",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      type: "Mastercard",
-      number: "**** **** **** 5678",
-      expiry: "06/24",
-      isDefault: false,
-    },
-  ])
 
   const handleProfileSubmit = async (data: ProfileFormValues) => {
     if (!currentUser) return
@@ -150,7 +121,6 @@ export default function UserProfile() {
             title: "Perfil atualizado",
             description: "Suas informações foram atualizadas com sucesso.",
         });
-        setIsEditing(false); // Desativa o modo de edição
     } catch (error: any) {
         setCurrentUser(previousUser)
         profileForm.reset(getUserFormValues(previousUser))
@@ -232,27 +202,6 @@ const getUserFormValues = (user: User) => ({
   username: user.username || "",
   phone: user.phone_number || "",
 });
-
-  const setDefaultPaymentMethod = (id: number) => {
-    setPaymentMethods(
-      paymentMethods.map((method) => ({
-        ...method,
-        isDefault: method.id === id,
-      })),
-    )
-    toast({
-      title: "Método de pagamento atualizado",
-      description: "Seu método de pagamento padrão foi atualizado.",
-    })
-  }
-
-  const removePaymentMethod = (id: number) => {
-    setPaymentMethods(paymentMethods.filter((method) => method.id !== id))
-    toast({
-      title: "Método de pagamento removido",
-      description: "Seu método de pagamento foi removido com sucesso.",
-    })
-  }
 
   useEffect(() => {
     async function fetchUser() {
@@ -372,11 +321,6 @@ const getUserFormValues = (user: User) => ({
   };
 
   // Google handling logic removed from here as well
-
-  // Converter sport_ratings em array para navegação
-  const sportsArray = currentUser?.sport_ratings
-    ? Object.entries(currentUser.sport_ratings).map(([sport, rating]) => ({ sport, rating }))
-    : []
 
   if (isLoading) {
     return (

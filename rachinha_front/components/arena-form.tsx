@@ -118,7 +118,7 @@ export function ArenaForm({ arena, onSuccess, onCancel }: ArenaFormProps) {
       } else {
         toast({ title: "Endereço não encontrado", variant: "destructive" });
       }
-    } catch (error) {
+    } catch {
       toast({ title: "Erro ao buscar endereço", variant: "destructive" });
     } finally {
       setIsSearching(false);

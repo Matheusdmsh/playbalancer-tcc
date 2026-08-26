@@ -4,12 +4,12 @@ import Link from "next/link"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
-import { Building, Calendar, Home, User, Menu, ShieldAlert } from "lucide-react"
+import { Building, Calendar, Home, Menu, ShieldAlert } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { RoleSwitcher } from "@/components/role-switcher"
 import { useEffect, useState } from "react"
 import { getCurrentUser } from "@/services/users"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 
 export const adminNavItems = [
   {

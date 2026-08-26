@@ -2,16 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   ChevronLeft,
   History,
-  ClipboardList,
   MoreVertical,
   Edit,
   Trash2,
   Loader2,
-  Users,
   Flag,
   MapPin,
   Clock,
@@ -22,7 +19,6 @@ import { ptBR } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -34,10 +30,9 @@ import {
 
 import { getGroupById, Group } from "@/services/groups";
 import { getBookingsByGroupId } from "@/services/bookings";
-import { getUsersByIds, getCurrentUser } from "@/services/users";
+import { getCurrentUser } from "@/services/users";
 import { Booking } from "@/interface/booking";
 import { User } from "@/interface/users";
-import { SportIcons } from "@/components/sport-icons";
 import { EditBookingSheet } from "@/components/edit-booking-sheet";
 import { CancelBookingDialog } from "@/components/cancel-booking-dialog";
 import { cancelBooking } from "@/services/bookings";
@@ -49,7 +44,6 @@ export default function GroupHistoryPage() {
   const groupId = params.id as string;
 
   const [group, setGroup] = useState<Group | null>(null);
-  const [members, setMembers] = useState<User[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,14 +65,6 @@ export default function GroupHistoryPage() {
 
       const bookingsData = await getBookingsByGroupId(groupId);
       setBookings(bookingsData);
-
-      if (groupData.members && groupData.members.length > 0) {
-        const memberIds = groupData.members.map(m => m._id || m.id).filter(Boolean);
-        if (memberIds.length > 0) {
-          const membersData = await getUsersByIds(memberIds);
-          setMembers(membersData);
-        }
-      }
 
       setError(null);
     } catch (err: any) {
@@ -139,28 +125,6 @@ export default function GroupHistoryPage() {
       setIsCancelling(false);
     }
   };
-
-  const getInitials = (name: string): string => {
-    const names = name.split(" ");
-    return (
-      (names[0]?.[0] || "") +
-      (names.length > 1 ? names[names.length - 1]?.[0] : "")
-    ).toUpperCase();
-  };
-
-  const formatRecurrence = (days?: string[] | null): string => {
-    if (!days || days.length === 0) return ""
-    const abbreviations: { [key: string]: string } = {
-      'segunda': 'seg',
-      'terça': 'ter',
-      'quarta': 'qua',
-      'quinta': 'qui',
-      'sexta': 'sex',
-      'sábado': 'sab',
-      'domingo': 'dom'
-    }
-    return days.map(day => abbreviations[day.toLowerCase()] || day).join(", ")
-  }
 
   const activeBookings = bookings.filter(b => b.status !== 'cancelled');
   const pastBookings = activeBookings

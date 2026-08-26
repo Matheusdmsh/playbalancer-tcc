@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Activity, Users, Database, Server, MessageSquare, ArrowLeft, Menu, FileText, CreditCard, ShieldCheck } from "lucide-react"
+import { Activity, Users, Database, Server, MessageSquare, ArrowLeft, Menu, CreditCard, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { getCurrentUser } from "@/services/users"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -67,7 +67,7 @@ export default function RachinhaLayout({
         } else {
           setUser(u)
         }
-      } catch (error) {
+      } catch {
         router.push("/")
       }
     }

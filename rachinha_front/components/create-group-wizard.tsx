@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Loader2, ArrowRight, ArrowLeft, Check, Users, MapPin, Calendar, X } from "lucide-react"
+import { Loader2, ArrowRight, ArrowLeft, Check, Users, MapPin, Calendar } from "lucide-react"
 
 import {
   Sheet,
@@ -18,17 +18,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from "@/components/ui/form"
 import { useToast } from "@/components/ui/use-toast"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
 
 import { createGroup, Group } from "@/services/groups"
 import {
-  SPORTS,
   WEEK_DAYS,
-  DURATIONS,
-  PRICE_TYPE_DESCRIPTIONS,
-  BUTTON_STYLES,
-  INPUT_STYLES,
   WEEKDAY_BUTTON_STYLES,
 } from "@/lib/groupFormConstants"
 import { SportField } from "@/components/sport-field"

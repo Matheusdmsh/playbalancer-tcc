@@ -89,7 +89,7 @@ export default function RentOutYourCourtPage() {
       try {
         const currentUser = await getCurrentUser()
         setUser(currentUser)
-      } catch (error) {
+      } catch {
         toast({
           title: "Você não está logado",
           description: "Faça login para anunciar seu espaço.",
