@@ -57,6 +57,6 @@ export async function getGroupBalance(groupId: string): Promise<Balance> {
 }
 
 export const createTransaction = async (payload: CreateTransactionPayload): Promise<Transaction> => {
-  const response = await api.post('/transactions/', payload);
+  const response = await api.post('/transactions', payload);
   return response.data;
 };

@@ -87,6 +87,7 @@ const EMPTY_CARD_COMPONENT: CardSvgComponent = () => null
 export function UserProfileCard({
   name,
   username,
+  photoUrl,
   initials,
   missingPhotoNode,
   skillLevel,
@@ -99,6 +100,7 @@ export function UserProfileCard({
 }: UserProfileCardProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState<number | null>(null)
+  const [photoFailed, setPhotoFailed] = useState(false)
 
   useLayoutEffect(() => {
     const node = containerRef.current
@@ -148,6 +150,7 @@ export function UserProfileCard({
   const displaySport = resolvedSportText.value ?? sport?.name
   const starsValue = normalizeSkillRating(resolvedStars.value != null ? resolvedStars.value : skillLevel ?? 0)
   const displayInitials = buildDisplayInitials(name, initials)
+  const shouldRenderPhoto = Boolean(photoUrl && photoUrl.trim() && !photoFailed)
 
   const roleIcon =
     groupRole === "owner"
@@ -164,7 +167,24 @@ export function UserProfileCard({
     >
       <SvgComponent className="absolute inset-0 h-full w-full" />
 
-      {hasMeasuredWidth && missingPhotoNode && (
+      {hasMeasuredWidth && shouldRenderPhoto && (
+        <img
+          src={photoUrl}
+          alt={displayName || username || "Perfil do jogador"}
+          onError={() => setPhotoFailed(true)}
+          className="pointer-events-none absolute inset-0 h-full w-full rounded-[16%] object-cover"
+          style={{
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            width: measuredWidth * 0.68 * scale,
+            height: measuredWidth * 0.68 * scale,
+            objectPosition: "center",
+          }}
+        />
+      )}
+
+      {hasMeasuredWidth && missingPhotoNode && !shouldRenderPhoto && (
         <div
           className="pointer-events-none absolute flex items-center justify-center text-white/30"
           style={{
@@ -179,7 +199,7 @@ export function UserProfileCard({
         </div>
       )}
 
-      {hasMeasuredWidth && !missingPhotoNode && displayInitials && (
+      {hasMeasuredWidth && !missingPhotoNode && !shouldRenderPhoto && displayInitials && (
         <div
           className="pointer-events-none absolute flex items-center justify-center font-bold text-white/30 select-none leading-none"
           style={{

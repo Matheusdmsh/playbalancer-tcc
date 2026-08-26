@@ -61,6 +61,7 @@ export type CardOverlayPreset =
 export type UserProfileCardProps = {
   name?: string
   username: string
+  photoUrl?: string
   initials?: string
   missingPhotoNode?: React.ReactNode
   skillLevel?: number
