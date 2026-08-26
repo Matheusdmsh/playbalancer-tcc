@@ -1,5 +1,6 @@
 import api from "./api";
 import Cookies from 'js-cookie';
+import { handleApiError } from "@/lib/utils";
 
 const TOKEN_COOKIE_NAME = 'rachinha_token';
 
@@ -23,9 +24,8 @@ export async function getMyNotifications(): Promise<Notification[]> {
   try {
     const response = await api.get<Notification[]>('/notifications/my');
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao buscar notificações";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao buscar notificações");
   }
 }
 
@@ -33,7 +33,7 @@ export async function getUnreadCount(): Promise<number> {
   try {
     const response = await api.get<UnreadCountResponse>('/notifications/unread/count');
     return response.data.unread_count;
-  } catch (error: any) {
+  } catch {
     return 0;
   }
 }
@@ -41,19 +41,17 @@ export async function getUnreadCount(): Promise<number> {
 export async function markAsRead(notificationId: string): Promise<void> {
   try {
     await api.post(`/notifications/${notificationId}/read`);
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao marcar notificação como lida";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao marcar notificação como lida");
   }
 }
 
 export async function markAllAsRead(): Promise<{ message: string }> {
   try {
-    const response = await api.post('/notifications/read/all');
+    const response = await api.post<{ message: string }>('/notifications/read/all');
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao marcar todas as notificações como lidas";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao marcar todas as notificações como lidas");
   }
 }
 
@@ -102,7 +100,7 @@ export class NotificationSocket {
         if (payload.type === 'unread_count_update' && typeof payload.unread_count !== 'undefined') {
           this.onUnreadUpdate?.(payload.unread_count);
         }
-      } catch (e) {
+      } catch {
         this.onError?.("Erro ao processar notificação recebida.");
       }
     };

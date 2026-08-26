@@ -1,4 +1,6 @@
 import Cookies from 'js-cookie';
+import axios from 'axios';
+import { handleApiError } from '@/lib/utils';
 import api from './api'; // Import a instância do axios para o login
 
 // O nome do cookie é definido como uma constante para evitar erros de digitação.
@@ -64,17 +66,11 @@ export async function login(username: string, password: string): Promise<{ acces
         }
 
         return response.data;
-    } catch (error: any) {
-        let message = "Ocorreu um erro desconhecido.";
-        if (error.response) {
-            message = error.response.data.detail || "E-mail ou senha inválidos.";
-        } else if (error.request) {
-            message = "Não foi possível conectar ao servidor.";
-        } else {
-            message = error.message;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.request && !error.response) {
+            throw new Error("Não foi possível conectar ao servidor.");
         }
-        // Lança o erro para que a interface possa exibi-lo ao usuário.
-        throw new Error(message);
+        throw handleApiError(error, "E-mail ou senha inválidos.");
     }
 }
 
@@ -82,12 +78,8 @@ export async function loginWithGoogle() {
   try {
     const response = await api.get("/auth/google/login");
     return response.data;
-  } catch (error: any) {
-    const message =
-      error.response?.data?.detail ||
-      error.response?.data?.message ||
-      "Erro ao iniciar o login com Google";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao iniciar o login com Google");
   }
 }
 
@@ -95,9 +87,8 @@ export async function checkGoogleStatus(idToken: string) {
   try {
     const response = await api.post("/auth/google/check", { id_token: idToken });
     return response.data; // { status: "linked" | "email_match" | "new_user", email: string }
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao verificar status Google";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao verificar status Google");
   }
 }
 
@@ -108,9 +99,8 @@ export async function authenticateGoogle(idToken: string) {
       setToken(response.data.access_token);
     }
     return response.data; // Pode retornar access_token ou temp_token
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao autenticar com Google";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao autenticar com Google");
   }
 }
 
@@ -128,13 +118,10 @@ export async function register(name: string, username: string, email: string, pa
     const response = await api.post("/auth/register", payload);
     console.log("Cadastro bem-sucedido:", response.data);
     return response.data;
-  } catch (error: any) {
-    const message =
-      error.response?.data?.detail ||
-      error.response?.data?.message ||
-      "Erro ao registrar usuário";
-      console.log("Erro ao registrar usuário:", message);
-    throw new Error(message);
+  } catch (error) {
+    const apiError = handleApiError(error, "Erro ao registrar usuário");
+    console.log("Erro ao registrar usuário:", apiError.message);
+    throw apiError;
   }
 }
 
@@ -142,12 +129,8 @@ export async function resendEmailVerification() {
   try {
     const response = await api.post("/auth/resend-verification");
     return response.data;
-  } catch (error: any) {
-    const message =
-      error.response?.data?.detail ||
-      error.response?.data?.message ||
-      "Erro ao tentar reenviar o e-mail de verificação.";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao tentar reenviar o e-mail de verificação.");
   }
 }
 
@@ -158,9 +141,8 @@ export async function googleRegister(temp_token: string, username: string, nickn
       setToken(response.data.access_token);
     }
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao criar conta com Google";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao criar conta com Google");
   }
 }
 
@@ -171,9 +153,8 @@ export async function googleLink(temp_token: string, username: string, password:
       setToken(response.data.access_token);
     }
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao vincular conta com Google";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao vincular conta com Google");
   }
 }
 export async function authenticateApple(idToken: string, name?: string, username?: string) {
@@ -183,9 +164,8 @@ export async function authenticateApple(idToken: string, name?: string, username
       setToken(response.data.access_token);
     }
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao autenticar com Apple";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao autenticar com Apple");
   }
 }
 
@@ -193,17 +173,16 @@ export async function appleLink(idToken: string) {
   try {
     const response = await api.post("/auth/apple/link", { id_token: idToken });
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao vincular conta com Apple";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao vincular conta com Apple");
   }
 }
 export async function getConnections() {
   try {
     const response = await api.get("/auth/connections");
     return response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.detail || "Erro ao buscar conexões");
+  } catch (error) {
+    throw handleApiError(error, "Erro ao buscar conexões");
   }
 }
 
@@ -211,7 +190,7 @@ export async function disconnectProvider(provider: string) {
   try {
     const response = await api.delete(`/auth/connections/${provider}`);
     return response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.detail || "Erro ao remover conexão");
+  } catch (error) {
+    throw handleApiError(error, "Erro ao remover conexão");
   }
 }

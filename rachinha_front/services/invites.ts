@@ -1,5 +1,11 @@
 import { Invite } from "@/interface/invite";
+import { handleApiError } from "@/lib/utils";
 import api from "./api";
+
+interface InviteActionResponse {
+  detail: string;
+  booking_id: string;
+}
 
 /**
  * Aceita um convite para um agendamento (racha).
@@ -7,13 +13,12 @@ import api from "./api";
  * @param inviteId - O ID do convite.
  * @returns Uma mensagem de confirmação.
  */
-export async function acceptBookingInvite(bookingId: string, inviteId: string): Promise<{ detail: string, booking_id: string }> {
+export async function acceptBookingInvite(bookingId: string, inviteId: string): Promise<InviteActionResponse> {
   try {
-    const response = await api.post(`/bookings/${bookingId}/invite/${inviteId}/accept`);
+    const response = await api.post<InviteActionResponse>(`/bookings/${bookingId}/invite/${inviteId}/accept`);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao aceitar o convite";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao aceitar o convite");
   }
 }
 
@@ -23,13 +28,12 @@ export async function acceptBookingInvite(bookingId: string, inviteId: string): 
  * @param inviteId - O ID do convite.
  * @returns Uma mensagem de confirmação.
  */
-export async function declineBookingInvite(bookingId: string, inviteId: string): Promise<{ detail: string, booking_id: string }> {
+export async function declineBookingInvite(bookingId: string, inviteId: string): Promise<InviteActionResponse> {
   try {
-    const response = await api.post(`/bookings/${bookingId}/invite/${inviteId}/decline`);
+    const response = await api.post<InviteActionResponse>(`/bookings/${bookingId}/invite/${inviteId}/decline`);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao recusar o convite";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao recusar o convite");
   }
 }
 
@@ -41,8 +45,7 @@ export async function getMyBookingInvites(): Promise<Invite[]> {
   try {
     const response = await api.get<Invite[]>('/bookings/invites/my');
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao buscar seus convites";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao buscar seus convites");
   }
 }

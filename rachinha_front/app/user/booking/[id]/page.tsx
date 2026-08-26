@@ -1965,7 +1965,9 @@ export default function BookingDetailPage() {
           searchParams={{ group_id: groupInfo._id, include_ghosts: true }}
           title="Adicionar do Grupo"
           subtitle="Busque membros do grupo para adicionar ao racha."
-          onUserAction={(user) => addPlayerToBooking(booking._id, user._id)}
+          onUserAction={async (user) => {
+            await addPlayerToBooking(booking._id, user._id)
+          }}
           onGhostCreated={async (user) => {
             await addPlayerToBooking(booking._id, user._id);
           }}

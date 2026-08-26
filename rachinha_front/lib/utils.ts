@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
+import axios from "axios"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -23,11 +24,29 @@ export function parseUTCDate(dateString: string | undefined | null): Date | null
   return new Date(dateString);
 }
 
-export function handleApiError(error: any, defaultMessage: string): Error {
-    const message =
-      error?.response?.data?.detail ||
-      error?.response?.data?.message ||
-      error?.message ||
-      defaultMessage;
-    return new Error(message);
+interface ApiErrorData {
+  detail?: unknown
+  message?: unknown
+}
+
+function getErrorText(value: unknown): string | undefined {
+  if (typeof value === "string" && value.trim()) return value
+  if (value == null) return undefined
+
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return undefined
+  }
+}
+
+export function handleApiError(error: unknown, defaultMessage: string): Error {
+  if (axios.isAxiosError<ApiErrorData>(error)) {
+    const apiMessage =
+      getErrorText(error.response?.data?.detail) ??
+      getErrorText(error.response?.data?.message)
+    return new Error(apiMessage ?? defaultMessage)
+  }
+
+  return new Error(error instanceof Error ? error.message : defaultMessage)
 }

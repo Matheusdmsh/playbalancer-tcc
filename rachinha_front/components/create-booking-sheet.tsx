@@ -32,8 +32,9 @@ import { TimeField } from "@/components/time-field";
 import { DateField } from "@/components/date-field";
 import { MaxPlayersField } from "@/components/max-players-field";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { handleApiError } from "@/lib/utils";
 
-import { createBooking } from "@/services/bookings";
+import { createBooking, type CreateBookingResponse } from "@/services/bookings";
 
 // Schema de validação atualizado
 const formSchema = z.object({
@@ -79,8 +80,21 @@ interface CreateBookingSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   groupId: string;
-  group?: any; // Dados do grupo para pré-preenchimento
-  onBookingCreated: (newBooking: any) => void;
+  group?: BookingGroupDefaults;
+  onBookingCreated: (newBooking: CreateBookingResponse) => void;
+}
+
+interface BookingGroupDefaults {
+  start_time?: string | null;
+  recurrence?: string[] | null;
+  duration?: number | null;
+  arena?: string | null;
+  court_name?: string | null;
+  location?: { alt?: string | null } | null;
+  modality?: string | null;
+  max_players?: number | null;
+  price?: number | null;
+  price_type?: "per_person" | "total_split" | null;
 }
 
 export function CreateBookingSheet({
@@ -168,8 +182,8 @@ export function CreateBookingSheet({
     };
   };
 
-  const form = useForm<FormValues, any, FormValues>({
-    resolver: zodResolver(formSchema) as any,
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: getDefaultValues(),
   });
 
@@ -243,7 +257,7 @@ export function CreateBookingSheet({
         modality: data.sport,
         max_players: parseInt(data.maxPlayers, 10),
         associated_group_id: groupId,
-        recurrence_type: "weekly",
+        recurrence_type: "weekly" as const,
         occurrences: 1,
         status_list: true,
         price: data.price ? Number(data.price) : null,
@@ -254,13 +268,11 @@ export function CreateBookingSheet({
       toast({ title: "Sucesso!", description: "Racha agendado com sucesso." });
       onBookingCreated(newBooking);
       handleClose();
-    } catch (error: any) {
+    } catch (error) {
+      const apiError = handleApiError(error, "Não foi possível agendar o racha.");
       toast({
         title: "Erro",
-        description:
-          error.response?.data?.detail ||
-          error.message ||
-          "Não foi possível agendar o racha.",
+        description: apiError.message,
         variant: "destructive",
       });
     } finally {

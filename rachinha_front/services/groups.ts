@@ -1,7 +1,8 @@
 import api from "./api"
+import { handleApiError } from "@/lib/utils"
 
 export interface Player {
-  _id: any
+  _id: string
   id: string
   name?: string
   skill_level?: number | null
@@ -21,7 +22,7 @@ export interface Group {
   invite_token?: string | null;
   arena?: string | null
   price?: number | null
-  price_type?: string | null
+  price_type?: "per_person" | "total_split" | null
   recurrence?: string[] | null
   start_time?: string | null
   duration?: number | null
@@ -55,9 +56,8 @@ export async function createGroup(groupData: GroupCreateData): Promise<Group> {
   try {
     const response = await api.post<Group>("/groups/create", groupData)
     return response.data
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao criar grupo"
-    throw new Error(message)
+  } catch (error) {
+    throw handleApiError(error, "Erro ao criar grupo")
   }
 }
 
@@ -65,9 +65,8 @@ export async function listMyGroups(): Promise<Group[]> {
   try {
     const response = await api.get<Group[]>("/groups/mygroups")
     return response.data
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao listar grupos"
-    throw new Error(message)
+  } catch (error) {
+    throw handleApiError(error, "Erro ao listar grupos")
   }
 }
 
@@ -76,9 +75,8 @@ export async function editGroup(groupId: string, groupData: GroupUpdateData): Pr
     try {
       const response = await api.put<Group>(`/groups/edit/${groupId}`, groupData)
       return response.data
-    } catch (error: any) {
-      const message = error.response?.data?.detail || "Erro ao editar o grupo"
-      throw new Error(message)
+    } catch (error) {
+      throw handleApiError(error, "Erro ao editar o grupo")
     }
 }
   
@@ -86,9 +84,8 @@ export async function editGroup(groupId: string, groupData: GroupUpdateData): Pr
 export async function deleteGroup(groupId: string): Promise<void> {
     try {
         await api.delete(`/groups/delete/${groupId}`)
-    } catch (error: any) {
-        const message = error.response?.data?.detail || "Erro ao excluir o grupo"
-        throw new Error(message)
+    } catch (error) {
+        throw handleApiError(error, "Erro ao excluir o grupo")
     }
 }
 
@@ -96,9 +93,8 @@ export async function getGroupById(groupId: string): Promise<Group> {
   try {
     const response = await api.get<Group>(`/groups/${groupId}`);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao buscar dados do grupo";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao buscar dados do grupo");
   }
 }
 
@@ -120,9 +116,8 @@ export async function addMemberToGroup(groupId: string, memberId: string, skillL
       }
     });
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao adicionar membro ao grupo.";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao adicionar membro ao grupo.");
   }
 }
 
@@ -131,18 +126,17 @@ export async function addMemberToGroup(groupId: string, memberId: string, skillL
  * @param groupId - O ID do grupo.
  * @param memberId - O ID do membro a ser removido.
  */
-export async function removeMemberFromGroup(groupId: string, memberId: string): Promise<any> {
+export async function removeMemberFromGroup(groupId: string, memberId: string): Promise<Group> {
   try {
-    const response = await api.delete(`/groups/${groupId}/members/${memberId}`, {
+    const response = await api.delete<Group>(`/groups/${groupId}/members/${memberId}`, {
       params: {
         group_id: groupId,
         member_id: memberId
       }
     });
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao remover membro";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao remover membro");
   }
 }
 
@@ -160,10 +154,8 @@ export async function generateInviteLink(
       `/groups/${groupId}/invite-link`
     );
     return response.data;
-  } catch (error: any) {
-    const message =
-      error.response?.data?.detail || "Erro ao gerar link de convite";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao gerar link de convite");
   }
 }
 
@@ -176,10 +168,8 @@ export async function getGroupByInviteToken(inviteToken: string): Promise<Group>
   try {
     const response = await api.get<Group>(`/groups/invite/${inviteToken}`);
     return response.data;
-  } catch (error: any) {
-    const message =
-      error.response?.data?.detail || "Erro ao buscar dados do grupo pelo convite";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao buscar dados do grupo pelo convite");
   }
 }
 
@@ -192,10 +182,8 @@ export async function joinGroupWithLink(inviteToken: string): Promise<Group> {
   try {
     const response = await api.post<Group>(`/groups/join/${inviteToken}`);
     return response.data;
-  } catch (error: any) {
-    const message =
-      error.response?.data?.detail || "Erro ao entrar no grupo com o link";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao entrar no grupo com o link");
   }
 }
 
@@ -209,9 +197,8 @@ export async function addAdminToGroup(groupId: string, userId: string): Promise<
   try {
     const response = await api.post<Group>(`/groups/${groupId}/admins/${userId}`);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao adicionar admin";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao adicionar admin");
   }
 }
 
@@ -225,9 +212,8 @@ export async function removeAdminFromGroup(groupId: string, userId: string): Pro
   try {
     const response = await api.delete<Group>(`/groups/${groupId}/admins/${userId}`);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao remover admin";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao remover admin");
   }
 }
 
@@ -241,9 +227,8 @@ export async function transferGroupOwner(groupId: string, newOwnerId: string): P
   try {
     const response = await api.put<Group>(`/groups/${groupId}/transfer-owner/${newOwnerId}`);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao transferir dono";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao transferir dono");
   }
 }
 
@@ -256,9 +241,8 @@ export async function getGroupAdmins(groupId: string): Promise<string[]> {
   try {
     const response = await api.get<{ admins: string[] }>(`/groups/${groupId}/admins`);
     return response.data.admins;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao buscar admins";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao buscar admins");
   }
 }
 
@@ -276,15 +260,7 @@ export async function updateMemberSkillLevel(groupId: string, memberId: string, 
       { params: { skill_level: skillLevel } }
     );
     return response.data;
-  } catch (error: any) {
-    let message = "Erro ao atualizar habilidade do membro";
-    if (error.response?.data?.detail) {
-      message = typeof error.response.data.detail === 'string' 
-        ? error.response.data.detail 
-        : JSON.stringify(error.response.data.detail);
-    } else if (error.message) {
-      message = error.message;
-    }
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao atualizar habilidade do membro");
   }
 }

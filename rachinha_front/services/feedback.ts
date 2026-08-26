@@ -1,4 +1,5 @@
 import api from "./api";
+import { handleApiError } from "@/lib/utils";
 
 export interface Feedback {
   title: string;
@@ -9,9 +10,7 @@ export interface Feedback {
 export async function submitFeedback(feedback: Feedback): Promise<void> {
   try {
     await api.post("/feedback/", feedback);
-  } catch (error: any) {
-    const message =
-      error.response?.data?.detail || "Erro ao enviar feedback";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao enviar feedback");
   }
 }

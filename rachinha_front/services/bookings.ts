@@ -1,5 +1,46 @@
 import { Booking } from "@/interface/booking";
+import { handleApiError } from "@/lib/utils";
 import api from "./api";
+
+interface DetailResponse {
+  detail: string;
+}
+
+export interface BookingCreateData {
+  court_id: string;
+  start_time: string;
+  end_time: string;
+  recurrence_type: "weekly";
+  occurrences: number;
+  modality: string;
+  max_players?: number;
+  players?: Booking["players"];
+  reserve_players?: Booking["reserve_players"];
+  associated_group_id?: string;
+  location?: Booking["location"];
+  status_list?: boolean;
+  price?: number | null;
+  price_type?: Booking["price_type"] | null;
+}
+
+export interface CreateBookingResponse {
+  ids: string[];
+}
+
+export interface PlayerSkillResponse {
+  status: "skill_level_updated";
+  booking_id: string;
+  player_id: string;
+  booking_avg: number;
+}
+
+export interface PlayerVoteResponse {
+  status: "vote_registered";
+  booking_id: string;
+  player_id: string;
+  vote_score: number;
+  total_votes: number;
+}
 
 export interface OrganizeTeamsResult {
   teams: string[][];
@@ -33,9 +74,8 @@ export async function getBookingsByGroupId(groupId: string): Promise<Booking[]> 
     const response = await api.get<Booking[]>(`/bookings/bygroup/${groupId}`);
     console.log("Bookings fetched:", response.data);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao buscar os rachas da turma";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao buscar os rachas da turma");
   }
 }
 
@@ -49,9 +89,8 @@ export async function getBookingsByIds(bookingIds: string[]): Promise<Booking[]>
   try {
     const response = await api.post<Booking[]>('/bookings/by_ids', bookingIds);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao buscar dados da reserva";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao buscar dados da reserva");
   }
 }
 
@@ -61,16 +100,16 @@ export async function getBookingsByIds(bookingIds: string[]): Promise<Booking[]>
  * @param playerId - O ID do jogador.
  * @param skillLevel - O nível de habilidade, quando precisar ser definido explicitamente.
  */
-export async function addPlayerToBooking(bookingId: string, playerId: string, skillLevel?: number): Promise<any> {
+export async function addPlayerToBooking(bookingId: string, playerId: string, skillLevel?: number): Promise<DetailResponse> {
     try {
     const params = new URLSearchParams({ player_id: playerId });
     if (typeof skillLevel !== "undefined") {
       params.set("skill_level", String(skillLevel));
     }
-    const response = await api.post(`/bookings/${bookingId}/invite/add?${params.toString()}`);
+    const response = await api.post<DetailResponse>(`/bookings/${bookingId}/invite/add?${params.toString()}`);
         return response.data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.detail || "Erro ao adicionar jogador.");
+    } catch (error) {
+        throw handleApiError(error, "Erro ao adicionar jogador.");
     }
 }
 
@@ -79,12 +118,12 @@ export async function addPlayerToBooking(bookingId: string, playerId: string, sk
  * @param bookingId - O ID da reserva.
  * @param playerId - O ID do jogador.
  */
-export async function removePlayerFromBooking(bookingId: string, playerId: string): Promise<any> {
+export async function removePlayerFromBooking(bookingId: string, playerId: string): Promise<DetailResponse> {
     try {
-        const response = await api.post(`/bookings/${bookingId}/invite/remove?player_id=${playerId}`);
+        const response = await api.post<DetailResponse>(`/bookings/${bookingId}/invite/remove?player_id=${playerId}`);
         return response.data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.detail || "Erro ao remover jogador.");
+    } catch (error) {
+        throw handleApiError(error, "Erro ao remover jogador.");
     }
 }
 
@@ -94,24 +133,16 @@ export async function removePlayerFromBooking(bookingId: string, playerId: strin
  * @param playerId - O ID do jogador.
  * @param skillLevel - O novo nível de habilidade (0-5).
  */
-export async function updatePlayerSkillLevel(bookingId: string, playerId: string, skillLevel: number): Promise<any> {
+export async function updatePlayerSkillLevel(bookingId: string, playerId: string, skillLevel: number): Promise<PlayerSkillResponse> {
   try {
-    const response = await api.put(
+    const response = await api.put<PlayerSkillResponse>(
       `/bookings/${bookingId}/player/${playerId}/skill_level`,
       {},
       { params: { skill_level: skillLevel } }
     );
     return response.data;
-  } catch (error: any) {
-    let message = "Erro ao atualizar habilidade.";
-    if (error.response?.data?.detail) {
-      message = typeof error.response.data.detail === 'string' 
-        ? error.response.data.detail 
-        : JSON.stringify(error.response.data.detail);
-    } else if (error.message) {
-      message = error.message;
-    }
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao atualizar habilidade.");
   }
 }
 
@@ -125,10 +156,10 @@ export async function organizeTeams(bookingId: string, playersPerTeam: number, s
     const payload = selectedPlayerIds && selectedPlayerIds.length > 0
       ? { selected_player_ids: selectedPlayerIds }
       : undefined;
-    const response = await api.post(`/bookings/${bookingId}/organize-teams?players_per_team=${playersPerTeam}`, payload);
+    const response = await api.post<OrganizeTeamsResult>(`/bookings/${bookingId}/organize-teams?players_per_team=${playersPerTeam}`, payload);
         return response.data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.detail || "Erro ao organizar times.");
+    } catch (error) {
+        throw handleApiError(error, "Erro ao organizar times.");
     }
 }
 
@@ -140,8 +171,8 @@ export async function getOrganizeTeamsHistory(bookingId: string): Promise<{ hist
   try {
     const response = await api.get<{ history: OrganizeTeamsHistoryItem[] }>(`/bookings/${bookingId}/organize-teams/history`);
     return response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.detail || "Erro ao buscar histórico de sorteios.");
+  } catch (error) {
+    throw handleApiError(error, "Erro ao buscar histórico de sorteios.");
   }
 }
 
@@ -154,8 +185,8 @@ export async function clearOrganizedTeams(bookingId: string): Promise<ClearOrgan
   try {
     const response = await api.delete<ClearOrganizedTeamsResponse>(`/bookings/${bookingId}/organize-teams`);
     return response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.detail || "Erro ao limpar sorteio de times.");
+  } catch (error) {
+    throw handleApiError(error, "Erro ao limpar sorteio de times.");
   }
 }
 
@@ -164,34 +195,31 @@ export async function clearOrganizedTeams(bookingId: string): Promise<ClearOrgan
  * @param data - Os dados do agendamento a ser criado.
  * @returns O agendamento criado.
  */
-export async function createBooking(data: any): Promise<any> {
+export async function createBooking(data: BookingCreateData): Promise<CreateBookingResponse> {
   try {
-    const response = await api.post('/bookings/', data);
+    const response = await api.post<CreateBookingResponse>('/bookings/', data);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao criar o racha";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao criar o racha");
   }
 }
 
-export async function updateBooking(bookingId: string, bookingData: Partial<Booking>): Promise<Booking> {
+export async function updateBooking(bookingId: string, bookingData: Partial<Booking>): Promise<DetailResponse> {
   try {
-    const response = await api.put<Booking>(`/bookings/edit/${bookingId}`, bookingData);
+    const response = await api.put<DetailResponse>(`/bookings/edit/${bookingId}`, bookingData);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao atualizar o agendamento";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao atualizar o agendamento");
   }
 }
 
-export async function cancelBooking(bookingId: string): Promise<Booking> {
+export async function cancelBooking(bookingId: string): Promise<DetailResponse> {
   try {
     const payload = { status: 'cancelled' }; 
-    const response = await api.put<Booking>(`/bookings/edit/${bookingId}`, payload);
+    const response = await api.put<DetailResponse>(`/bookings/edit/${bookingId}`, payload);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao cancelar o racha";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao cancelar o racha");
   }
 }
 
@@ -205,9 +233,8 @@ export async function getBookingsByUserId(userId: string): Promise<Booking[]> {
     const response = await api.get<Booking[]>(`/bookings/byuser/${userId}`);
     console.log("Bookings fetched:", response.data);
     return response.data;
-  } catch (error: any) {
-    const message = error.response?.data?.detail || "Erro ao buscar os rachas da turma";
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao buscar os rachas da turma");
   }
 }
 
@@ -217,23 +244,15 @@ export async function getBookingsByUserId(userId: string): Promise<Booking[]> {
  * @param playerId - O ID do jogador avaliado.
  * @param vote - Voto: -1 (ruim), 0 (neutro), 1 (bom).
  */
-export async function voteBookingPlayer(bookingId: string, playerId: string, vote: BookingPlayerVote): Promise<any> {
+export async function voteBookingPlayer(bookingId: string, playerId: string, vote: BookingPlayerVote): Promise<PlayerVoteResponse> {
   try {
-    const response = await api.post(
+    const response = await api.post<PlayerVoteResponse>(
       `/bookings/${bookingId}/player/${playerId}/vote`,
       {},
       { params: { vote } }
     );
     return response.data;
-  } catch (error: any) {
-    let message = "Erro ao registrar avaliação.";
-    if (error.response?.data?.detail) {
-      message = typeof error.response.data.detail === "string"
-        ? error.response.data.detail
-        : JSON.stringify(error.response.data.detail);
-    } else if (error.message) {
-      message = error.message;
-    }
-    throw new Error(message);
+  } catch (error) {
+    throw handleApiError(error, "Erro ao registrar avaliação.");
   }
 }

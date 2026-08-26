@@ -39,10 +39,10 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, handleApiError } from "@/lib/utils";
 import { Calendar as CalendarIcon, Minus, Plus, Loader2 } from "lucide-react";
 
-import { createBooking } from "@/services/bookings";
+import { createBooking, type CreateBookingResponse } from "@/services/bookings";
 import { Calendar } from "@/components/ui/calendar";
 
 // Schema de validação atualizado
@@ -83,8 +83,18 @@ interface CreateBookingDialogProps {
   isOpen: boolean;
   onClose: () => void;
   groupId: string;
-  group?: any; // Dados do grupo para pré-preenchimento
-  onBookingCreated: (newBooking: any) => void;
+  group?: BookingGroupDefaults;
+  onBookingCreated: (newBooking: CreateBookingResponse) => void;
+}
+
+interface BookingGroupDefaults {
+  start_time?: string | null;
+  duration?: number | null;
+  arena?: string | null;
+  court_name?: string | null;
+  location?: { alt?: string | null } | null;
+  modality?: string | null;
+  max_players?: number | null;
 }
 
 export function CreateBookingDialog({
@@ -112,8 +122,8 @@ export function CreateBookingDialog({
     return "19:00"
   }
 
-  const form = useForm<FormValues, any, FormValues>({
-    resolver: zodResolver(formSchema) as any,
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       type: "Pontual",
       courtName: group?.arena || group?.court_name || group?.location?.alt || "",
@@ -165,7 +175,7 @@ export function CreateBookingDialog({
         modality: data.sport,
         max_players: parseInt(data.maxPlayers, 10),
         associated_group_id: groupId,
-        recurrence_type: "weekly",
+        recurrence_type: "weekly" as const,
         occurrences:
           data.type === "Recorrente"
             ? parseInt(data.occurrences || "1", 10)
@@ -179,13 +189,11 @@ export function CreateBookingDialog({
       onClose();
       form.reset();
       setDuration(1);
-    } catch (error: any) {
+    } catch (error) {
+      const apiError = handleApiError(error, "Não foi possível agendar o racha.");
       toast({
         title: "Erro",
-        description:
-          error.response?.data?.detail ||
-          error.message ||
-          "Não foi possível agendar o racha.",
+        description: apiError.message,
         variant: "destructive",
       });
     } finally {

@@ -1,7 +1,7 @@
 import type { CardVariant } from "@/components/card/card.types";
 
 export interface User {
-  _id: any;
+  _id: string;
   id: string;
   email: string;
   username: string;

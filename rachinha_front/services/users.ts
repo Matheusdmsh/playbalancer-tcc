@@ -1,36 +1,18 @@
 import { User } from "@/interface/users"; // Presumindo que esta interface já exista
+import { handleApiError } from "@/lib/utils";
 import api from "./api";
 import { getToken } from "./authService";
-import { jwtDecode, JwtPayload } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 // --- Tipos e Interfaces para maior segurança ---
 
 type EditUserInput = Partial<Omit<User, 'id' | 'email'>>; // Exemplo: não permitir editar ID ou email
 
-export interface UserSearchResult extends User {
-  // Pode ter campos adicionais ou diferentes, ajuste conforme necessário
-}
+export type UserSearchResult = User;
 
 function isGhostLikeUsername(username?: string): boolean {
   if (!username) return false;
   return /^ghost_/i.test(username) || /^fake/i.test(username);
-}
-
-// --- Função Utilitária para Tratamento de Erros ---
-
-/**
- * Centraliza o tratamento de erros da API para evitar repetição de código.
- * @param error - O objeto de erro capturado no bloco catch.
- * @param defaultMessage - Mensagem padrão a ser usada se nenhuma outra for encontrada.
- * @returns Um objeto de Erro.
- */
-function handleApiError(error: any, defaultMessage: string): Error {
-  const message =
-    error?.response?.data?.detail ||  // Padrão do FastAPI para erros de validação
-    error?.response?.data?.message || // Um padrão comum para mensagens de erro
-    error?.message ||                 // Erro genérico da requisição
-    defaultMessage;                   // Mensagem de fallback
-  return new Error(message);
 }
 
 // --- Funções do Serviço ---
