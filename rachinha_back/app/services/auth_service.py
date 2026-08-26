@@ -1,10 +1,8 @@
 from typing import Any, Dict
 import bcrypt
 from datetime import datetime, timedelta, timezone
-import httpx
 from jose import jwt, JWTError
 from app.core.config import get_db, get_settings
-from httpx_oauth.clients.google import GoogleOAuth2
 import uuid
 from fastapi import WebSocket, Depends, status, WebSocketException
 
@@ -13,19 +11,6 @@ from app.domain.repositories.user_repository import UserRepository
 
 # Carrega as configurações uma vez para reutilização
 settings = get_settings()
-
-async def handle_google_login(code: str, client: GoogleOAuth2) -> Dict[str, Any]:
-    """
-    Lida com o callback do login do Google para obter informações do usuário.
-    """
-    token = await client.get_access_token(code, settings.GOOGLE_REDIRECT_URI)
-    async with httpx.AsyncClient() as http_client:
-        response = await http_client.get(
-            "https://www.googleapis.com/oauth2/v2/userinfo",
-            headers={"Authorization": f"Bearer {token['access_token']}"}
-        )
-        response.raise_for_status()
-        return response.json()
 
 def hash_password(password: str) -> str:
     """

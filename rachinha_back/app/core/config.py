@@ -18,17 +18,6 @@ class Settings(BaseSettings):
     BMAIL_CLIENT_ID: str = "seu_client_id_aqui"  
     BMAIL_CLIENT_SECRET: str = "seu_client_secret_aqui"  
 
-    GOOGLE_CLIENT_ID: str = "YOUR_GOOGLE_CLIENT_ID"
-    GOOGLE_CLIENT_SECRET: str = "YOUR_GOOGLE_CLIENT_SECRET"
-    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/auth/google/callback"
-
-    GOOGLE_ANDROID_CLIENT_ID: str = "YOUR_GOOGLE_ANDROID_CLIENT_ID"
-
-    GOOGLE_IOS_CLIENT_ID: str = "YOUR_GOOGLE_IOS_CLIENT_ID"
-
-    APPLE_BUNDLE_ID: str = "com.rachinha.app"
-    APPLE_SERVICE_ID: str = "com.rachinha.atena.web"
-
     STORAGE_API_URL: str = "https://api.btreedevs.com.br/bstorage"
     SERVICE_CLIENT_ID: str = "seu_client_id_aqui"  
     SERVICE_CLIENT_SECRET: str = "seu_client_secret_aqui"  

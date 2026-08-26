@@ -5,12 +5,8 @@ services:
       dockerfile: dockerfile
       args:
         - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8001/rachinha}
-        - NEXT_PUBLIC_APPLE_CLIENT_ID=${NEXT_PUBLIC_APPLE_CLIENT_ID:-}
-        - NEXT_PUBLIC_APPLE_REDIRECT_URI=${NEXT_PUBLIC_APPLE_REDIRECT_URI:-}
     ports:
       - "8002:3000"
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8001/rachinha}
-      - NEXT_PUBLIC_APPLE_CLIENT_ID=${NEXT_PUBLIC_APPLE_CLIENT_ID:-}
-      - NEXT_PUBLIC_APPLE_REDIRECT_URI=${NEXT_PUBLIC_APPLE_REDIRECT_URI:-}

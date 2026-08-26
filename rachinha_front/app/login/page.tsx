@@ -19,7 +19,6 @@ import {
 
 import { getToken, login, register } from "@/services/authService";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-// import { GoogleAuthModal } from "@/components/google-auth-modal";
 // UI components
 
 export default function LoginPage() {

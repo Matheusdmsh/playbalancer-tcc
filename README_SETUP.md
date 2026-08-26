@@ -1,6 +1,6 @@
-# PlayBalancer — Setup rápido (Frontend + Backend)
+# PlayBalance — Setup rápido do site (Frontend + Backend)
 
-Este arquivo descreve os passos mínimos para executar o projeto em desenvolvimento na máquina local usando Docker (backend) e `pnpm` (frontend).
+Este arquivo descreve os passos mínimos para executar o site em desenvolvimento na máquina local usando Docker (backend) e `pnpm` (frontend).
 
 1) Backend (Docker Compose)
 
@@ -14,7 +14,7 @@ docker compose up --build -d
 - Verificar logs do backend:
 
 ```bash
-docker compose logs -f rachinha_backend
+docker compose logs -f backend
 ```
 
 - Quando subir, a rota de health estará em:
@@ -59,7 +59,7 @@ http://localhost:3000
 3) Dicas para desenvolver e testar
 
 - Após alterar código frontend, o Next.js recarrega automaticamente.
-- Para alterar configurações do backend, edite `rachinha_back/.env` e reinicie o container: `docker compose restart rachinha_backend`.
+- Para alterar configurações do backend, edite `rachinha_back/.env` e reinicie o container: `docker compose restart backend`.
 - Para ver o estado dos containers: `docker ps`.
 
 4) Se algo falhar

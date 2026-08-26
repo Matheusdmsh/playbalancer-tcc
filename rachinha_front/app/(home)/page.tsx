@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Users, Calendar, WalletCards } from "lucide-react";
 
-export default function AndroidBetaPage() {
+export default function HomePage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}

@@ -74,36 +74,6 @@ export async function login(username: string, password: string): Promise<{ acces
     }
 }
 
-export async function loginWithGoogle() {
-  try {
-    const response = await api.get("/auth/google/login");
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error, "Erro ao iniciar o login com Google");
-  }
-}
-
-export async function checkGoogleStatus(idToken: string) {
-  try {
-    const response = await api.post("/auth/google/check", { id_token: idToken });
-    return response.data; // { status: "linked" | "email_match" | "new_user", email: string }
-  } catch (error) {
-    throw handleApiError(error, "Erro ao verificar status Google");
-  }
-}
-
-export async function authenticateGoogle(idToken: string) {
-  try {
-    const response = await api.post("/auth/google/authenticate", { id_token: idToken });
-    if (response.data.access_token) {
-      setToken(response.data.access_token);
-    }
-    return response.data; // Pode retornar access_token ou temp_token
-  } catch (error) {
-    throw handleApiError(error, "Erro ao autenticar com Google");
-  }
-}
-
 // Cadastro
 export async function register(name: string, username: string, email: string, password: string) {
   const payload = {
@@ -134,63 +104,3 @@ export async function resendEmailVerification() {
   }
 }
 
-export async function googleRegister(temp_token: string, username: string, nickname?: string, password?: string) {
-  try {
-    const response = await api.post("/auth/google/register", { temp_token, username, nickname, password });
-    if (response.data.access_token) {
-      setToken(response.data.access_token);
-    }
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error, "Erro ao criar conta com Google");
-  }
-}
-
-export async function googleLink(temp_token: string, username: string, password: string) {
-  try {
-    const response = await api.post("/auth/google/link", { temp_token, username, password });
-    if (response.data.access_token) {
-      setToken(response.data.access_token);
-    }
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error, "Erro ao vincular conta com Google");
-  }
-}
-export async function authenticateApple(idToken: string, name?: string, username?: string) {
-  try {
-    const response = await api.post("/auth/apple/login", { id_token: idToken, name, username });
-    if (response.data.access_token) {
-      setToken(response.data.access_token);
-    }
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error, "Erro ao autenticar com Apple");
-  }
-}
-
-export async function appleLink(idToken: string) {
-  try {
-    const response = await api.post("/auth/apple/link", { id_token: idToken });
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error, "Erro ao vincular conta com Apple");
-  }
-}
-export async function getConnections() {
-  try {
-    const response = await api.get("/auth/connections");
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error, "Erro ao buscar conexões");
-  }
-}
-
-export async function disconnectProvider(provider: string) {
-  try {
-    const response = await api.delete(`/auth/connections/${provider}`);
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error, "Erro ao remover conexão");
-  }
-}
