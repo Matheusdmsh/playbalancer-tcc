@@ -19,6 +19,7 @@ def get_transaction_service(db: Database = Depends(get_db)) -> TransactionServic
     user_repo = UserRepository(db)
     return TransactionService(transaction_repo, group_repo, user_repo)
 
+@router.post("", response_model=TransactionInDB, status_code=status.HTTP_201_CREATED, include_in_schema=False)
 @router.post("/", response_model=TransactionInDB, status_code=status.HTTP_201_CREATED)
 async def create_transaction(
     transaction: TransactionCreate,

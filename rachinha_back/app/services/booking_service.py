@@ -6,7 +6,6 @@ from app.domain.repositories.court_repository import CourtRepository
 from app.domain.repositories.user_repository import UserRepository
 from app.domain.repositories.group_repository import GroupRepository
 from app.domain.repositories.invite_repository import InviteRepository
-from app.interfaces.routes import booking
 from app.utils.email_sender import EmailSender
 import calendar
 from bson import ObjectId

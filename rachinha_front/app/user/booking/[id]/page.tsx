@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Star, Users, Calendar, Clock, Swords, UserPlus, Trash2, ChevronLeft, ChevronRight, History, Edit, CalendarCheck2, CalendarClock, CalendarX2, X, Ghost, LockKeyhole, UnlockKeyhole, Check, Share2, TriangleAlert, SlidersHorizontal, LoaderCircle } from "lucide-react";
+import { Star, Users, Calendar, Clock, ArrowLeft, Swords, Crown, UserPlus, Trash2, ChevronLeft, ChevronRight, History, Edit, CalendarCheck2, CalendarClock, CalendarSync, CalendarX2, X, Ghost, LockKeyhole, UnlockKeyhole, Check, Share2, TriangleAlert, SlidersHorizontal, LoaderCircle } from "lucide-react";
 
 // --- Componentes UI ---
 import { Button } from "@/components/ui/button";
@@ -24,12 +25,14 @@ import { Booking } from "@/interface/booking";
 import { User } from "@/interface/users";
 import { Group } from "@/services/groups";
 import { Invite } from "@/interface/invite";
+import { Switch } from "@/components/ui/switch";
 import { EditBookingSheet } from "@/components/edit-booking-sheet";
 import { CancelBookingDialog } from "@/components/cancel-booking-dialog";
 import { getSportIcon } from "@/lib/getSportIcon";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { UserProfileCard } from "@/components/card/user-profile-card";
+import { HorizontalScroll } from "@/components/horizontal-scroll";
 import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@/components/ui/dialog";
 import { RatingStars, normalizeSkillRating } from "@/components/ui/rating-stars";
 import useEmblaCarousel from "embla-carousel-react";
@@ -109,6 +112,9 @@ const formatTeamLevel = (totalSkillRaw: unknown, teamSize: number) => {
   return roundedLevel.toFixed(1);
 };
 
+const CARD_SILHOUETTE_PATH =
+  "M107.609 83.1562V1065.41C107.609 1086.74 119.984 1106.15 139.333 1115.14L507.974 1286.42C528.089 1295.77 551.307 1295.77 571.422 1286.42L940.062 1115.14C959.411 1106.15 971.786 1086.74 971.786 1065.41V83.1562C971.786 63.8333 956.125 48.1719 936.802 48.1719H142.594C123.271 48.1719 107.609 63.8333 107.609 83.1562Z";
+
 // ============================================================================
 // COMPONENTE PRINCIPAL DA PÁGINA
 // ============================================================================
@@ -154,6 +160,7 @@ export default function BookingDetailPage() {
     currentIndex: number;
   } | null>(null);
   const [isConfirmedListExpanded, setIsConfirmedListExpanded] = useState(true);
+  const [isReserveListExpanded, setIsReserveListExpanded] = useState(false);
   const [isMyTeamExpanded, setIsMyTeamExpanded] = useState(true);
   const [isVoteSheetOpen, setIsVoteSheetOpen] = useState(false);
   const [votesByPlayerId, setVotesByPlayerId] = useState<Record<string, BookingPlayerVote>>({});
@@ -210,7 +217,7 @@ export default function BookingDetailPage() {
         await updateBooking(booking._id, { status_list: checked });
         toast({ title: `Lista de presença ${checked ? 'habilitada' : 'desabilitada'}.` });
         refreshPageData();
-      } catch {
+      } catch (error: any) {
         toast({ title: "Erro", description: "Não foi possível atualizar o status da lista.", variant: "destructive" });
         setBooking((prev) => prev ? { ...prev, status_list: previousStatus } : prev);
       }
@@ -319,6 +326,12 @@ export default function BookingDetailPage() {
     }
   };
 
+  const isOwner = useMemo(() => {
+      if (!currentUser || !booking) return false;
+      const ownerId = getPlayerId(booking.owner_id) || booking.owner_id;
+      return ownerId === currentUser._id;
+  }, [booking, currentUser]);
+
   const isGroupAdmin = useMemo(() => {
       if (!currentUser || !groupInfo) return false;
       return (
@@ -345,6 +358,10 @@ export default function BookingDetailPage() {
       if (ownerId) allUserIds.add(ownerId);
       
       bookingData.players.forEach(p => {
+          const id = getPlayerId(p);
+          if (id) allUserIds.add(id);
+      });
+      bookingData.reserve_players.forEach(p => {
           const id = getPlayerId(p);
           if (id) allUserIds.add(id);
       });
@@ -380,7 +397,7 @@ export default function BookingDetailPage() {
             const user = await getCurrentUser();
             setCurrentUser(user);
             await fetchData();
-        } catch {
+        } catch (error) {
             toast({ title: "Erro de Autenticação", description: "Por favor, faça login para continuar.", variant: "destructive" });
             router.push('/login');
         }
@@ -483,6 +500,10 @@ export default function BookingDetailPage() {
   const buildTeamsShareMessage = () => {
     if (!booking || !teams) return "";
 
+    const hasGuestPlayers = teams.teams.some((team) =>
+      team.some((playerId) => Boolean(playersInfo.get(playerId)?.is_placeholder))
+    );
+
     const lines: string[] = [
       `🚨 TIMES DEFINIDOS! 🚨`,
       "",
@@ -500,7 +521,7 @@ export default function BookingDetailPage() {
     lines.push("");
     lines.push(`Bora pro jogo! ⚽`);
     lines.push("");
-    lines.push(`Sorteio feito pelo PlayBalance ⚖️`);
+    lines.push(`Sorteio feito pelo rachinha.com 🔥`);
     lines.push("Para conhecer, acesse nosso site!");
 
     return lines.join("\n");
@@ -573,16 +594,17 @@ export default function BookingDetailPage() {
       );
     }
 
-    if (buttonState === "full") {
+    if (buttonState === "waiting") {
       return (
         <Button
           variant="outline"
           size="sm"
-          className={`cursor-not-allowed border-zinc-700 bg-zinc-900 text-zinc-400 ${className}`.trim()}
-          disabled
+          className={`cursor-pointer bg-blue-800 border-blue-400 hover:border-blue-400 hover:text-blue-400 hover:bg-blue-700/40 backdrop-blur-sm ${isPresenceDisabled ? "opacity-60 cursor-not-allowed" : ""} ${className}`.trim()}
+          onClick={() => handlePresence(booking._id, "confirm")}
+          disabled={isPresenceDisabled}
         >
-          <LockKeyhole className="h-4 w-4" />
-          <span>Partida lotada</span>
+          <CalendarSync className="h-4 w-4 text-blue-400" />
+          <span>Entrar na Espera</span>
         </Button>
       );
     }
@@ -693,7 +715,7 @@ export default function BookingDetailPage() {
         photoUrl: undefined,
         initials: undefined,
         skillLevel,
-        variant: "v1",
+        variant: "v5",
         missingPhotoNode: <Ghost className="h-full w-full" />,
         isGuest: true,
       };
@@ -719,7 +741,7 @@ export default function BookingDetailPage() {
     photoUrl: undefined,
     initials: undefined,
     skillLevel: 0,
-    variant: "v1",
+    variant: "v5",
     missingPhotoNode: <UserPlus className="h-full w-full" />,
     isGuest: false,
     isEmpty: true,
@@ -736,6 +758,14 @@ export default function BookingDetailPage() {
     const emptyCards = Array.from({ length: emptyCount }, (_, index) => createEmptyBookingSlotCard(index + 1));
 
     return [...filledCards, ...emptyCards];
+  }, [booking, playersInfo]);
+
+  const reserveSlotCards = useMemo(() => {
+    if (!booking) return [];
+
+    return booking.reserve_players
+      .map((playerEntry) => buildBookingSlotCard(playerEntry))
+      .filter((card): card is BookingSlotCardData => Boolean(card));
   }, [booking, playersInfo]);
 
   const confirmedCardsLayout = useMemo(() => {
@@ -811,6 +841,7 @@ export default function BookingDetailPage() {
       <UserProfileCard
         name={card.name}
         username={card.username}
+        photoUrl={card.photoUrl}
         initials={card.initials}
         missingPhotoNode={card.missingPhotoNode}
         skillLevel={card.skillLevel}
@@ -942,6 +973,11 @@ export default function BookingDetailPage() {
     setIsEditModalOpen(true);
   };
 
+  const handleCancelBooking = (bookingData: Booking) => {
+    setBookingToCancel(bookingData);
+    setIsCancelModalOpen(true);
+  };
+
   const confirmCancelBooking = async () => {
     if (!bookingToCancel) return;
     setIsCancelling(true);
@@ -990,6 +1026,10 @@ export default function BookingDetailPage() {
       const id = getPlayerId(p);
       if (id) ids.add(id);
     });
+    booking.reserve_players.forEach(p => {
+      const id = getPlayerId(p);
+      if (id) ids.add(id);
+    });
     return Array.from(ids);
   }, [booking]);
 
@@ -1016,6 +1056,20 @@ export default function BookingDetailPage() {
   const hoursAfterEnd = endTime ? (now.getTime() - endTime.getTime()) / (1000 * 60 * 60) : null;
   const isWithinVoteWindow = Boolean(hasEnded && hoursAfterEnd !== null && hoursAfterEnd <= 48);
   const canOpenVoteFlow = Boolean(booking && isWithinVoteWindow && isCurrentUserConfirmed && voteCandidates.length > 0);
+
+  const voteStatusMessage = !booking
+    ? null
+    : !hasEnded
+      ? "A avaliação abre depois que a partida termina."
+      : !isWithinVoteWindow
+        ? "A janela de avaliação (48h) já encerrou para esta partida."
+        : !isCurrentUserConfirmed
+          ? "Somente jogadores confirmados podem avaliar."
+          : voteCandidates.length === 0
+            ? "Nenhum jogador elegível para avaliação nesta partida."
+            : null;
+
+  const votedCount = voteCandidates.filter((candidate) => typeof votesByPlayerId[candidate.id] !== "undefined").length;
 
   const openVoteSheet = () => {
     if (!booking) return;
@@ -1372,7 +1426,7 @@ export default function BookingDetailPage() {
   const userInList = booking.players.some(p => getPlayerId(p) === currentUser?._id);
   const isPresenceDisabled = isPast;
   
-  let buttonState: "confirm" | "cancel" | "disabled" | "not_invited" | "full" = "not_invited";
+  let buttonState: "confirm" | "cancel" | "disabled" | "not_invited" | "waiting" = "not_invited";
   if (!booking.status_list) {
     buttonState = "disabled";
   } else if (userInList) {
@@ -1381,7 +1435,7 @@ export default function BookingDetailPage() {
     if (invite.status === "accepted") {
       buttonState = "cancel";
     } else if (isListFull) {
-      buttonState = "full";
+      buttonState = "waiting";
     } else {
       buttonState = "confirm";
     }
@@ -1608,6 +1662,43 @@ export default function BookingDetailPage() {
                 </div>
               </div>
 
+              {booking.reserve_players.length > 0 && (
+                <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40 pt-1 transition-colors hover:border-zinc-700">
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between px-3 py-2 text-left transition-colors hover:bg-zinc-900/50"
+                    onClick={() => setIsReserveListExpanded((prev) => !prev)}
+                    aria-expanded={isReserveListExpanded}
+                  >
+                    <div className="flex items-center gap-2">
+                      <ChevronRight className={`h-4 w-4 text-zinc-400 transition-transform duration-300 ${isReserveListExpanded ? "rotate-90" : "rotate-0"}`} />
+                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-300">Lista de Espera</span>
+                      <span className="rounded-full border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-[11px] font-medium text-zinc-200">
+                        {booking.reserve_players.length}
+                      </span>
+                    </div>
+                  </button>
+
+                  <div
+                    className={`grid transition-all duration-300 ease-out ${isReserveListExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className={`px-3 pb-3 pt-1 transition-all duration-300 ease-out ${isReserveListExpanded ? "translate-y-0" : "-translate-y-2"}`}>
+                        <HorizontalScroll fadeColor="#1f1f2200">
+                          {reserveSlotCards.map((card) =>
+                            renderRosterCard({
+                              card,
+                              cards: reserveSlotCards,
+                              label: "Lista de espera",
+                              className: "w-[92px] sm:w-[104px] shrink-0 snap-start",
+                            })
+                          )}
+                        </HorizontalScroll>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -1685,7 +1776,7 @@ export default function BookingDetailPage() {
               <SheetTitle className="text-xl">Opções da lista</SheetTitle>
             </div>
             <SheetDescription className="text-left text-xs text-zinc-400">
-              Gerencie os confirmados, edite habilidades e adicione jogadores do grupo.
+              Gerencie confirmados e lista de espera, edite habilidades e adicione jogadores do grupo.
             </SheetDescription>
           </SheetHeader>
 
@@ -1700,40 +1791,36 @@ export default function BookingDetailPage() {
                 })}
               </div>
 
+              {booking.reserve_players.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 border-t border-zinc-700" />
+                  <p className="text-xs text-zinc-400 uppercase font-semibold tracking-wider whitespace-nowrap">Lista de Espera</p>
+                  <div className="flex-1 border-t border-zinc-700" />
+                </div>
+                {renderBookingPlayersList({
+                  players: booking.reserve_players,
+                  interactive: true,
+                  emptyMessage: "Nenhum jogador na lista de espera.",
+                })}
+              </div>
+              )}
             </div>
           </div>
 
           <div className="shrink-0 bg-zinc-900/95 px-6 pt-0 pb-4 backdrop-blur-sm">
             {groupInfo && isGroupAdmin && (
-              isListFull ? (
-                <Button
-                  variant="outline"
-                  className="w-full cursor-not-allowed border-zinc-700 bg-zinc-800 text-zinc-400"
-                  disabled
-                >
-                  <LockKeyhole className="h-4 w-4" />Lista completa
-                </Button>
-              ) : !booking.status_list ? (
-                <Button
-                  variant="outline"
-                  className="w-full cursor-not-allowed border-zinc-700 bg-zinc-800 text-zinc-400"
-                  disabled
-                >
-                  <LockKeyhole className="h-4 w-4" />Lista fechada
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  className="cursor-pointer w-full bg-black border-[#27272a] hover:border-green-400 hover:text-green-400 backdrop-blur-sm group"
-                  disabled={isMatchLocked}
-                  onClick={() => {
-                    setIsAdminOptionsOpen(false);
-                    setIsInvitePlayersOpen(true);
-                  }}
-                >
-                  <UserPlus className="h-4 w-4" />Adicionar do Grupo
-                </Button>
-              )
+              <Button
+                variant="outline"
+                className="cursor-pointer w-full bg-black border-[#27272a] hover:border-green-400 hover:text-green-400 backdrop-blur-sm group"
+                disabled={isMatchLocked}
+                onClick={() => {
+                  setIsAdminOptionsOpen(false);
+                  setIsInvitePlayersOpen(true);
+                }}
+              >
+                <UserPlus className="h-4 w-4" />Adicionar do Grupo
+              </Button>
             )}
           </div>
         </SheetContent>
@@ -1931,7 +2018,7 @@ export default function BookingDetailPage() {
           title="Adicionar do Grupo"
           subtitle="Busque membros do grupo para adicionar ao racha."
           onUserAction={async (user) => {
-            await addPlayerToBooking(booking._id, user._id)
+            await addPlayerToBooking(booking._id, user._id);
           }}
           onGhostCreated={async (user) => {
             await addPlayerToBooking(booking._id, user._id);
@@ -1979,6 +2066,7 @@ export default function BookingDetailPage() {
                                   <UserProfileCard
                                     name={previewCard.name}
                                     username={previewCard.username}
+                                    photoUrl={previewCard.photoUrl}
                                     initials={previewCard.initials}
                                     missingPhotoNode={previewCard.missingPhotoNode}
                                     skillLevel={previewCard.skillLevel}
@@ -2217,7 +2305,9 @@ function PlayerCard({ player, playerInfo, isOwner, canRemove, canEditSkill, isBo
         <div className="flex items-center gap-2">
           <StarRating
             currentSkill={
-              booking.players.find(bp => getPlayerId(bp) === player.user_id)?.skill_level ?? player.skill_level ?? 0
+              booking.players.find(bp => getPlayerId(bp) === player.user_id)?.skill_level ?? 
+              booking.reserve_players.find(bp => getPlayerId(bp) === player.user_id)?.skill_level ?? 
+              player.skill_level ?? 0
             }
             onSkillUpdate={onSkillUpdate}
             enabled={canEditSkill}
@@ -2419,7 +2509,7 @@ function StarRating({ currentSkill, onSkillUpdate, enabled, showFrame }: StarRat
 
                         try {
                           await onSkillUpdate(normalizedPendingSkill);
-                        } catch {
+                        } catch (error) {
                           setIsSaving(false);
                           setSavingTargetSkill(null);
                         }

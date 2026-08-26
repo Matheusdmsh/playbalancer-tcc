@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from app.services.notification_service import NotificationService
 from app.interfaces.schemas.notification import NotificationCreate
 from app.core.config import settings
+from app.utils.email_sender import EmailSender
 
 def convert_object_ids(data):
     if isinstance(data, list):
@@ -23,12 +24,13 @@ def convert_object_ids(data):
     return data
 
 class GroupService:
-    def __init__(self, group_repo: GroupRepository = None, user_repo: UserRepository = None, booking_service: Optional[BookingService] = None, invite_repo: Optional[InviteRepository] = None, notification_service: NotificationService = None):
+    def __init__(self, group_repo: GroupRepository = None, user_repo: UserRepository = None, booking_service: Optional[BookingService] = None, invite_repo: Optional[InviteRepository] = None, notification_service: NotificationService = None, email_sender: EmailSender = None):
         self.group_repo = group_repo
         self.user_repo = user_repo
         self.booking_service = booking_service
         self.invite_repo = invite_repo
         self.notification_service = notification_service
+        self.email_sender = email_sender or EmailSender()
     
     def is_admin(self, user_id: str, group: dict) -> bool:
         """Verifica se o usuário é admin do grupo (owner ou está na lista de admins)."""
@@ -230,16 +232,45 @@ class GroupService:
             )
             await self.notification_service.create_and_send_notification(notification)
 
+        if success and self.user_repo:
+            invited_user = await self.user_repo.get_user_by_id(member_id)
+            if invited_user and invited_user.get('email') and not invited_user.get('is_placeholder', False):
+                group_owner = await self.user_repo.get_user_by_id(group['owner_id'])
+                invite_token = group.get('invite_token')
+                if not invite_token:
+                    invite_token = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+                    await self.group_repo.update_partial(group_id, {"invite_token": invite_token})
+
+                group_link = f"{settings.FRONTEND_URL.rstrip('/')}/user/group/join/{invite_token}"
+                try:
+                    await self.email_sender.send_email(
+                        template_name="group_invite",
+                        subject=f"Você foi convidado para " + str(group.get('name', 'a turma')) + "!",
+                        recipients=[{
+                            "email": invited_user["email"],
+                            "variables": {
+                                "group_name": group.get('name', 'Turma'),
+                                "owner_name": group_owner.get('name', 'Administrador') if group_owner else 'Administrador',
+                                "group_link": group_link,
+                            }
+                        }]
+                    )
+                except Exception as exc:
+                    print(f"Erro ao enviar e-mail de convite para o grupo {group_id}: {exc}")
+
         if success and self.booking_service:
             await self.booking_service.sync_group_member_to_bookings(group_id, member_id, 'add')
         if success:
             await self.recalculate_user_sport_ratings(member_id)
         return {'status': 'Member added successfully.'}
 
-    async def remove_member_from_group(self, group_id: str, member_id: str) -> dict:
+    async def remove_member_from_group(self, current_user_id: str, group_id: str, member_id: str) -> dict:
         group = await self.group_repo.get_by_id(group_id)
         if not group:
             raise ValueError('Group not found.')
+
+        if not self.is_admin(current_user_id, group):
+            raise ValueError('Only group admins can remove members.')
 
         if not any(str(member.get('id', member.get('_id'))) == member_id for member in group.get('members', [])):
             raise ValueError('Member not in group.')

@@ -90,6 +90,7 @@ async def edit_booking(
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@router.post('', include_in_schema=False)
 @router.post('/')
 async def create_booking(booking: RecurringBookingCreate, service: BookingService = Depends(get_booking_service), user=Depends(get_current_user)):
     try:

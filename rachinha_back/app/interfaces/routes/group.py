@@ -159,7 +159,7 @@ async def add_member_to_group(
 
 @router.delete("/{group_id}/members/{member_id}", response_model=GroupInDB)
 async def remove_member_from_group(group_id: str, member_id: str, db=Depends(get_db), user=Depends(get_current_user)):
-    """Remove um membro do grupo. Apenas o dono do grupo pode fazer isso. O dono não pode ser removido."""
+    """Remove um membro do grupo. Apenas admins podem fazer isso. O dono não pode ser removido."""
     group_repo = GroupRepository(db)
     user_repo = UserRepository(db)
     booking_service = BookingService(
@@ -171,7 +171,7 @@ async def remove_member_from_group(group_id: str, member_id: str, db=Depends(get
     )
     service = GroupService(group_repo=group_repo, user_repo=user_repo, booking_service=booking_service)
     try:
-        removed = await service.remove_member_from_group(group_id, member_id)
+        removed = await service.remove_member_from_group(user["_id"], group_id, member_id)
         if not removed:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Não foi possível remover o membro do grupo.")
         updated_group = await service.get_group_by_id(group_id)
