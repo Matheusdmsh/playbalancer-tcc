@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Send, X, Wallet, Banknote, BanknoteArrowUp, BanknoteArrowDown, DollarSign } from "lucide-react";
+import { X, Wallet, Banknote, BanknoteArrowUp, BanknoteArrowDown } from "lucide-react";
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
@@ -37,7 +36,6 @@ export function TransactionSheet({ open, onOpenChange, groupId, onTransactionCre
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
-  const [amountDigits, setAmountDigits] = useState<string>("");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -52,7 +50,6 @@ export function TransactionSheet({ open, onOpenChange, groupId, onTransactionCre
   useEffect(() => {
     if (!open) {
       form.reset();
-      setAmountDigits("");
     }
   }, [open, form]);
 
@@ -108,8 +105,6 @@ export function TransactionSheet({ open, onOpenChange, groupId, onTransactionCre
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const onlyDigits = e.target.value.replace(/\D/g, "")
-    setAmountDigits(onlyDigits)
-
     const numericValue = onlyDigits
       ? Number(onlyDigits) / 100
       : null

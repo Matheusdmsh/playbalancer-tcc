@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Dict, List, Optional
 from datetime import datetime
 
@@ -18,6 +18,8 @@ class UserLogin(BaseModel):
     password: str
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: str = Field(alias="_id")
     name: str
     username: str
@@ -33,12 +35,6 @@ class UserResponse(BaseModel):
     is_active: bool
     is_email_verified: bool
     is_placeholder: bool = False
-
-    class Config:
-        populate_by_name = True
-        json_encoders = {
-            datetime: lambda dt: dt.isoformat()
-        }
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
@@ -71,14 +67,13 @@ class ResetPasswordRequest(BaseModel):
     new_password: str = Field(min_length=6)
 
 class UserSearchResult(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: str = Field(alias="_id")
     name: str
     username: str
     nickname: Optional[str] = None
     photo_url: Optional[str] = None
-
-    class Config:
-        populate_by_name = True
 
 class ChangePasswordRequest(BaseModel):
     current_password: str

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional, Literal
 from datetime import datetime, time
 
@@ -52,13 +52,11 @@ class GroupUpdate(BaseModel):
     rating_permission: Optional[str] = Field(None, description="Permissão de avaliação: 'confirmed_only' ou 'confirmed_and_admins'")
 
 class GroupInDB(GroupBase):
+    model_config = ConfigDict(populate_by_name=True)
+
     photo_url: Optional[str] = Field(None, description="Imagem legada do grupo, disponível apenas para leitura")
     id: str = Field(..., alias="_id")
     owner_id: str
     created_at: datetime
     updated_at: datetime
     invite_token: Optional[str] = None # Adicionado
-
-    class Config:
-        populate_by_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}

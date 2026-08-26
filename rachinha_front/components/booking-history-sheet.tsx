@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { History, Flag, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react"
 import { format as formatDateFns, addDays, startOfWeek, isSameDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -9,7 +9,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useToast } from "@/components/ui/use-toast"
 import { useIsMobile } from "@/hooks/use-mobile"
 
 import { Booking } from "@/interface/booking"
@@ -28,19 +27,10 @@ export function BookingHistorySheet({
   onOpenChange,
   bookings,
   members,
-  currentUser,
 }: BookingHistorySheetProps) {
-  const { toast } = useToast()
   const isMobile = useIsMobile()
-  const [isLoading, setIsLoading] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [weekStartIndex, setWeekStartIndex] = useState(0)
-
-  const formatDate = (date: string): string => {
-    return formatDateFns(new Date(date), "dd 'de' MMM", {
-      locale: ptBR,
-    })
-  }
 
   const formatTime = (date: string): string => {
     return formatDateFns(new Date(date), "HH:mm", { locale: ptBR })

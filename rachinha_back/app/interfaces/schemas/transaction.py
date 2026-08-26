@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime, timezone
 from typing import Optional, Literal
 
@@ -16,12 +16,8 @@ class TransactionUpdate(BaseModel):
     description: Optional[str] = None
 
 class TransactionInDB(TransactionCreate):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: Optional[str] = Field(alias="_id")
     created_at: datetime = Field(default_factory=datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=datetime.now(timezone.utc))
-
-    class Config:
-        populate_by_name = True
-        json_encoders = {
-            datetime: lambda dt: dt.isoformat()
-        }

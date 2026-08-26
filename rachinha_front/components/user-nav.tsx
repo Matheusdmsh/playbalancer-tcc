@@ -2,24 +2,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import Link from "next/link"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { getCurrentUser } from "@/services/users"
-import * as auth from "@/services/authService"
 import { NotificationsPopover } from "./notifications-popover"
 import { Menu } from "lucide-react"
 
@@ -36,7 +22,7 @@ interface UserNavProps {
   onMobileMenuToggle?: () => void
 }
 
-export function UserNav({ isCollapsed = false, onToggleCollapse, onMobileMenuToggle }: UserNavProps) {
+export function UserNav({ onMobileMenuToggle }: UserNavProps) {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
@@ -51,17 +37,6 @@ export function UserNav({ isCollapsed = false, onToggleCollapse, onMobileMenuTog
     }
     fetchUser()
   }, [])
-
-  const handleLogout = () => {
-    auth.logout();
-  }
-
-  const getInitials = (name: string) => {
-    const names = name.split(' ')
-    const first = names[0]?.[0] || ''
-    const last = names.length > 1 ? names[names.length - 1]?.[0] : ''
-    return (first + last).toUpperCase()
-  }
 
   return (
     <header className="sticky top-0 z-40 bg-black/40 shadow-lg shadow-black/50 backdrop-blur-lg">
@@ -80,7 +55,7 @@ export function UserNav({ isCollapsed = false, onToggleCollapse, onMobileMenuTog
         {/* Logo - Centralizado no mobile, esquerda no desktop */}
         <Link href="/" className="flex items-center gap-2 md:gap-4 md:ml-0 absolute left-1/2 -translate-x-1/2 md:relative md:left-auto md:translate-x-0">
           <span className="flex items-center">
-            <img
+            <Image
               src="/assets/logobalanca.svg"
               alt="Logo PlayBalance"
               width={26}

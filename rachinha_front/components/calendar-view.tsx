@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useEffect as useLayoutEffect, useState as useResponsiveState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -108,13 +107,6 @@ export function CalendarView({
     return days;
   };
 
-  // Removido: goToPreviousMonth, goToNextMonth
-  const formatMonthYear = (date: Date) => {
-    const mes = date.toLocaleDateString("pt-BR", { month: "short" });
-    const ano = date.getFullYear();
-    return `${mes.charAt(0).toUpperCase() + mes.slice(1)}/${ano}`;
-  };
-  
   const isToday = (date: Date) => {
     const today = new Date();
     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
