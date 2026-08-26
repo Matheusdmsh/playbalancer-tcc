@@ -19,7 +19,6 @@ class Player(BaseModel):
 
 class GroupBase(BaseModel):
     name: str = Field(..., min_length=3, max_length=100)
-    photo_url: Optional[str] = Field(None, description="URL da foto do grupo")
     members: Optional[List[Player]] = Field(default_factory=list, description="Lista de membros do grupo com id e skill_level")
     admins: Optional[List[str]] = Field(default_factory=list, description="Lista de IDs de administradores do grupo")
     modality: Optional[str] = Field(None, description="Modalidade do grupo (ex: futebol, vôlei, etc.)")
@@ -39,7 +38,6 @@ class GroupCreate(GroupBase):
 
 class GroupUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=3, max_length=100)
-    photo_url: Optional[str] = Field(None, description="URL da foto do grupo")
     members: Optional[List[Player]] = None
     admins: Optional[List[str]] = None
     modality: Optional[str] = Field(None, description="Modalidade do grupo (ex: futebol, vôlei, etc.)")
@@ -54,6 +52,7 @@ class GroupUpdate(BaseModel):
     rating_permission: Optional[str] = Field(None, description="Permissão de avaliação: 'confirmed_only' ou 'confirmed_and_admins'")
 
 class GroupInDB(GroupBase):
+    photo_url: Optional[str] = Field(None, description="Imagem legada do grupo, disponível apenas para leitura")
     id: str = Field(..., alias="_id")
     owner_id: str
     created_at: datetime

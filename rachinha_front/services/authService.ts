@@ -4,13 +4,22 @@ import api from './api'; // Import a instância do axios para o login
 // O nome do cookie é definido como uma constante para evitar erros de digitação.
 const TOKEN_COOKIE_NAME = 'rachinha_token';
 
+function shouldUseSecureCookie(): boolean {
+  return typeof window !== 'undefined' && window.location.protocol === 'https:';
+}
+
 /**
  * Salva o token de autenticação no cookie.
  * @param token O token de acesso recebido da API.
  */
 export function setToken(token: string): void {
   // Define o cookie para ser acessível em todo o site (path: '/') e expira em 7 dias.
-  Cookies.set(TOKEN_COOKIE_NAME, token, { path: '/', expires: 7, sameSite: 'Lax' });
+  Cookies.set(TOKEN_COOKIE_NAME, token, {
+    path: '/',
+    expires: 7,
+    sameSite: 'Lax',
+    secure: shouldUseSecureCookie(),
+  });
 }
 
 /**

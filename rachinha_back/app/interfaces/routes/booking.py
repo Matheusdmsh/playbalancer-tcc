@@ -6,6 +6,7 @@ from app.core.security import get_current_user
 from app.domain.repositories.booking_repository import BookingRepository
 from app.services.booking_service import BookingService
 from app.core.config import get_db
+from app.core.permissions import require_court_manager, user_roles
 from app.domain.repositories.court_repository import CourtRepository
 from app.domain.repositories.user_repository import UserRepository
 from app.domain.repositories.group_repository import GroupRepository
@@ -46,10 +47,22 @@ async def list_my_bookings(service: BookingService = Depends(get_booking_service
 
 @router.get('/byuser/{user_id}')
 async def list_bookings_by_user(user_id: str, service: BookingService = Depends(get_booking_service), user=Depends(get_current_user)):
+    is_self = str(user_id) == str(user['_id'])
+    if not is_self and "rachinha" not in user_roles(user):
+        raise HTTPException(status_code=403, detail="Sem permissão para consultar as reservas deste usuário")
     return await service.list_by_user(user_id)
 
 @router.get('/bycourt/{court_id}')
-async def list_bookings_by_court(court_id: str, service: BookingService = Depends(get_booking_service), user=Depends(get_current_user)):
+async def list_bookings_by_court(
+    court_id: str,
+    service: BookingService = Depends(get_booking_service),
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    court = await CourtRepository(db).get_by_id(court_id)
+    if not court:
+        raise HTTPException(status_code=404, detail="Quadra não encontrada")
+    require_court_manager(court, user)
     return await service.list_bookings_by_court(court_id)
 
 @router.get('/bygroup/{group_id}')

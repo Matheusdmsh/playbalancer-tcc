@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, ChangeEvent, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Loader2, ArrowRight, ArrowLeft, Check, Users, MapPin, Calendar, X } from "lucide-react"
-import Image from "next/image"
 
 import {
   Sheet,
@@ -22,9 +21,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
 
-import { createGroup, editGroup, Group } from "@/services/groups"
-import { uploadGroupImage } from "@/services/storageService"
-import { ImageCropModal } from "@/components/ImageCropModal"
+import { createGroup, Group } from "@/services/groups"
 import {
   SPORTS,
   WEEK_DAYS,
@@ -49,7 +46,6 @@ interface CreateGroupWizardProps {
 const formSchema = z.object({
   name: z.string().min(3, { message: "O nome do grupo deve ter pelo menos 3 caracteres." }).max(100),
   modality: z.string().optional(),
-  photo: z.instanceof(File).optional(),
   arena: z.string().optional(),
   max_players: z.string().optional(),
   price: z.number().optional().nullable(),
@@ -74,10 +70,6 @@ export function CreateGroupWizard({ open, onOpenChange, onGroupCreated }: Create
   const [currentStep, setCurrentStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [cropModalOpen, setCropModalOpen] = useState(false)
-  const [imageToCrop, setImageToCrop] = useState<string | null>(null)
-  const [croppedImageFile, setCroppedImageFile] = useState<File | null>(null)
 
   const totalSteps = 3
 
@@ -86,7 +78,6 @@ export function CreateGroupWizard({ open, onOpenChange, onGroupCreated }: Create
     defaultValues: {
       name: "",
       modality: "",
-      photo: undefined,
       arena: "",
       max_players: "",
       price: undefined,
@@ -100,29 +91,9 @@ export function CreateGroupWizard({ open, onOpenChange, onGroupCreated }: Create
   useEffect(() => {
     if (!open) {
       form.reset()
-      setImagePreview(null)
-      setCroppedImageFile(null)
       setCurrentStep(1)
     }
   }, [open, form])
-
-  const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImageToCrop(reader.result as string)
-        setCropModalOpen(true)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleCropComplete = (croppedImage: File) => {
-    form.setValue("photo", croppedImage)
-    setCroppedImageFile(croppedImage)
-    setImagePreview(URL.createObjectURL(croppedImage))
-  }
 
   const handleNext = async (e?: React.MouseEvent) => {
     e?.preventDefault()
@@ -178,7 +149,6 @@ export function CreateGroupWizard({ open, onOpenChange, onGroupCreated }: Create
       const newGroupData = {
         name: data.name.trim(),
         modality: data.modality && data.modality.trim() ? data.modality : null,
-        photo_url: null,
         arena: data.arena && data.arena.trim() ? data.arena : null,
         max_players: data.max_players ? parseInt(data.max_players, 10) : null,
         price: data.price && !isNaN(data.price) ? Number(data.price) : null,
@@ -189,14 +159,6 @@ export function CreateGroupWizard({ open, onOpenChange, onGroupCreated }: Create
       }
 
       newGroup = await createGroup(newGroupData)
-
-      const photoFile = croppedImageFile || data.photo
-      if (photoFile && newGroup?._id) {
-        toast({ title: "Enviando imagem..." })
-        const imageUrl = await uploadGroupImage(photoFile, newGroup._id)
-        const updatedGroup = await editGroup(newGroup._id, { photo_url: imageUrl })
-        newGroup = updatedGroup
-      }
 
       toast({
         title: "Grupo criado!",
@@ -240,7 +202,7 @@ export function CreateGroupWizard({ open, onOpenChange, onGroupCreated }: Create
                     <Users className="h-5 w-5 text-green-400" />
                     <div>
                       <h3 className="font-semibold text-white">Infos do Grupo</h3>
-                      <p className="text-xs text-zinc-400">Nome e foto do grupo</p>
+                      <p className="text-xs text-zinc-400">Nome do grupo</p>
                     </div>
                   </div>
 
@@ -263,41 +225,6 @@ export function CreateGroupWizard({ open, onOpenChange, onGroupCreated }: Create
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="photo"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium text-zinc-200">
-                          Foto do Grupo
-                        </FormLabel>
-                        {imagePreview && (
-                          <div className="mt-2 flex justify-center">
-                            <Image
-                              src={imagePreview}
-                              alt="Pré-visualização"
-                              width={80}
-                              height={80}
-                              className="rounded-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <FormControl>
-                          <Input
-                            id="photo-upload-create"
-                            type="file"
-                            accept="image/*"
-                            className="bg-zinc-800 border-zinc-700 file:text-white"
-                            onChange={handlePhotoChange}
-                          />
-                        </FormControl>
-                        <p className="text-xs text-zinc-500 mt-1">
-                          Adicione uma imagem para identificar seu grupo
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
               )}
 
@@ -464,12 +391,6 @@ export function CreateGroupWizard({ open, onOpenChange, onGroupCreated }: Create
         </SheetContent>
       </Sheet>
 
-      <ImageCropModal
-        isOpen={cropModalOpen}
-        onClose={() => setCropModalOpen(false)}
-        imageSrc={imageToCrop}
-        onCropComplete={handleCropComplete}
-      />
     </>
   )
 }

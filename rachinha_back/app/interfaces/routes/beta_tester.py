@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends
+from app.core.security import get_current_user
+from app.core.permissions import require_creator
 from app.core.config import get_db
 from app.domain.repositories.beta_tester_repository import BetaTesterRepository
 from app.interfaces.schemas.beta_tester import EmailCollectionRequest, EmailOut
@@ -36,7 +38,9 @@ async def collect_email(email: EmailCollectionRequest, db=Depends(get_db)):
         return {"detail": "Ocorreu um erro ao coletar o e-mail."}
 
 @router.get("/collected_emails", response_model=list[EmailOut])
-async def get_all_emails(db=Depends(get_db)):
+async def get_all_emails(db=Depends(get_db), current_user=Depends(get_current_user)):
+    require_creator(current_user)
+
     repo = BetaTesterRepository(db)
     service = BetaTesterService(repo)
 

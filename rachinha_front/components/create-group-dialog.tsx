@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, ChangeEvent, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Loader2, Check } from "lucide-react"
-import Image from "next/image"
 
 import {
   Dialog,
@@ -22,9 +21,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { useToast } from "@/components/ui/use-toast" 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-import { createGroup, editGroup, Group } from "@/services/groups"
-import { uploadGroupImage } from "@/services/storageService"
-import { ImageCropModal } from "@/components/ImageCropModal"
+import { createGroup, Group } from "@/services/groups"
 
 interface CreateGroupDialogProps {
   open: boolean
@@ -35,9 +32,8 @@ interface CreateGroupDialogProps {
 const formSchema = z.object({
   name: z.string().min(3, { message: "O nome da turma deve ter pelo menos 3 caracteres." }).max(100),
   modality: z.string().optional(),
-  photo: z.instanceof(File).optional(),
   arena: z.string().optional(),
-  price: z.coerce.number().optional().nullable(),
+  price: z.number().optional().nullable(),
   price_type: z.enum(['per_person', 'total_split']).optional(),
   recurrence: z.array(z.string()).optional(),
   start_time: z.string().optional(),
@@ -78,19 +74,12 @@ const durations = [
 export function CreateGroupDialog({ open, onOpenChange, onGroupCreated }: CreateGroupDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  // Estados para o modal de corte
-  const [cropModalOpen, setCropModalOpen] = useState(false);
-  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
-  const [croppedImageFile, setCroppedImageFile] = useState<File | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       modality: "",
-      photo: undefined,
       arena: "",
       price: undefined,
       price_type: undefined,
@@ -103,8 +92,6 @@ export function CreateGroupDialog({ open, onOpenChange, onGroupCreated }: Create
   useEffect(() => {
     if (!open) {
       form.reset()
-      setImagePreview(null);
-      setCroppedImageFile(null);
     }
   }, [open, form])
 
@@ -146,7 +133,6 @@ export function CreateGroupDialog({ open, onOpenChange, onGroupCreated }: Create
       const newGroupData = {
         name: data.name.trim(),
         modality: data.modality && data.modality.trim() ? data.modality : null,
-        photo_url: null,
         arena: data.arena && data.arena.trim() ? data.arena : null,
         price: data.price && !isNaN(data.price) ? Number(data.price) : null,
         price_type: data.price_type && data.price_type.trim() ? data.price_type : null,
@@ -158,15 +144,6 @@ export function CreateGroupDialog({ open, onOpenChange, onGroupCreated }: Create
       console.log("Dados a enviar:", JSON.stringify(newGroupData, null, 2))
       
       newGroup = await createGroup(newGroupData)
-
-      const photoFile = croppedImageFile || data.photo;
-
-      if (photoFile && newGroup?._id) {
-        toast({ title: "Enviando imagem...", description: "Aguarde, estamos processando a foto da turma." })
-        const imageUrl = await uploadGroupImage(photoFile, newGroup._id)
-        const updatedGroup = await editGroup(newGroup._id, { photo_url: imageUrl })
-        newGroup = updatedGroup
-      }
 
       toast({
         title: "Turma criada!",
@@ -198,24 +175,6 @@ export function CreateGroupDialog({ open, onOpenChange, onGroupCreated }: Create
       setIsLoading(false)
     }
   }
-
-  const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageToCrop(reader.result as string);
-        setCropModalOpen(true);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCropComplete = (croppedImage: File) => {
-      form.setValue("photo", croppedImage);
-      setCroppedImageFile(croppedImage);
-      setImagePreview(URL.createObjectURL(croppedImage));
-  };
 
   return (
     <>
@@ -259,31 +218,6 @@ export function CreateGroupDialog({ open, onOpenChange, onGroupCreated }: Create
                         {sports.map(sport => <SelectItem key={sport} value={sport}>{sport}</SelectItem>)}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="photo"
-                render={({ field }) => (
-                  <FormItem>
-                    <Label htmlFor="photo-upload">Foto da Turma (opcional)</Label>
-                    {imagePreview && (
-                      <div className="mt-2 flex justify-center">
-                        <Image src={imagePreview} alt="Pré-visualização da turma" width={80} height={80} className="rounded-full object-cover" />
-                      </div>
-                    )}
-                    <FormControl>
-                      <Input
-                        id="photo-upload"
-                        type="file"
-                        accept="image/*"
-                        className="bg-zinc-800 border-zinc-700 file:text-white"
-                        onChange={handlePhotoChange}
-                      />
-                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -433,12 +367,6 @@ export function CreateGroupDialog({ open, onOpenChange, onGroupCreated }: Create
           </Form>
         </DialogContent>
       </Dialog>
-      <ImageCropModal
-        isOpen={cropModalOpen}
-        onClose={() => setCropModalOpen(false)}
-        imageSrc={imageToCrop}
-        onCropComplete={handleCropComplete}
-      />
     </>
   )
 }

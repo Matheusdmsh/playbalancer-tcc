@@ -44,29 +44,6 @@ export async function uploadUserImage(imageFile: File, userId: string): Promise<
 }
 
 /**
- * Faz upload da imagem de uma turma enviando para o backend.
- * @param imageFile - O arquivo de imagem.
- * @param groupId - O ID da turma.
- * @returns A URL da imagem.
- */
-export async function uploadGroupImage(imageFile: File, groupId: string): Promise<string> {
-  validateImageFile(imageFile);
-  const formData = new FormData();
-  formData.append('file', imageFile);
-
-  try {
-    const response = await api.post(`/upload/group-photo/${groupId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data.url;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.detail || 'Falha ao fazer upload da imagem da turma.');
-  }
-}
-
-/**
  * Faz upload da imagem de uma arena enviando para o backend.
  * @param imageFile - O arquivo de imagem.
  * @param arenaId - O ID da arena.
@@ -95,4 +72,4 @@ export async function uploadArenaImage(imageFile: File, arenaId: string): Promis
 export async function deleteFileByUrl(fileUrl: string): Promise<void> {
   // Poderia implementar uma rota no backend ou apenas não fazer nada
   console.log(`Deleção de ${fileUrl} não é mais feita diretamente pelo frontend.`);
-}
+}

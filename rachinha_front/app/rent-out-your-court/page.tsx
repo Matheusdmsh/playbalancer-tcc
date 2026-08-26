@@ -24,8 +24,8 @@ const formSchema = z.object({
   arenaName: z.string().min(3, { message: "O nome da arena deve ter pelo menos 3 caracteres." }),
   description: z.string().max(500, { message: "A descrição não pode ter mais de 500 caracteres." }).optional(), // <-- CAMPO ADICIONADO
   photos: z.array(z.instanceof(File)).optional(),
-  lat: z.number({ required_error: "Selecione a localização no mapa." }),
-  lng: z.number({ required_error: "Selecione a localização no mapa." }),
+  lat: z.number({ error: "Selecione a localização no mapa." }),
+  lng: z.number({ error: "Selecione a localização no mapa." }),
   
   // Detailed address fields
   street: z.string().min(3, { message: "A rua é obrigatória." }),

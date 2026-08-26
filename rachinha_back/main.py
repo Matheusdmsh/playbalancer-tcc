@@ -1,10 +1,10 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi import status
-from jose import JWTError
-import jwt
+from jose import jwt, JWTError
 from app.interfaces.routes import auth, court, booking, group, invites, notification, transaction, user, arena, feedback, beta_tester, upload, rachinha
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import get_settings
+from app.core.config import close_db, get_settings
 from app.services.auth_service import create_access_token
 from app.core.config import get_db
 import traceback
@@ -12,7 +12,17 @@ import time
 from datetime import datetime, timezone
 
 
-app = FastAPI(title="Rachinha API", root_path=get_settings().ROOT_PATH)
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    yield
+    close_db()
+
+
+app = FastAPI(
+    title="Rachinha API",
+    root_path=get_settings().ROOT_PATH,
+    lifespan=lifespan,
+)
 
 origins = [origin.strip() for origin in get_settings().ALLOWED_ORIGINS.split(",")]
 

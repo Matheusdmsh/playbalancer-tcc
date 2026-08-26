@@ -5,9 +5,10 @@ from functools import lru_cache
 class Settings(BaseSettings):
     MONGODB_URL: str = "mongodb://localhost:27017"
     DB_NAME: str = "rachinha"
-    JWT_SECRET: str = "segredo_super_secreto"
+    JWT_SECRET: str
     ROOT_PATH: str = ""
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+    COOKIE_SECURE: bool = False
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173"
     FRONTEND_URL: str = "http://localhost:3000"
 
@@ -36,12 +37,14 @@ class Settings(BaseSettings):
         extra = "ignore"
 
 settings = Settings()
+mongo_client = AsyncIOMotorClient(settings.MONGODB_URL)
 
 @lru_cache()
 def get_settings():
     return settings
 
 def get_db():
-    client = AsyncIOMotorClient(settings.MONGODB_URL)
-    db = client[settings.DB_NAME]
-    return db
+    return mongo_client[settings.DB_NAME]
+
+def close_db():
+    mongo_client.close()

@@ -20,7 +20,7 @@ import { createTransaction, CreateTransactionPayload } from "@/services/transact
 const formSchema = z.object({
   type: z.enum(["Entrada", "Saída"]),
   description: z.string().min(3, "A descrição é obrigatória.").max(100),
-  amount: z.coerce.number().positive("O valor deve ser positivo."),
+  amount: z.number().positive("O valor deve ser positivo."),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -144,7 +144,16 @@ export function TransactionDialog({ isOpen, onClose, groupId, onTransactionCreat
                 <FormItem>
                   <FormLabel>Valor (R$)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" placeholder="0,00" {...field} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="0,00"
+                      {...field}
+                      onChange={(event) => {
+                        const value = event.target.value
+                        field.onChange(value === "" ? 0 : Number(value))
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

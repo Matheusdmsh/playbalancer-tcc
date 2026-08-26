@@ -410,7 +410,7 @@ async def login(credentials: UserLogin, request: Request, response: Response, db
         value=token,
         httponly=True,
         samesite="lax",
-        secure=False,
+        secure=settings.COOKIE_SECURE,
         expires=int(token_expiration_time.timestamp()),
         path="/"
     )
@@ -456,7 +456,7 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm = Depends(), reques
             value=token,
             httponly=True,
             samesite="lax",
-            secure=False,
+            secure=settings.COOKIE_SECURE,
             expires=int(token_expiration_time.timestamp()),
             path="/",
         )

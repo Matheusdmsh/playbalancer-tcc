@@ -11,6 +11,11 @@ from app.services.storage_service import StorageService
 from typing import Optional
 
 from app.core.config import get_db
+from app.core.permissions import (
+    require_admin_or_creator,
+    require_arena_manager,
+    require_court_manager,
+)
 
 
 
@@ -18,8 +23,7 @@ router = APIRouter(prefix="/courts", tags=["Courts"])
 
 @router.post("/create")
 async def create_court(court: CourtCreate, db=Depends(get_db), user=Depends(get_current_user)):
-    if 'admin' not in user["role"]:
-        raise HTTPException(status_code=403, detail="Apenas administradores podem criar quadras")
+    require_admin_or_creator(user)
     service = CourtService(
     CourtRepository(db),
     BookingRepository(db)
@@ -28,22 +32,25 @@ async def create_court(court: CourtCreate, db=Depends(get_db), user=Depends(get_
     arena = await arena_service.get_arena_by_id(court.belong_arena)
     if not arena:
         raise HTTPException(status_code=404, detail="Arena não encontrada")
+    require_arena_manager(arena, user)
     court_id = await service.create_court(user["_id"], court.dict(), arena["_id"])
     return {"id": court_id}
 
 @router.get("/mycourts")
 async def list_my_courts(db=Depends(get_db), user=Depends(get_current_user)):
-    if 'admin' not in user["role"]:
-        raise HTTPException(status_code=403, detail="Apenas administradores podem listar quadras")
-    service = CourtService(CourtRepository(db))
+    require_admin_or_creator(user)
+    service = CourtService(CourtRepository(db), BookingRepository(db))
     return await service.list_owner_courts(user["_id"])
 
 
 @router.delete("/delete/{court_id}")
 async def delete_court(court_id: str, db=Depends(get_db), user=Depends(get_current_user)):
-    if 'admin' not in user["role"]:
-        raise HTTPException(status_code=403, detail="Apenas administradores podem deletar quadras")
-    service = CourtService(CourtRepository(db))
+    require_admin_or_creator(user)
+    service = CourtService(CourtRepository(db), BookingRepository(db))
+    court = await service.get_court_by_id(court_id)
+    if not court:
+        raise HTTPException(status_code=404, detail="Quadra não encontrada")
+    require_court_manager(court, user)
     result = await service.delete_court(court_id)
     if not result:
         raise HTTPException(status_code=404, detail="Quadra não encontrada")
@@ -134,13 +141,17 @@ async def get_court(court_id: str, db=Depends(get_db), user=Depends(get_current_
     court = await service.get_court_by_id(court_id)
     if not court:
         raise HTTPException(status_code=404, detail="Quadra não encontrada")
+    require_court_manager(court, user)
     return court
 
 @router.put("/edit/{court_id}")
 async def edit_court(court_id: str, court: CourtUpdate, db=Depends(get_db), user=Depends(get_current_user)):
-    if 'admin' not in user["role"]:
-        raise HTTPException(status_code=403, detail="Apenas administradores podem editar quadras")
+    require_admin_or_creator(user)
     service = CourtService(CourtRepository(db), BookingRepository(db))
+    current_court = await service.get_court_by_id(court_id)
+    if not current_court:
+        raise HTTPException(status_code=404, detail="Quadra não encontrada")
+    require_court_manager(current_court, user)
     result = await service.edit_court(user["_id"], court.dict(exclude_unset=True), court_id)
     if not result:
         raise HTTPException(status_code=404, detail="Quadra não encontrada")
@@ -174,8 +185,11 @@ async def get_court_available_slots(
 
 @router.get("/listCourtsByArena/{arena_id}")
 async def list_courts_by_arena(arena_id: str, db=Depends(get_db), user=Depends(get_current_user)):
-    if 'admin' not in user["role"]:
-        raise HTTPException(status_code=403, detail="Apenas administradores podem listar quadras")
+    require_admin_or_creator(user)
+    arena = await ArenaRepository(db).get_arena_by_id(arena_id)
+    if not arena:
+        raise HTTPException(status_code=404, detail="Arena não encontrada")
+    require_arena_manager(arena, user)
     service = CourtService(
     CourtRepository(db),
     BookingRepository(db)
@@ -190,13 +204,13 @@ async def upload_court_photo(
     user=Depends(get_current_user)
 ):
     """Upload de foto de uma quadra."""
-    if 'admin' not in user["role"]:
-        raise HTTPException(status_code=403, detail="Apenas administradores podem fazer upload de fotos")
+    require_admin_or_creator(user)
     
     court_repo = CourtRepository(db)
     court = await court_repo.get_by_id(court_id)
     if not court:
         raise HTTPException(status_code=404, detail="Quadra não encontrada")
+    require_court_manager(court, user)
     
     storage = StorageService()
     try:
@@ -221,13 +235,13 @@ async def delete_court_photo(
     user=Depends(get_current_user)
 ):
     """Remove uma foto de uma quadra."""
-    if 'admin' not in user["role"]:
-        raise HTTPException(status_code=403, detail="Apenas administradores podem remover fotos")
+    require_admin_or_creator(user)
     
     court_repo = CourtRepository(db)
     court = await court_repo.get_by_id(court_id)
     if not court:
         raise HTTPException(status_code=404, detail="Quadra não encontrada")
+    require_court_manager(court, user)
     
     current_photos = court.get('photos_url', [])
     updated_photos = [p for p in current_photos if p != photo_url]

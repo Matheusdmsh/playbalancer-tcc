@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { usePathname } from "next/navigation"
 import { AdminNav } from "@/components/admin-nav"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { EmailVerificationBanner } from "@/components/email-verification-banner"
@@ -15,6 +16,7 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = React.useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
 

@@ -4,6 +4,10 @@ import Cookies from 'js-cookie';
 // O nome do cookie é o mesmo usado no authService para consistência.
 const TOKEN_COOKIE_NAME = 'rachinha_token'; 
 
+function shouldUseSecureCookie(): boolean {
+  return typeof window !== 'undefined' && window.location.protocol === 'https:';
+}
+
 // A URL base agora aponta diretamente para o endpoint da API.
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/rachinha',
@@ -42,7 +46,11 @@ api.interceptors.response.use(
       const tokenValue = newToken.split(' ')[1];
       if (tokenValue) {
         console.log("Token de sessão renovado pelo servidor.");
-        Cookies.set(TOKEN_COOKIE_NAME, tokenValue, { path: '/', sameSite: 'Lax' });
+        Cookies.set(TOKEN_COOKIE_NAME, tokenValue, {
+          path: '/',
+          sameSite: 'Lax',
+          secure: shouldUseSecureCookie(),
+        });
       }
     }
     return response;

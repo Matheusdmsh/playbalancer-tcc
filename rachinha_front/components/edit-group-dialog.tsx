@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect, ChangeEvent } from "react"
+import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import Image from "next/image"
 import { Loader2 } from "lucide-react"
 
 import {
@@ -23,8 +22,6 @@ import { useToast } from "@/components/ui/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { editGroup, Group, GroupUpdateData } from "@/services/groups"
-import { uploadGroupImage } from "@/services/storageService"
-import { ImageCropModal } from "@/components/ImageCropModal"
 
 interface EditGroupDialogProps {
   open: boolean
@@ -36,8 +33,6 @@ interface EditGroupDialogProps {
 const formSchema = z.object({
   name: z.string().min(3, { message: "O nome da turma deve ter pelo menos 3 caracteres." }).max(100),
   modality: z.string().optional(),
-  photo: z.instanceof(File).optional(),
-  photo_url: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -50,19 +45,12 @@ const sports = [
 export function EditGroupDialog({ open, onOpenChange, group, onGroupUpdated }: EditGroupDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
-  const [imagePreview, setImagePreview] = useState<string | null>(group.photo_url || null);
-
-  // Estados para o modal de corte
-  const [cropModalOpen, setCropModalOpen] = useState(false);
-  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
-  const [croppedImageFile, setCroppedImageFile] = useState<File | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: group.name,
       modality: group.modality || "",
-      photo_url: group.photo_url || "",
     },
   })
 
@@ -70,10 +58,7 @@ export function EditGroupDialog({ open, onOpenChange, group, onGroupUpdated }: E
     form.reset({
       name: group.name,
       modality: group.modality || "",
-      photo_url: group.photo_url || "",
     });
-    setImagePreview(group.photo_url || null);
-    setCroppedImageFile(null);
   }, [group, form, open])
 
   const onSubmit = async (data: FormValues) => {
@@ -83,13 +68,6 @@ export function EditGroupDialog({ open, onOpenChange, group, onGroupUpdated }: E
         name: data.name,
         modality: data.modality || null,
       };
-
-      const photoFile = croppedImageFile || data.photo;
-      if (photoFile) {
-        toast({ title: "Enviando nova imagem..." });
-        const imageUrl = await uploadGroupImage(photoFile, group._id);
-        updatedData.photo_url = imageUrl;
-      }
 
       const updatedGroup = await editGroup(group._id, updatedData)
       toast({
@@ -108,24 +86,6 @@ export function EditGroupDialog({ open, onOpenChange, group, onGroupUpdated }: E
       setIsLoading(false)
     }
   }
-
-  const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageToCrop(reader.result as string);
-        setCropModalOpen(true);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCropComplete = (croppedImage: File) => {
-    form.setValue("photo", croppedImage);
-    setCroppedImageFile(croppedImage);
-    setImagePreview(URL.createObjectURL(croppedImage));
-  };
 
 
   return (
@@ -175,30 +135,6 @@ export function EditGroupDialog({ open, onOpenChange, group, onGroupUpdated }: E
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="photo"
-                render={({ field }) => (
-                  <FormItem>
-                    <Label htmlFor="photo-upload-edit">Alterar Foto da Turma</Label>
-                    {imagePreview && (
-                      <div className="mt-2 flex justify-center">
-                        <Image src={imagePreview} alt="Pré-visualização da turma" width={80} height={80} className="rounded-full object-cover" />
-                      </div>
-                    )}
-                    <FormControl>
-                      <Input
-                        id="photo-upload-edit"
-                        type="file"
-                        accept="image/*"
-                        className="bg-zinc-800 border-zinc-700 file:text-white"
-                        onChange={handlePhotoChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <DialogFooter>
                 <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={isLoading}>
                   Cancelar
@@ -212,12 +148,6 @@ export function EditGroupDialog({ open, onOpenChange, group, onGroupUpdated }: E
           </Form>
         </DialogContent>
       </Dialog>
-      <ImageCropModal
-        isOpen={cropModalOpen}
-        onClose={() => setCropModalOpen(false)}
-        imageSrc={imageToCrop}
-        onCropComplete={handleCropComplete}
-      />
     </>
   )
 }

@@ -1,18 +1,22 @@
 "use client"
 
-import { Control } from "react-hook-form"
+import { Control, FieldPath, FieldValues } from "react-hook-form"
 import { Clock, X } from "lucide-react"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { INPUT_STYLES, DURATIONS } from "@/lib/groupFormConstants"
 
-interface DurationFieldProps {
-  control: Control<any>
-  name?: string
+interface DurationFieldProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>
+  name?: FieldPath<TFieldValues>
   valueInHours?: boolean // Se true, converte minutos (string) ↔ horas (number)
 }
 
-export function DurationField({ control, name = "duration", valueInHours = false }: DurationFieldProps) {
+export function DurationField<TFieldValues extends FieldValues>({
+  control,
+  name = "duration" as FieldPath<TFieldValues>,
+  valueInHours = false,
+}: DurationFieldProps<TFieldValues>) {
   return (
     <FormField
       control={control}

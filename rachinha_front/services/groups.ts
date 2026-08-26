@@ -29,7 +29,6 @@ export interface Group {
 
 export interface GroupCreateData {
   name: string
-  photo_url?: string | null
   modality?: string | null
   arena?: string | null
   price?: number | null
@@ -41,7 +40,6 @@ export interface GroupCreateData {
 
 export interface GroupUpdateData {
     name?: string
-    photo_url?: string | null
     modality?: string | null
     arena?: string | null
     price?: number | null

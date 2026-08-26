@@ -21,7 +21,7 @@ import { createTransaction, CreateTransactionPayload } from "@/services/transact
 const formSchema = z.object({
   type: z.enum(["Entrada", "Saída"]),
   description: z.string().min(3, "A descrição é obrigatória.").max(100),
-  amount: z.coerce.number().positive("O valor deve ser positivo."),
+  amount: z.number().positive("O valor deve ser positivo."),
 });
 
 type FormValues = z.infer<typeof formSchema>;

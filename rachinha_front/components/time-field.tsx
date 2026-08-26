@@ -1,17 +1,21 @@
 "use client"
 
-import { Control } from "react-hook-form"
+import { Control, FieldPath, FieldValues } from "react-hook-form"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { INPUT_STYLES } from "@/lib/groupFormConstants"
 
-interface TimeFieldProps {
-  control: Control<any>
-  name?: string
+interface TimeFieldProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>
+  name?: FieldPath<TFieldValues>
   label?: string
 }
 
-export function TimeField({ control, name = "startTime", label = "Horário" }: TimeFieldProps) {
+export function TimeField<TFieldValues extends FieldValues>({
+  control,
+  name = "startTime" as FieldPath<TFieldValues>,
+  label = "Horário",
+}: TimeFieldProps<TFieldValues>) {
   return (
     <FormField
       control={control}

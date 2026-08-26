@@ -1,25 +1,25 @@
 "use client"
 
 import { ChangeEvent } from "react"
-import { Control, useFormContext, useWatch } from "react-hook-form"
+import { Control, FieldPath, FieldPathValue, FieldValues, useFormContext, useWatch } from "react-hook-form"
 import { Banknote } from "lucide-react"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { INPUT_STYLES, PRICE_TYPE_DESCRIPTIONS } from "@/lib/groupFormConstants"
 
-interface PriceFieldProps {
-  control: Control<any>
-  priceName?: string
-  priceTypeName?: string
+interface PriceFieldProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>
+  priceName?: FieldPath<TFieldValues>
+  priceTypeName?: FieldPath<TFieldValues>
 }
 
-export function PriceField({ 
+export function PriceField<TFieldValues extends FieldValues>({
   control, 
-  priceName = "price", 
-  priceTypeName = "price_type" 
-}: PriceFieldProps) {
-  const { setValue, getValues, formState } = useFormContext()
+  priceName = "price" as FieldPath<TFieldValues>,
+  priceTypeName = "price_type" as FieldPath<TFieldValues>,
+}: PriceFieldProps<TFieldValues>) {
+  const { setValue, getValues, formState } = useFormContext<TFieldValues>()
 
   const priceValue = useWatch({ control, name: priceName })
   const priceTypeValue = useWatch({ control, name: priceTypeName })
@@ -49,11 +49,17 @@ export function PriceField({
               // Se preencheu um valor e price_type está vazio, define como per_person automaticamente
               const currentPriceType = getValues(priceTypeName)
               if (numericValue && numericValue > 0 && !currentPriceType) {
-                setValue(priceTypeName, "per_person")
+                setValue(
+                  priceTypeName,
+                  "per_person" as FieldPathValue<TFieldValues, typeof priceTypeName>
+                )
               }
               // Se apagou o valor, limpa o price_type
               if (!numericValue || numericValue <= 0) {
-                setValue(priceTypeName, undefined)
+                setValue(
+                  priceTypeName,
+                  undefined as FieldPathValue<TFieldValues, typeof priceTypeName>
+                )
               }
             }
 

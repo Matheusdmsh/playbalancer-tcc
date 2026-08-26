@@ -47,8 +47,5 @@ build/
 *.egg-info/
 
 
-# test
-tests/
-
 # Secrets
 serviceAccountKey.json

@@ -12,6 +12,7 @@ services:
       - DB_NAME=rachinha
       - ROOT_PATH=/rachinha
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - COOKIE_SECURE=${COOKIE_SECURE:-false}
       - JWT_SECRET=${JWT_SECRET}
       - BMAIL_API_URL=${BMAIL_API_URL}
       - BMAIL_CLIENT_ID=${BMAIL_CLIENT_ID}
