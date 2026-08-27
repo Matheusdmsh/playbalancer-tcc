@@ -5,15 +5,6 @@ from typing import Dict, List
 from app.domain.repositories.notification_repository import NotificationRepository
 from app.domain.repositories.user_repository import UserRepository
 from app.interfaces.schemas.notification import NotificationCreate
-import firebase_admin
-from firebase_admin import credentials, messaging
-
-
-try:
-    cred = credentials.Certificate("serviceAccountKey.json")
-    firebase_admin.initialize_app(cred)
-except Exception as e:
-    print(f"Erro ao inicializar o Firebase Admin: {e}")
 
 class NotificationConnectionManager:
     def __init__(self):
@@ -39,22 +30,6 @@ class NotificationService:
         self.ws_manager = ws_manager
         self.user_repo = user_repo
 
-    async def send_push_notification(self, user_id: str, title: str, body: str):
-        user = await self.user_repo.get_user_by_id(user_id)
-        if user and user.get('fcm_token'):
-            message = messaging.Message(
-                notification=messaging.Notification(
-                    title=title,
-                    body=body,
-                ),
-                token=user['fcm_token'],
-            )
-            try:
-                response = messaging.send(message)
-                print('Notificação push enviada com sucesso:', response)
-            except Exception as e:
-                print(f"Erro ao enviar notificação push: {e}")
-
     async def create_and_send_notification(self, notification_create: NotificationCreate):
 
         created_notification = await self.notification_repo.create(notification_create.dict())
@@ -69,12 +44,6 @@ class NotificationService:
         }
         await self.ws_manager.send_notification(notification_create.user_id, payload)
         
-        await self.send_push_notification(
-            user_id=notification_create.user_id,
-            title="Nova Notificação",
-            body=notification_create.message
-        )
-
         return created_notification
     
     async def get_notifications_for_user(self, user_id: str) -> List[dict]:

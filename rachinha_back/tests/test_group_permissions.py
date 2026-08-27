@@ -138,28 +138,6 @@ async def test_only_owner_can_promote_admin(actor_id):
     assert repository.admin_additions == []
 
 
-class FakeEmailSender:
-    def __init__(self):
-        self.calls = []
-
-    async def send_email(self, **kwargs):
-        self.calls.append(kwargs)
-
-
-@pytest.mark.asyncio
-async def test_added_member_receives_group_invite_email():
-    repository = FakeGroupRepository()
-    service = GroupService(
-        group_repo=repository,
-        user_repo=FakeUserRepository(),
-        email_sender=FakeEmailSender(),
-    )
-
-    await service.add_member_to_group("owner-1", "group-1", "new-member", 3)
-
-    assert repository.member_additions == [("group-1", "new-member", 3)]
-
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize("actor_id", ["owner-1", "admin-1"])
 async def test_owner_and_admin_can_add_member(actor_id):

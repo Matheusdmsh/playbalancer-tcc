@@ -112,16 +112,6 @@ class UserRepository:
             
         return users
     
-    async def update_fcm_token(self, user_id: Union[str, ObjectId], fcm_token: str) -> bool:
-        if isinstance(user_id, str):
-            user_id = ObjectId(user_id)
-        result = await self.collection.update_one(
-            {"_id": user_id},
-            {"$set": {"fcm_token": fcm_token}}
-        )
-        # matched_count > 0 means user exists; modified_count can be 0 if token unchanged
-        return result.matched_count > 0
-    
     async def get_all_users(self) -> List[dict]:
         """Busca todos os usuários, retornando todos os campos exceto a senha."""
         projection = {"password": 0} 

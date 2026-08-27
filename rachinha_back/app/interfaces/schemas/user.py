@@ -87,8 +87,5 @@ class ChangePasswordRequest(BaseModel):
         return values
 
 
-class FCMTokenRequest(BaseModel):
-    fcm_token: str
-
 class UserGhostUpdate(BaseModel):
     email: EmailStr

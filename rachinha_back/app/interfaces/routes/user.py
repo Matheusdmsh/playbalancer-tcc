@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import List, Optional
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from app.interfaces.schemas.user import ChangePasswordRequest, FCMTokenRequest, ForgotPasswordRequest, ResetPasswordRequest, UserGhostUpdate, UserSearchResult, UserUpdate, UserCreate
+from app.interfaces.schemas.user import ChangePasswordRequest, ForgotPasswordRequest, ResetPasswordRequest, UserGhostUpdate, UserSearchResult, UserUpdate, UserCreate
 from app.domain.repositories.user_repository import UserRepository
 from app.domain.repositories.group_repository import GroupRepository
 from app.domain.repositories.booking_repository import BookingRepository
@@ -354,22 +354,6 @@ async def change_password(
 
     return {"detail": "Sua senha foi trocada com sucesso!"}
 
-
-@router.post("/register-fcm-token")
-async def register_fcm_token(
-    token_request: FCMTokenRequest,
-    db=Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-    user_repo = UserRepository(db)
-    service = UserService(user_repo)
-
-    updated = await service.update_fcm_token(current_user.get("_id"), token_request.fcm_token)
-
-    if not updated:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao registrar o token FCM.")
-
-    return {"detail": "Token FCM registrado com sucesso."}
 
 @router.put("/me/role")
 async def update_my_role(

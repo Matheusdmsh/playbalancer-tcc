@@ -79,9 +79,6 @@ class UserService:
             include_ghosts=include_ghosts
         )
     
-    async def update_fcm_token(self, user_id: Union[str, ObjectId], fcm_token: str) -> bool:
-        return await self.user_repo.update_fcm_token(user_id, fcm_token)
-    
     async def update_user_role(self, user_id: str, role: str):
         # Lógica para adicionar a nova role ao array de roles do usuário
         return await self.user_repo.update_user(user_id, {"$addToSet": {"role": role}})
