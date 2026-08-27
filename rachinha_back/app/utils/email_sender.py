@@ -1,53 +1,39 @@
 # app/utils/email_sender.py
-import httpx
-import json
-from datetime import datetime, timedelta, timezone
+import asyncio
+import smtplib
+import ssl
+from email.message import EmailMessage
 from typing import List, Dict, Any
 from pathlib import Path
+
+from jinja2 import Template
 
 from app.core.config import settings
 
 class EmailSender:
     def __init__(self):
-        self.bmail_api_url = settings.BMAIL_API_URL
-        self.client_id = settings.BMAIL_CLIENT_ID
-        self.client_secret = settings.BMAIL_CLIENT_SECRET
-        self.access_token = None
-        self.token_expires_at = None
+        self.smtp_host = settings.SMTP_HOST
+        self.smtp_port = settings.SMTP_PORT
+        self.smtp_user = settings.SMTP_USER
+        self.smtp_password = settings.SMTP_PASSWORD
+        self.smtp_from = settings.SMTP_FROM or settings.SMTP_USER
         self.template_dir = Path(__file__).parent.parent / "templates" / "emails"
 
-    async def _get_access_token(self) -> str:
-        """Obtém ou renova o token de acesso do serviço bmail."""
-        now = datetime.now(timezone.utc)
-        if self.access_token and self.token_expires_at and self.token_expires_at > now + timedelta(minutes=5):
-            return self.access_token
-
-        token_url = f"{self.bmail_api_url}/auth/service-token"
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(
-                    token_url,
-                    data={
-                        # Alterado de "client_credentials" para "password" conforme erro 422
-                        "grant_type": "password",
-                        "username": self.client_id,
-                        "password": self.client_secret,
-                        "scope": "email:send"
-                    },
-                    headers={"Content-Type": "application/x-www-form-urlencoded"}
-                )
-                response.raise_for_status()
-                token_data = response.json()
-                self.access_token = token_data["access_token"]
-                expires_in = token_data["expires_in"]
-                self.token_expires_at = now + timedelta(seconds=expires_in)
-                return self.access_token
-            except httpx.HTTPStatusError as e:
-                print(f"Erro HTTP ao obter token: {e.response.status_code} - {e.response.text}")
-                raise ValueError("Falha ao obter token de autenticação para o serviço de e-mail.") from e
-            except Exception as e:
-                print(f"Erro inesperado ao obter token: {e}")
-                raise
+    def _validate_settings(self) -> None:
+        missing = [
+            name
+            for name, value in {
+                "SMTP_HOST": self.smtp_host,
+                "SMTP_USER": self.smtp_user,
+                "SMTP_PASSWORD": self.smtp_password,
+                "SMTP_FROM": self.smtp_from,
+            }.items()
+            if not value
+        ]
+        if missing:
+            raise ValueError(
+                "Configuração SMTP incompleta. Preencha: " + ", ".join(missing)
+            )
 
     def _load_template(self, template_name: str) -> str:
         """Carrega o conteúdo de um template HTML do diretório de templates."""
@@ -57,43 +43,47 @@ class EmailSender:
         with open(template_path, "r", encoding="utf-8") as f:
             return f.read()
 
+    def _send_message(self, message: EmailMessage) -> None:
+        context = ssl.create_default_context()
+        with smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=30) as smtp:
+            smtp.ehlo()
+            smtp.starttls(context=context)
+            smtp.ehlo()
+            smtp.login(self.smtp_user, self.smtp_password)
+            smtp.send_message(message)
+
     async def send_email(self,
                          template_name: str,
                          subject: str,
                          recipients: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Envia um e-mail usando o serviço bmail.
+        Envia e-mails usando SMTP com TLS.
         template_name: Nome do arquivo HTML do template (sem a extensão .html).
         subject: Assunto do e-mail.
         recipients: Lista de dicionários, cada um com 'email' e 'variables'.
                     Ex: [{"email": "user@example.com", "variables": {"name": "João"}}]
         """
-        access_token = await self._get_access_token()
-        email_send_url = f"{self.bmail_api_url}/email/send"
+        self._validate_settings()
+        template = Template(self._load_template(template_name))
+        sent_recipients: List[str] = []
 
-        html_content = self._load_template(template_name).replace(
-            "{{ app_url }}", settings.FRONTEND_URL.rstrip("/")
-        )
+        for recipient in recipients:
+            email = recipient.get("email")
+            if not email:
+                raise ValueError("Destinatário sem endereço de e-mail.")
 
-        payload = {
-            "subject": subject,
-            "html": html_content,
-            "recipients": recipients
-        }
+            variables = {
+                "app_url": settings.FRONTEND_URL.rstrip("/"),
+                **(recipient.get("variables") or {}),
+            }
+            message = EmailMessage()
+            message["From"] = self.smtp_from
+            message["To"] = email
+            message["Subject"] = Template(subject).render(**variables)
+            message.set_content("Este e-mail contém uma versão HTML. Abra-o em um cliente de e-mail compatível.")
+            message.add_alternative(template.render(**variables), subtype="html")
 
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
-        }
+            await asyncio.to_thread(self._send_message, message)
+            sent_recipients.append(email)
 
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(email_send_url, json=payload, headers=headers, timeout=30.0)
-                response.raise_for_status()
-                return response.json()
-            except httpx.HTTPStatusError as e:
-                print(f"Erro HTTP ao enviar e-mail: {e.response.status_code} - {e.response.text}")
-                raise ValueError(f"Falha ao enviar e-mail: {e.response.text}") from e
-            except Exception as e:
-                print(f"Erro inesperado ao enviar e-mail: {e}")
-                raise
+        return {"sent": len(sent_recipients), "recipients": sent_recipients}

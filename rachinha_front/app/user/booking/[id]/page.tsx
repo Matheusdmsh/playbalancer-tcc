@@ -594,21 +594,6 @@ export default function BookingDetailPage() {
       );
     }
 
-    if (buttonState === "waiting") {
-      return (
-        <Button
-          variant="outline"
-          size="sm"
-          className={`cursor-pointer bg-blue-800 border-blue-400 hover:border-blue-400 hover:text-blue-400 hover:bg-blue-700/40 backdrop-blur-sm ${isPresenceDisabled ? "opacity-60 cursor-not-allowed" : ""} ${className}`.trim()}
-          onClick={() => handlePresence(booking._id, "confirm")}
-          disabled={isPresenceDisabled}
-        >
-          <CalendarSync className="h-4 w-4 text-blue-400" />
-          <span>Entrar na Espera</span>
-        </Button>
-      );
-    }
-
     if (buttonState === "cancel") {
       return (
         <Button
@@ -632,8 +617,12 @@ export default function BookingDetailPage() {
           className={`bg-zinc-800 text-zinc-400 border-zinc-800 backdrop-blur-sm ${className}`.trim()}
           disabled
         >
-          <CalendarClock className="h-4 w-4 text-zinc-400" />
-          <span>Lista não liberada</span>
+          {isListFull ? (
+            <CalendarX2 className="h-4 w-4 text-zinc-400" />
+          ) : (
+            <CalendarClock className="h-4 w-4 text-zinc-400" />
+          )}
+          <span>{isListFull ? "Partida lotada" : "Lista não liberada"}</span>
         </Button>
       );
     }
@@ -1426,7 +1415,7 @@ export default function BookingDetailPage() {
   const userInList = booking.players.some(p => getPlayerId(p) === currentUser?._id);
   const isPresenceDisabled = isPast;
   
-  let buttonState: "confirm" | "cancel" | "disabled" | "not_invited" | "waiting" = "not_invited";
+  let buttonState: "confirm" | "cancel" | "disabled" | "not_invited" = "not_invited";
   if (!booking.status_list) {
     buttonState = "disabled";
   } else if (userInList) {
@@ -1434,10 +1423,10 @@ export default function BookingDetailPage() {
   } else if (invite) {
     if (invite.status === "accepted") {
       buttonState = "cancel";
-    } else if (isListFull) {
-      buttonState = "waiting";
-    } else {
+    } else if (!isListFull) {
       buttonState = "confirm";
+    } else {
+      buttonState = "disabled";
     }
   }
 

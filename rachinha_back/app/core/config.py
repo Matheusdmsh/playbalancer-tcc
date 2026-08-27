@@ -14,9 +14,11 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173"
     FRONTEND_URL: str = "http://localhost:3000"
 
-    BMAIL_API_URL: str = "https://api.rachinha.com/bmail/v2"
-    BMAIL_CLIENT_ID: str = "seu_client_id_aqui"  
-    BMAIL_CLIENT_SECRET: str = "seu_client_secret_aqui"  
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM: str = ""
 
     STORAGE_API_URL: str = "https://api.btreedevs.com.br/bstorage"
     SERVICE_CLIENT_ID: str = "seu_client_id_aqui"  

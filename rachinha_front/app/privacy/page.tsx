@@ -99,6 +99,13 @@ export default function PrivacyPolicyPage() {
             <p className="mb-4">
               Utilizamos as informações coletadas para as seguintes
               finalidades:
+            </p>
+            <ul className="list-disc space-y-2 pl-6">
+              <li>
+                <strong>Fornecer e Gerenciar Nossos Serviços:</strong> Para
+                permitir a criação da sua conta, organização de turmas,
+                agendamento de rachas, gerenciamento de listas de presença e
+                facilitar a comunicação entre os membros.
               </li>
               <li>
                 <strong>Comunicação:</strong> Para enviar notificações
