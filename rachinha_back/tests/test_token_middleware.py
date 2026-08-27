@@ -27,5 +27,5 @@ def test_invalid_token_does_not_turn_public_response_into_500(monkeypatch):
         )
 
     assert response.status_code == 200
-    assert response.json()["detail"].startswith("Rachinha está rodando!")
+    assert response.json()["detail"].startswith("PlayBalance está rodando!")
     assert "Authorization" not in response.headers

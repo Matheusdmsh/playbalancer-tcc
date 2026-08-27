@@ -1,15 +1,16 @@
-# 🏐 Rachinha API
+# ⚖️ PlayBalance API
 
-API para gerenciamento de reservas de quadras esportivas. Desenvolvida com **FastAPI**, **MongoDB** e **JWT Auth**, seguindo os princípios da **Clean Architecture**.
+API do PlayBalance para organização de grupos esportivos, partidas, presença, sorteio de times e controle de caixa. Desenvolvida com **FastAPI**, **MongoDB** e autenticação **JWT**.
 
 ---
 
 ## 🚀 Features
 
 * Autenticação de usuários (login via e-mail ou nome de usuário)
-* Criação e listagem de reservas
-* Verificação de conflitos de horário
-* Restrições de duração mínima (1h) e múltiplos de 30 minutos
+* Criação e gerenciamento de grupos esportivos
+* Agendamento de partidas pontuais e confirmação de presença
+* Sorteio equilibrado de times e controle de caixa
+* Confirmação de e-mail e redefinição de senha por SMTP
 
 ---
 
@@ -68,7 +69,7 @@ Para testar no Swagger UI:
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/Atena-Labs/rachinha_back.git
+git clone <URL_DO_SEU_REPOSITORIO>
 cd rachinha_back
 ```
 
@@ -84,7 +85,7 @@ Crie um arquivo `.env` (ou mude o nome do arquivo `.env.example` ) com:
 
 ```
 MONGODB_URL: str = "mongodb://localhost:27017"
-DB_NAME: str = "rachinha"
+DB_NAME: str = "playbalance"
 JWT_SECRET: str = "segredo_super_secreto"
 ```
 
@@ -109,9 +110,9 @@ uvicorn main:app --reload
 docker-compose up --build
 ```
 
-A API estará disponível em: [http://localhost:8000](http://localhost:8000)
+A API estará disponível em: [http://localhost:8001/rachinha/](http://localhost:8001/rachinha/)
 
-O MongoDB estará disponível na porta padrão: `27017`
+O MongoDB estará disponível localmente na porta `27019`.
 
 ### 3. Parar os containers
 

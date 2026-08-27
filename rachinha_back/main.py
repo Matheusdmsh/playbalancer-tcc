@@ -19,7 +19,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(
-    title="Rachinha API",
+    title="PlayBalance API",
     root_path=get_settings().ROOT_PATH,
     lifespan=lifespan,
 )
@@ -115,7 +115,7 @@ async def token_renewal_middleware(request: Request, call_next):
 
 @app.get("/", tags=["Health"])
 def running():
-    return {"detail": f"Rachinha está rodando! {get_settings().ROOT_PATH}"}
+    return {"detail": f"PlayBalance está rodando! {get_settings().ROOT_PATH}"}
 
 @app.get("/favicon.ico", include_in_schema=False)
 def favicon():

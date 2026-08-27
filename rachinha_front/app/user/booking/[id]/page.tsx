@@ -521,7 +521,7 @@ export default function BookingDetailPage() {
     lines.push("");
     lines.push(`Bora pro jogo! ⚽`);
     lines.push("");
-    lines.push(`Sorteio feito pelo rachinha.com 🔥`);
+    lines.push(`Sorteio feito pelo PlayBalance ⚖️`);
     lines.push("Para conhecer, acesse nosso site!");
 
     return lines.join("\n");

@@ -23,7 +23,7 @@ docker compose logs -f backend
 http://localhost:8001/rachinha/
 ```
 
-- Copie o `rachinha_back/.env.example` para `rachinha_back/.env` e preencha os segredos (por ex. `JWT_SECRET`, `GOOGLE_CLIENT_ID`, etc.).
+- Copie o `rachinha_back/.env.example` para `rachinha_back/.env` e preencha os segredos, incluindo `JWT_SECRET` e as credenciais SMTP do PlayBalance.
 
 - Rodar migrações (opcional / caso precise reexecutar):
 
