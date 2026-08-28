@@ -2,7 +2,6 @@ export interface Booking {
   price_type: "per_person" | "total_split" | undefined;
   price?: number | null;
   _id: string;
-  court_id: string;
   start_time: string; // ou Date
   end_time: string; // ou Date
   modality: string;

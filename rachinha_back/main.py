@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi import status
 from jose import jwt, JWTError
-from app.interfaces.routes import auth, court, booking, group, invites, notification, transaction, user, arena, feedback, beta_tester, upload, rachinha
+from app.interfaces.routes import auth, booking, group, invites, notification, transaction, user, upload, rachinha
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import close_db, get_settings
 from app.services.auth_service import create_access_token
@@ -125,12 +125,8 @@ app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(group.router)
 app.include_router(transaction.router)
-app.include_router(arena.router)
-app.include_router(court.router)
 app.include_router(booking.router)
 app.include_router(invites.router)
 app.include_router(notification.router)
-app.include_router(feedback.router)
-app.include_router(beta_tester.router)
 app.include_router(upload.router)
 app.include_router(rachinha.router)

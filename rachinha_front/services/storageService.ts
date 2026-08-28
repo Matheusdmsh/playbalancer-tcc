@@ -44,29 +44,6 @@ export async function uploadUserImage(imageFile: File, userId: string): Promise<
 }
 
 /**
- * Faz upload da imagem de uma arena enviando para o backend.
- * @param imageFile - O arquivo de imagem.
- * @param arenaId - O ID da arena.
- * @returns A URL da imagem.
- */
-export async function uploadArenaImage(imageFile: File, arenaId: string): Promise<string> {
-  validateImageFile(imageFile);
-  const formData = new FormData();
-  formData.append('file', imageFile);
-
-  try {
-    const response = await api.post(`/upload/arena-photo/${arenaId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data.url;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.detail || 'Falha ao fazer upload da imagem da arena.');
-  }
-}
-
-/**
  * A funcionalidade de deletar pode não ser estritamente necessária pro frontend, mas mantemos interface.
  */
 export async function deleteFileByUrl(fileUrl: string): Promise<void> {

@@ -250,15 +250,12 @@ export function CreateBookingSheet({
 
       // 4. Converte as datas locais para o formato UTC ISO string para enviar à API
       const payload = {
-        court_id: "offline",
         location: { alt: data.courtName },
         start_time: startTime.toISOString(),
         end_time: endTime.toISOString(),
         modality: data.sport,
         max_players: parseInt(data.maxPlayers, 10),
         associated_group_id: groupId,
-        recurrence_type: "weekly" as const,
-        occurrences: 1,
         status_list: true,
         price: data.price ? Number(data.price) : null,
         price_type: data.price_type?.trim() ? data.price_type : null,

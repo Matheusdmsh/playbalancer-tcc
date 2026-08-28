@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
 import { Calendar, Users, Menu, ShieldAlert, Home } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { RoleSwitcher } from "@/components/role-switcher"
 import { useEffect, useState } from "react"
 import { getCurrentUser } from "@/services/users"
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
@@ -130,12 +129,6 @@ export function UserSidebar({ collapsed = false, onToggleCollapse, mobileOpen = 
                 {user.name}
               </span>
             </Link>
-          </div>
-        )}
-
-        {user?.role?.includes('admin') && (
-          <div className="mt-3">
-            <RoleSwitcher />
           </div>
         )}
 

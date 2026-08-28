@@ -33,7 +33,6 @@ export default function UserLayout({
   }
 
   // Se for uma rota privada, renderiza o layout completo do dashboard do usuário
-  // <FeedbackButton />
   return (
     <div className="flex min-h-screen bg-black text-white">
       <UserSidebar 

@@ -6,7 +6,6 @@ from app.interfaces.schemas.user import ChangePasswordRequest, ForgotPasswordReq
 from app.domain.repositories.user_repository import UserRepository
 from app.domain.repositories.group_repository import GroupRepository
 from app.domain.repositories.booking_repository import BookingRepository
-from app.domain.repositories.court_repository import CourtRepository
 from app.services.auth_service import create_password_reset_token, hash_password, verify_password
 from app.services.user_service import UserService
 from app.core.security import get_current_user
@@ -373,31 +372,6 @@ async def update_my_role(
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
     return {"detail": "Role atualizada com sucesso"}
-
-@router.get("/me/favorites")
-async def get_favorite_courts(db=Depends(get_db), current_user=Depends(get_current_user)):
-    repo = UserRepository(db)
-    user = await repo.find_by_id(current_user["_id"])
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    return user.get("favorite_courts", [])
-
-@router.post("/me/favorites/{court_id}")
-async def add_favorite_court(court_id: str, db=Depends(get_db), current_user=Depends(get_current_user)):
-    repo = UserRepository(db)
-    # First verify if the court exists
-    court_repo = CourtRepository(db)
-    if not await court_repo.get_by_id(court_id):
-         raise HTTPException(status_code=404, detail="Quadra não encontrada")
-         
-    await repo.update_user(current_user["_id"], {"$addToSet": {"favorite_courts": court_id}})
-    return {"detail": "Quadra adicionada aos favoritos"}
-
-@router.delete("/me/favorites/{court_id}")
-async def remove_favorite_court(court_id: str, db=Depends(get_db), current_user=Depends(get_current_user)):
-    repo = UserRepository(db)
-    await repo.update_user(current_user["_id"], {"$pull": {"favorite_courts": court_id}})
-    return {"detail": "Quadra removida dos favoritos"}
 
 
 @router.get("/me/favorite-groups")

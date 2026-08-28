@@ -168,18 +168,12 @@ export function CreateBookingDialog({
 
       // 4. Converte as datas locais para o formato UTC ISO string para enviar à API
       const payload = {
-        court_id: "offline",
         location: { alt: data.courtName },
         start_time: startTime.toISOString(),
         end_time: endTime.toISOString(),
         modality: data.sport,
         max_players: parseInt(data.maxPlayers, 10),
         associated_group_id: groupId,
-        recurrence_type: "weekly" as const,
-        occurrences:
-          data.type === "Recorrente"
-            ? parseInt(data.occurrences || "1", 10)
-            : 1,
         status_list: true,
       };
 

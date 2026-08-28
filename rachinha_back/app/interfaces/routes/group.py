@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.domain.repositories.invite_repository import InviteRepository
 from app.domain.repositories.booking_repository import BookingRepository
-from app.domain.repositories.court_repository import CourtRepository
 from app.domain.repositories.notification_repository import NotificationRepository
 from app.domain.repositories.user_repository import UserRepository
 from app.interfaces.schemas.group import GroupCreate, GroupUpdate, GroupInDB
@@ -33,7 +32,6 @@ async def join_group_with_link(invite_token: str, db=Depends(get_db), user=Depen
     user_repo = UserRepository(db)
     booking_service = BookingService(
         booking_repo=BookingRepository(db),
-        court_repo=CourtRepository(db),
         user_repo=user_repo,
         group_repo=group_repo,
         invite_repo=InviteRepository(db)
@@ -132,7 +130,6 @@ async def add_member_to_group(
     invite_repo = InviteRepository(db)
     booking_service = BookingService(
         booking_repo=BookingRepository(db),
-        court_repo=CourtRepository(db),
         user_repo=user_repo,
         group_repo=group_repo,
         invite_repo=invite_repo
@@ -164,7 +161,6 @@ async def remove_member_from_group(group_id: str, member_id: str, db=Depends(get
     user_repo = UserRepository(db)
     booking_service = BookingService(
         booking_repo=BookingRepository(db),
-        court_repo=CourtRepository(db),
         user_repo=user_repo,
         group_repo=group_repo,
         invite_repo=InviteRepository(db)

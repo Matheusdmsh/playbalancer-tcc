@@ -3,9 +3,7 @@ from app.core.security import get_current_user
 from app.services.storage_service import StorageService
 from app.core.config import get_settings
 from app.domain.repositories.user_repository import UserRepository
-from app.domain.repositories.arena_repository import ArenaRepository
 from app.core.config import get_db
-from app.core.permissions import require_arena_manager
 
 router = APIRouter(prefix="/upload", tags=["Upload"])
 settings = get_settings()
@@ -45,31 +43,6 @@ async def upload_user_photo(
         await repo.update_user(user_id, {"photo_url": url})
         
         return {"detail": "Foto atualizada com sucesso.", "url": url}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Falha ao enviar arquivo: {str(e)}")
-
-@router.post("/arena-photo/{arena_id}", status_code=status.HTTP_200_OK)
-async def upload_arena_photo(
-    arena_id: str,
-    file: UploadFile = File(...),
-    db = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    validate_image(file)
-    repo = ArenaRepository(db)
-    arena = await repo.get_arena_by_id(arena_id)
-    if not arena:
-        raise HTTPException(status_code=404, detail="Arena não encontrada.")
-    require_arena_manager(arena, current_user)
-    
-    new_name = f"arena_{arena_id}"
-    storage = StorageService()
-    try:
-        content = await file.read()
-        url = await storage.upload_file(content, file.filename, file.content_type, new_name)
-        
-        await repo.update_partial(arena_id, {"photo_url": url})
-        return {"detail": "Foto da arena atualizada.", "url": url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Falha ao enviar arquivo: {str(e)}")
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Activity, Users, Database, Server, MessageSquare, ArrowLeft, Menu, CreditCard, ShieldCheck } from "lucide-react"
+import { Activity, Users, Database, Server, ArrowLeft, Menu, CreditCard, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
@@ -30,11 +30,6 @@ export const rachinhaNavItems = [
     name: "Técnico",
     href: "/rachinha/technical",
     icon: Server,
-  },
-  {
-    name: "Feedbacks",
-    href: "/rachinha/feedbacks",
-    icon: MessageSquare,
   },
   {
     name: "Transações",

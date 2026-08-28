@@ -1,13 +1,10 @@
-from datetime import timedelta, time, datetime, timezone
+from datetime import timedelta, datetime, timezone
 import math
-from app.domain.repositories.arena_repository import ArenaRepository
 from app.domain.repositories.booking_repository import BookingRepository
-from app.domain.repositories.court_repository import CourtRepository
 from app.domain.repositories.user_repository import UserRepository
 from app.domain.repositories.group_repository import GroupRepository
 from app.domain.repositories.invite_repository import InviteRepository
 from app.utils.email_sender import EmailSender
-import calendar
 from bson import ObjectId
 import random
 from typing import Any, Dict, List, Optional, Literal
@@ -26,13 +23,11 @@ def convert_object_ids(data):
     return data
 
 class BookingService:
-    def __init__(self, booking_repo: BookingRepository, court_repo: CourtRepository, user_repo: UserRepository, group_repo: GroupRepository = None, invite_repo: InviteRepository = None, email_sender: EmailSender = None, notification_service: NotificationService = None, arena_repo: ArenaRepository = None):
+    def __init__(self, booking_repo: BookingRepository, user_repo: UserRepository, group_repo: GroupRepository = None, invite_repo: InviteRepository = None, email_sender: EmailSender = None, notification_service: NotificationService = None):
         self.booking_repo = booking_repo
-        self.court_repo = court_repo
         self.user_repo = user_repo
         self.group_repo = group_repo
         self.invite_repo = invite_repo
-        self.arena_repo = arena_repo
         self.email_sender = email_sender or EmailSender()
         self.notification_service = notification_service
 
@@ -118,10 +113,6 @@ class BookingService:
         admins = group.get('admins', [])
         return str(user_id) in [str(admin_id) for admin_id in admins]
 
-    async def list_bookings_by_court(self, court_id: str):
-        bookings = await self.booking_repo.list_bookings_by_court(court_id)
-        return convert_object_ids(bookings)
-
     async def list_user_bookings(self, user_id: str):
         bookings = await self.booking_repo.list_user_bookings(user_id)
         return convert_object_ids(bookings)
@@ -153,9 +144,6 @@ class BookingService:
         if not await self._can_manage_booking(booking, user_id):
             raise ValueError('Você não tem permissão para editar esta reserva.')
 
-        # Garante que o court_id a ser verificado seja o novo ou o já existente.
-        court_id = data.get('court_id', booking['court_id'])
-
         if 'start_time' in data and 'end_time' in data:
             start = data['start_time']
             end = data['end_time']
@@ -163,31 +151,6 @@ class BookingService:
 
             if duration < timedelta(hours=1) or duration.total_seconds() % 1800 != 0:
                 raise ValueError('A duração deve ser de no mínimo 1h e múltipla de 30min.')
-
-            if court_id != "offline":
-
-                conflict = await self.booking_repo.check_conflict(court_id, start, end, booking_id)
-                if conflict:
-                    raise ValueError('Conflito de horário com outra reserva.')
-
-                court = await self.court_repo.get_by_id(court_id)
-                if not court:
-                    raise ValueError('Quadra não encontrada.')
-
-                weekday = calendar.day_name[start.weekday()].lower()
-                available_slots = [
-                    slot for slot in court['available_hours']
-                    if slot['day_of_week'].lower() == weekday
-                ]
-
-                is_valid_slot = any(
-                    time.fromisoformat(slot['start_time']) <= start.time() and
-                    time.fromisoformat(slot['end_time']) >= end.time()
-                    for slot in available_slots
-                )
-
-                if not is_valid_slot:
-                    raise ValueError('Horário fora da disponibilidade da quadra.')
 
         data['updated_at'] = datetime.now(timezone.utc)
         return await self.booking_repo.update_partial(booking_id, data)
@@ -200,8 +163,6 @@ class BookingService:
         repo = self.booking_repo
         start = data['start_time']
         end = data['end_time']
-        occurrences = data['occurrences']
-        recurrence_type = data['recurrence_type']
         now = datetime.now(timezone.utc)
 
         if start.tzinfo is None:
@@ -217,14 +178,6 @@ class BookingService:
         if duration < timedelta(hours=1) or duration.total_seconds() % 1800 != 0:
             raise ValueError('A duração deve ser de no mínimo 1h e múltipla de 30min.')
 
-        if data['court_id'] == "offline":
-            court = None
-        else:
-            court = await self.court_repo.get_by_id(data['court_id'])
-            if not court:
-                raise ValueError('Quadra não encontrada.')
-
-        bookings = []
         invited_members = {user_id}
 
         if data.get('associated_group_id') and self.group_repo and self.invite_repo:
@@ -236,56 +189,25 @@ class BookingService:
             group_members = set(member['id'] for member in group.get('members', []))
             invited_members.update(group_members)
 
-        for i in range(occurrences):
-            delta = timedelta(weeks=i) if recurrence_type == 'weekly' else None
-            s_loop = start + delta
-            e_loop = end + delta
-
-            if data['court_id'] != "offline":
-                weekday = calendar.day_name[s_loop.weekday()].lower()
-                available_slots = [
-                    slot for slot in court['available_hours']
-                    if slot['day_of_week'].lower() == weekday
-                ]
-                is_valid_slot = any(
-                    time.fromisoformat(slot['start_time']) <= s_loop.time() and
-                    time.fromisoformat(slot['end_time']) >= e_loop.time()
-                    for slot in available_slots
-                )
-                if not is_valid_slot:
-                    raise ValueError(f'Horário indisponível para a data {s_loop.date()}.')
-
-                conflict = await repo.check_conflict(data['court_id'], s_loop, e_loop)
-                if conflict:
-                    raise ValueError(f'Conflito de horário na data {s_loop.date()}.')
-
-
-                if not data.get('location'):
-                    if court and court.get('belong_arena'):
-                        arena_id = court['belong_arena']
-                        arena = await self.arena_repo.get_arena_by_id(arena_id)
-                        if arena and arena.get('location'):
-                            data['location'] = arena['location']
-
-            bookings.append({
-                'court_id': data['court_id'],
-                'user_id': user_id,
-                'start_time': s_loop,
-                'end_time': e_loop,
-                'modality': data['modality'],
-                'status': 'confirmed',
-                'created_at': now,
-                'updated_at': now,
-                'max_players': data.get('max_players', 0),
-                'players': [],
-                'reserve_players': [],
-                'owner_id': user_id,
-                'location': data['location'],
-                'associated_group_id': data.get('associated_group_id'),
-                'status_list': data.get('status_list', False),
-            })
-
-        ids = await repo.create_many(bookings)
+        booking_id = await repo.create({
+            'user_id': user_id,
+            'start_time': start,
+            'end_time': end,
+            'modality': data['modality'],
+            'status': 'confirmed',
+            'created_at': now,
+            'updated_at': now,
+            'max_players': data.get('max_players', 0),
+            'players': [],
+            'reserve_players': [],
+            'owner_id': user_id,
+            'location': data.get('location'),
+            'associated_group_id': data.get('associated_group_id'),
+            'status_list': data.get('status_list', False),
+            'price': data.get('price'),
+            'price_type': data.get('price_type'),
+        })
+        ids = [booking_id]
 
         # Loop para enviar convites para cada reserva criada
         for booking_id in ids:

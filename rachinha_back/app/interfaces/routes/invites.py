@@ -2,7 +2,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.security import get_current_user
 from app.domain.repositories.booking_repository import BookingRepository
-from app.domain.repositories.court_repository import CourtRepository
 from app.domain.repositories.user_repository import UserRepository
 from app.domain.repositories.group_repository import GroupRepository
 from app.domain.repositories.invite_repository import InviteRepository
@@ -25,11 +24,10 @@ async def get_booking_service(
     email_sender: EmailSender = Depends(get_email_sender)
 ) -> BookingService:
     booking_repo = BookingRepository(db)
-    court_repo = CourtRepository(db)
     user_repo = UserRepository(db)
     group_repo = GroupRepository(db)
 
-    return BookingService(booking_repo, court_repo, user_repo, group_repo, invite_repo, email_sender)
+    return BookingService(booking_repo, user_repo, group_repo, invite_repo, email_sender)
 
 @router.get('/invites/my', summary='List my booking invites')
 async def list_my_booking_invites(

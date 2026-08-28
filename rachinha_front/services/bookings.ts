@@ -7,11 +7,8 @@ interface DetailResponse {
 }
 
 export interface BookingCreateData {
-  court_id: string;
   start_time: string;
   end_time: string;
-  recurrence_type: "weekly";
-  occurrences: number;
   modality: string;
   max_players?: number;
   players?: Booking["players"];

@@ -1,6 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from typing import List, Optional
-from datetime import date, datetime, timezone
 from bson import ObjectId
 
 from app.domain.repositories.invite_repository import InviteRepository
@@ -11,8 +10,6 @@ class BookingRepository:
         self.invite_repo = InviteRepository(db)
 
     async def create(self, booking_data: dict) -> str:
-        if 'court_id' in booking_data and isinstance(booking_data['court_id'], str):
-            booking_data['court_id'] = ObjectId(booking_data['court_id'])
         if 'user_id' in booking_data and isinstance(booking_data['user_id'], str):
             booking_data['user_id'] = ObjectId(booking_data['user_id'])
         if 'owner_id' in booking_data and isinstance(booking_data['owner_id'], str):
@@ -35,8 +32,6 @@ class BookingRepository:
             booking['_id'] = str(booking['_id'])
             if 'user_id' in booking and isinstance(booking['user_id'], ObjectId):
                 booking['user_id'] = str(booking['user_id'])
-            if 'court_id' in booking and isinstance(booking['court_id'], ObjectId):
-                booking['court_id'] = str(booking['court_id'])
             if 'owner_id' in booking and isinstance(booking['owner_id'], ObjectId):
                 booking['owner_id'] = str(booking['owner_id'])
             if 'associated_group_id' in booking and isinstance(booking['associated_group_id'], ObjectId):
@@ -83,40 +78,12 @@ class BookingRepository:
         bookings = await self.collection.find({'associated_group_id': group_obj_id}).to_list(length=None)
         return [BookingRepository._deep_serialize(b) for b in bookings]
 
-    async def check_conflict(self, court_id: str, start: datetime, end: datetime, exclude_booking_id: Optional[str] = None) -> bool:
-        query = {
-            'court_id': ObjectId(court_id),
-            '$or': [
-                {'start_time': {'$lt': end}, 'end_time': {'$gt': start}}
-            ]
-        }
-        if exclude_booking_id:
-            query['_id'] = {'$ne': ObjectId(exclude_booking_id)}
-        conflict = await self.collection.find_one(query)
-        return conflict is not None
-    
-    async def list_bookings_by_court(self, court_id: str) -> List[dict]:
-        bookings = await self.collection.find({'court_id': ObjectId(court_id)}).to_list(length=100)
-        for booking in bookings:
-            booking['_id'] = str(booking['_id'])
-            if 'user_id' in booking and isinstance(booking['user_id'], ObjectId):
-                booking['user_id'] = str(booking['user_id'])
-            if 'court_id' in booking and isinstance(booking['court_id'], ObjectId):
-                booking['court_id'] = str(booking['court_id'])
-            if 'owner_id' in booking and isinstance(booking['owner_id'], ObjectId):
-                booking['owner_id'] = str(booking['owner_id'])
-            if 'associated_group_id' in booking and isinstance(booking['associated_group_id'], ObjectId):
-                booking['associated_group_id'] = str(booking['associated_group_id'])
-        return bookings
-
     async def list_user_bookings(self, user_id: str) -> List[dict]:
         bookings = await self.collection.find({'user_id': ObjectId(user_id)}).to_list(length=100)
         for booking in bookings:
             booking['_id'] = str(booking['_id'])
             if 'user_id' in booking and isinstance(booking['user_id'], ObjectId):
                 booking['user_id'] = str(booking['user_id'])
-            if 'court_id' in booking and isinstance(booking['court_id'], ObjectId):
-                booking['court_id'] = str(booking['court_id'])
             if 'owner_id' in booking and isinstance(booking['owner_id'], ObjectId):
                 booking['owner_id'] = str(booking['owner_id'])
             if 'associated_group_id' in booking and isinstance(booking['associated_group_id'], ObjectId):
@@ -125,8 +92,6 @@ class BookingRepository:
     
     async def update_partial(self, booking_id: str, update_data: dict) -> bool:
         def normalize_payload(data: dict) -> dict:
-            if 'court_id' in data and isinstance(data['court_id'], str) and data['court_id'] != "offline":
-                data['court_id'] = ObjectId(data['court_id'])
             if 'user_id' in data and isinstance(data['user_id'], str):
                 data['user_id'] = ObjectId(data['user_id'])
             if 'owner_id' in data and isinstance(data['owner_id'], str):
@@ -158,8 +123,6 @@ class BookingRepository:
     async def create_many(self, bookings: List[dict]) -> List[str]:
         processed_bookings = []
         for booking_data in bookings:
-            if 'court_id' in booking_data and isinstance(booking_data['court_id'], str) and booking_data['court_id'] != "offline":
-                booking_data['court_id'] = ObjectId(booking_data['court_id'])
             if 'user_id' in booking_data and isinstance(booking_data['user_id'], str):
                 booking_data['user_id'] = ObjectId(booking_data['user_id'])
             if 'owner_id' in booking_data and isinstance(booking_data['owner_id'], str):
@@ -199,8 +162,6 @@ class BookingRepository:
             booking['_id'] = str(booking['_id'])
             if 'user_id' in booking and isinstance(booking['user_id'], ObjectId):
                 booking['user_id'] = str(booking['user_id'])
-            if 'court_id' in booking and isinstance(booking['court_id'], ObjectId):
-                booking['court_id'] = str(booking['court_id'])
             if 'owner_id' in booking and isinstance(booking['owner_id'], ObjectId):
                 booking['owner_id'] = str(booking['owner_id'])
             if 'associated_group_id' in booking and isinstance(booking['associated_group_id'], ObjectId):
@@ -237,18 +198,6 @@ class BookingRepository:
         )
         return result.modified_count > 0
     
-    async def get_bookings_by_court_and_date(self, court_id: str, search_date: date) -> List[dict]:
-        start_of_day = datetime.combine(search_date, datetime.min.time(), tzinfo=timezone.utc)
-        end_of_day = datetime.combine(search_date, datetime.max.time(), tzinfo=timezone.utc)
-
-        query = {
-            'court_id': ObjectId(court_id),
-            'start_time': {'$gte': start_of_day, '$lt': end_of_day}
-        }
-        bookings = await self.collection.find(query).to_list(length=None)
-        return bookings
-    
-
     async def get_bookings_by_associated_group(self, group_id: str) -> List[dict]:
         """Returns bookings associated with a specific group ID."""
         try:
@@ -263,8 +212,6 @@ class BookingRepository:
                 booking['_id'] = str(booking['_id'])
                 if 'user_id' in booking and isinstance(booking['user_id'], ObjectId):
                     booking['user_id'] = str(booking['user_id'])
-                if 'court_id' in booking and isinstance(booking['court_id'], ObjectId):
-                    booking['court_id'] = str(booking['court_id'])
                 if 'owner_id' in booking and isinstance(booking['owner_id'], ObjectId):
                     booking['owner_id'] = str(booking['owner_id'])
                 if 'associated_group_id' in booking and isinstance(booking['associated_group_id'], ObjectId):

@@ -97,30 +97,15 @@ async def get_content_metrics(db=Depends(get_db), user=Depends(get_current_user)
     verify_creator(user)
     
     groups_count = await db["groups"].count_documents({})
-    courts_count = await db["courts"].count_documents({})
-    arenas_count = await db["arenas"].count_documents({})
     transactions_count = await db["transactions"].count_documents({})
     bookings_count = await db["bookings"].count_documents({})
     
-    # Regiões das arenas
-    pipeline = [
-        {"$group": {"_id": "$location.city", "count": {"$sum": 1}}},
-        {"$sort": {"count": -1}}
-    ]
-    city_counts = []
-    async for doc in db["arenas"].aggregate(pipeline):
-        city = doc["_id"] if doc["_id"] else "Não Especificado"
-        city_counts.append({"city": city, "count": doc["count"]})
-        
     return {
         "totals": {
             "groups": groups_count,
-            "courts": courts_count,
-            "arenas": arenas_count,
             "transactions": transactions_count,
             "bookings": bookings_count
-        },
-        "arena_regions": city_counts
+        }
     }
 
 @router.get("/technical")
@@ -195,31 +180,6 @@ async def get_technical_metrics(db=Depends(get_db), user=Depends(get_current_use
             "error_logs": error_logs
         }
     }
-
-@router.get("/feedbacks")
-async def get_feedbacks(db=Depends(get_db), user=Depends(get_current_user)):
-    verify_creator(user)
-    
-    cursor = db["feedback"].find({}).sort("created_at", -1).limit(100)
-    feedbacks = []
-    async for f in cursor:
-        # Resolve user info se _id estiver atrelado
-        user_info = None
-        if "user_id" in f and f["user_id"]:
-            u = await db["users"].find_one({"_id": ObjectId(f["user_id"])})
-            if u:
-                user_info = {"name": u.get("name"), "email": u.get("email")}
-                
-        feedbacks.append({
-            "id": str(f["_id"]),
-            "title": f.get("title"),
-            "description": f.get("description"),
-            "type": f.get("type"),
-            "created_at": f.get("created_at"),
-            "user": user_info
-        })
-        
-    return {"feedbacks": feedbacks}
 
 @router.get("/transactions")
 async def get_transactions(db=Depends(get_db), user=Depends(get_current_user)):

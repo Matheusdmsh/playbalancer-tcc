@@ -15,7 +15,7 @@ const rajdhani = Rajdhani({
 
 export const metadata: Metadata = {
   title: "PlayBalance",
-  description: "Organize seus rachas, encontre e reserve quadras esportivas perto de você",
+  description: "Organize partidas, monte times equilibrados e gerencie sua turma esportiva.",
   icons: {
     icon: "/assets/logobalanca.svg",
   },
