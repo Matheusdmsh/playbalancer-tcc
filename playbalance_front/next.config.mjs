@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // O Docker local usa o build standalone; a Vercel já empacota o Next.js.
+  ...(process.env.VERCEL ? {} : { output: 'standalone' }),
   reactStrictMode: false,
   skipTrailingSlashRedirect: true,
   allowedDevOrigins: ['host.docker.internal'],
