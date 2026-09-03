@@ -23,6 +23,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [redirectAfterAuth, setRedirectAfterAuth] = useState("/user/home");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -34,10 +35,16 @@ export default function LoginPage() {
   const { toast } = useToast()
 
   useEffect(() => {
+    const requestedRedirect = new URLSearchParams(window.location.search).get("redirect");
+    const safeRedirect = requestedRedirect?.startsWith("/") && !requestedRedirect.startsWith("//")
+      ? requestedRedirect
+      : "/user/home";
+    setRedirectAfterAuth(safeRedirect);
+
     const token = getToken();
 
     if (token) {
-      router.replace("/user/home");
+      router.replace(safeRedirect);
     } else {
       setIsLoading(false);
     }
@@ -66,7 +73,7 @@ export default function LoginPage() {
 
     // Redireciona após um pequeno delay para o toast ser visível
     setTimeout(() => {
-      router.push("/user/home");
+      router.push(redirectAfterAuth);
     }, 1000);
 
   } catch (err) {
@@ -97,7 +104,7 @@ export default function LoginPage() {
         description: "Ative sua conta através do link enviado para seu email.",
       })
       setTimeout(() => {
-    router.push("/user/home");
+    router.push(`/login?redirect=${encodeURIComponent(redirectAfterAuth)}`);
   }, 1000);
     } catch (err: any) {
       console.error(err);

@@ -24,6 +24,7 @@ const publicApiRoutes = [
     '/users/verify-email',   // Rota de verificação de email
     '/users/forgot-password',// Rota para solicitar recuperação de senha
     '/users/reset-password', // Rota para definir nova senha
+    '/groups/invite',        // Consulta pública de convite de grupo
 ];
 
 // Interceptador de REQUISIÇÃO: Adiciona o token em todas as chamadas.

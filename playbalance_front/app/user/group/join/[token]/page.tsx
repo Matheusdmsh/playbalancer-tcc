@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 // Importe a nova função do serviço
 import { getGroupByInviteToken, joinGroupWithLink, Group } from "@/services/groups";
+import { getToken } from "@/services/authService";
 import { User } from "@/interface/users";
 import { getUsersByIds } from "@/services/users";
 
@@ -63,6 +64,11 @@ export default function JoinGroupPage() {
   }, [token, toast]);
 
   const handleJoinGroup = async () => {
+    if (!getToken()) {
+      router.push(`/login?redirect=${encodeURIComponent(`/user/group/join/${token}`)}`);
+      return;
+    }
+
     setIsJoining(true);
     try {
       const joinedGroup = await joinGroupWithLink(token);

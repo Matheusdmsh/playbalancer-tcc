@@ -11,6 +11,7 @@ import { EmailVerificationBanner } from "@/components/email-verification-banner"
 const publicUserRoutes = [
   '/user/verify-email',
   '/user/reset-password-form',
+  '/user/group/join',
 ];
 
 export default function UserLayout({
