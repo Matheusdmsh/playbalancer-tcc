@@ -68,7 +68,7 @@ async def register(user: UserCreate, db=Depends(get_db)):
         verification_link = f"{settings.FRONTEND_URL.rstrip('/')}/user/verify-email/{verification_token}"
         await email_sender.send_email(
             template_name="welcome",
-            subject="Bem-vindo(a) ao PlayBalance, {{ name }}!",
+            subject="Bem-vindo(a) ao PlayBalance, {{ name }} — confirme seu e-mail",
             recipients=[{
                 "email": str(user.email),
                 "variables": {
@@ -100,7 +100,7 @@ async def resend_verification(db=Depends(get_db), current_user=Depends(get_curre
         link = f"{settings.FRONTEND_URL.rstrip('/')}/user/verify-email/{token}"
         await email_sender.send_email(
             template_name="welcome",
-            subject="Bem-vindo(a) ao PlayBalance, {{ name }}!",
+            subject="Bem-vindo(a) ao PlayBalance, {{ name }} — confirme seu e-mail",
             recipients=[{
                 "email": user["email"],
                 "variables": {"name": user["name"].split(" ")[0], "verification_link": link},
