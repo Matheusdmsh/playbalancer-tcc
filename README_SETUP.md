@@ -1,68 +1,76 @@
-# PlayBalance — Setup rápido do site (Frontend + Backend)
+# PlayBalance — Guia rápido de execução
 
-Este arquivo descreve os passos mínimos para executar o site em desenvolvimento na máquina local usando Docker (backend) e `pnpm` (frontend).
+Este guia explica como executar o PlayBalance localmente para desenvolvimento e testes. O projeto possui um frontend em Next.js e um backend FastAPI com MongoDB em Docker.
 
-1) Backend (Docker Compose)
+## 1. Pré-requisitos
 
-- Subir os serviços (backend + mongo):
+- Docker Desktop em execução;
+- Node.js e `pnpm` instalados;
+- Arquivos de ambiente configurados, sem enviar credenciais ao Git.
+
+## 2. Backend e banco de dados
+
+No terminal, entre na pasta do backend e inicie os contêineres:
 
 ```bash
-cd rachinha_back
+cd playbalance_back
 docker compose up --build -d
 ```
 
-- Verificar logs do backend:
+Os serviços locais iniciados são:
+
+- API: `http://localhost:8001/api_playbalance`;
+- documentação da API: `http://localhost:8001/api_playbalance/docs`;
+- MongoDB: porta local `27019`.
+
+Para acompanhar os logs:
 
 ```bash
 docker compose logs -f backend
 ```
 
-- Quando subir, a rota de health estará em:
+O arquivo de variáveis locais é `playbalance_back/.env`. Caso seja a primeira configuração, use `playbalance_back/.env.example` como referência e preencha, no mínimo:
 
-```
-http://localhost:8001/rachinha/
-```
+- `JWT_SECRET`;
+- `SMTP_USER`, `SMTP_PASSWORD` e `SMTP_FROM`;
+- `FRONTEND_URL=http://localhost:3000`;
+- `ALLOWED_ORIGINS=http://localhost:3000`.
 
-- Copie o `rachinha_back/.env.example` para `rachinha_back/.env` e preencha os segredos, incluindo `JWT_SECRET` e as credenciais SMTP do PlayBalance.
-
-- Rodar migrações (opcional / caso precise reexecutar):
-
-```bash
-docker compose exec rachinha_backend python migrate_group_admins.py
-docker compose exec rachinha_backend python migrate_user_card_template.py
-docker compose exec rachinha_backend python migrate_user_sport_ratings.py
-```
-
-2) Frontend (desenvolvimento)
-
-- Instalar dependências (se ainda não instalou):
+Após alterar o `.env`, reinicie o backend:
 
 ```bash
-cd rachinha_front
+docker compose restart backend
+```
+
+## 3. Frontend
+
+Em outro terminal, entre na pasta do frontend:
+
+```bash
+cd playbalance_front
 pnpm install
-```
-
-- Arquivo de ambiente local: copie `rachinha_front/.env.example` para `rachinha_front/.env.local` e ajuste `NEXT_PUBLIC_API_URL` para `http://localhost:8001/rachinha` (padrão criado).
-
-- Iniciar dev server:
-
-```bash
 pnpm dev
 ```
 
-- O frontend estará disponível em:
+O site ficará disponível em:
 
-```
+```text
 http://localhost:3000
 ```
 
-3) Dicas para desenvolver e testar
+Em desenvolvimento, o frontend encaminha automaticamente as chamadas para a API por meio de `/api-proxy/api_playbalance`. O arquivo `playbalance_front/.env.local` já deve conter:
 
-- Após alterar código frontend, o Next.js recarrega automaticamente.
-- Para alterar configurações do backend, edite `rachinha_back/.env` e reinicie o container: `docker compose restart backend`.
-- Para ver o estado dos containers: `docker ps`.
+```text
+NEXT_PUBLIC_API_URL=/api-proxy/api_playbalance
+```
 
-4) Se algo falhar
+## 4. Verificações rápidas
 
-- Consulte `docker compose logs -f rachinha_backend` e `pnpm dev` (frontend terminal).
-- Verifique se `ALLOWED_ORIGINS` inclui `http://localhost:3000` para evitar problemas CORS.
+- Para consultar os contêineres: `docker ps`.
+- Para parar os serviços do backend: execute `docker compose down` dentro de `playbalance_back`.
+- Para encerrar o frontend, pressione `Ctrl + C` no terminal em que `pnpm dev` está rodando.
+- Alterações no frontend são recarregadas automaticamente pelo Next.js.
+
+## 5. Observação para publicação
+
+Antes de colocar o PlayBalance em uma URL pública, atualize `FRONTEND_URL`, `ALLOWED_ORIGINS`, `COOKIE_SECURE` e `NEXT_PUBLIC_API_URL` conforme o domínio e a hospedagem escolhidos.
