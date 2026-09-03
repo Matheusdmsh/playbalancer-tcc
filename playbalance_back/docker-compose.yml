@@ -8,7 +8,7 @@ services:
     ports:
       - "127.0.0.1:8001:8000"
     environment:
-      - MONGODB_URL=mongodb://mongo:27017
+      - MONGODB_URL=${MONGODB_ATLAS_URL:-mongodb://mongo:27017}
       - DB_NAME=playbalance
       - ROOT_PATH=/api_playbalance
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}

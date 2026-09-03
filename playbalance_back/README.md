@@ -119,3 +119,9 @@ O MongoDB estará disponível localmente na porta `27019`.
 ```bash
 docker-compose down
 ```
+# Publicação na Vercel
+
+O backend pode ser publicado na Vercel usando `main.py` como entrada do FastAPI.
+Na criação do projeto, selecione `playbalance_back` como diretório raiz e configure
+as variáveis de ambiente no painel da Vercel. Em produção, `MONGODB_URL` deve usar
+a URL do MongoDB Atlas, enquanto `ROOT_PATH` deve permanecer `/api_playbalance`.
