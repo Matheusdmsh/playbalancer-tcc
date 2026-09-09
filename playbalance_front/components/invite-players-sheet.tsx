@@ -265,10 +265,21 @@ export function InvitePlayersSheet({
 
   const handleAddGhostMember = async () => {
     if (!group) return;
+    const guestName = searchQuery.trim();
+
+    if (guestName.length < 3) {
+      toast({
+        title: "Nome muito curto",
+        description: "Para criar um convidado, informe um nome com no mínimo 3 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAdding("ghost");
     try {
-      const ghostUser = await createGhostUser(searchQuery);
-      const userName = ghostUser.name || searchQuery;
+      const ghostUser = await createGhostUser(guestName);
+      const userName = ghostUser.name || guestName;
       const ghostUserId = ghostUser._id || ghostUser.id;
 
       const createdUserResult: UserSearchResult = {
@@ -312,9 +323,12 @@ export function InvitePlayersSheet({
       setIsAdding(null);
       setMemberWasAdded(true);
     } catch (error: any) {
+      const isNameTooShort = error.message?.includes("string_too_short");
       toast({
-        title: "Erro ao criar membro reserva",
-        description: error.message,
+        title: isNameTooShort ? "Nome muito curto" : "Erro ao criar membro reserva",
+        description: isNameTooShort
+          ? "Para criar um convidado, informe um nome com no mínimo 3 caracteres."
+          : error.message,
         variant: "destructive",
       });
       setIsAdding(null);
@@ -408,7 +422,7 @@ export function InvitePlayersSheet({
                     handleAddGhostMember();
                   }
                 }}
-                disabled={isAdding === "ghost" || !searchQuery.trim()}
+                disabled={isAdding === "ghost" || searchQuery.trim().length < 3}
                 className="w-full p-3 rounded-lg hover:bg-zinc-800/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left"
               >
                 <div className="flex gap-4 items-center">
@@ -425,7 +439,9 @@ export function InvitePlayersSheet({
                     </div>
                     <div className="text-xs text-zinc-400 mt-0.5">
                       {searchQuery.trim()
-                        ? <>Adicione <span className="text-yellow-400 opacity-60 text-xs">{searchQuery}</span> como convidado!</>
+                        ? searchQuery.trim().length < 3
+                          ? "Digite pelo menos 3 caracteres para adicionar um convidado"
+                          : <>Adicione <span className="text-yellow-400 opacity-60 text-xs">{searchQuery}</span> como convidado!</>
                         : "Digite um nome para criar um novo jogador"}
                     </div>
                   </div>

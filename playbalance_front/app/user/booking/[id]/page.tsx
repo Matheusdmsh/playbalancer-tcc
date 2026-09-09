@@ -555,6 +555,7 @@ export default function BookingDetailPage() {
         {sortedIds.map((id) => {
           const info = playersInfo.get(id);
           const isGuest = Boolean(info?.is_placeholder);
+          const playerSkill = booking?.players.find((player) => getPlayerId(player) === id)?.skill_level ?? 0;
           const name = isGuest
             ? (info?.name || "Convidado").trim().split(/\s+/)[0]
             : getCardDisplayName(info?.name, info?.nickname);
@@ -563,6 +564,14 @@ export default function BookingDetailPage() {
             <li key={id} className="flex items-center gap-2 rounded-md border border-zinc-700 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-100">
               <span className="h-2 w-2 shrink-0 rounded-full bg-green-400" />
               <span className="min-w-0 flex-1 truncate font-medium">{name || "Jogador"}</span>
+              <RatingStars
+                value={playerSkill}
+                size={13}
+                gap={1}
+                className="shrink-0"
+                filledColor="#facc15"
+                emptyColor="#52525b"
+              />
               {isGuest && <span className="text-xs text-zinc-400">Convidado</span>}
             </li>
           );
