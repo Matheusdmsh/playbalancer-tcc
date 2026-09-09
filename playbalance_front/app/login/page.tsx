@@ -101,7 +101,7 @@ export default function LoginPage() {
       console.log("Cadastro bem-sucedido:", data);
       toast({
         title: "Conta criada!",
-        description: "Ative sua conta através do link enviado para seu email.",
+        description: "Confirme sua conta pelo link enviado para seu e-mail. Se não encontrar, verifique também Spam.",
       })
       setTimeout(() => {
     router.push(`/login?redirect=${encodeURIComponent(redirectAfterAuth)}`);
