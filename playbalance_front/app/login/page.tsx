@@ -108,9 +108,16 @@ export default function LoginPage() {
   }, 1000);
     } catch (err: any) {
       console.error(err);
+      const isInvalidUsername =
+        typeof err?.message === "string" &&
+        err.message.includes('"username"') &&
+        err.message.includes("string_pattern_mismatch");
+
       toast({
         title: "Erro ao criar conta",
-        description: err.message || "Ocorreu um erro ao tentar criar sua conta.",
+        description: isInvalidUsername
+          ? "Não foi possível cadastrar: o usuário contém caractere não permitido. Use somente letras, números, ponto ou sublinhado."
+          : err.message || "Ocorreu um erro ao tentar criar sua conta.",
         variant: "destructive",
       })
     } finally {
