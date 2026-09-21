@@ -32,6 +32,7 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState("login");
   const { toast } = useToast()
 
   useEffect(() => {
@@ -104,8 +105,9 @@ export default function LoginPage() {
         description: "Confirme sua conta pelo link enviado para seu e-mail. Se não encontrar, verifique também Spam.",
       })
       setTimeout(() => {
-    router.push(`/login?redirect=${encodeURIComponent(redirectAfterAuth)}`);
-  }, 1000);
+        setPassword("");
+        setActiveTab("login");
+      }, 1000);
     } catch (err: any) {
       console.error(err);
       const isInvalidUsername =
@@ -135,7 +137,7 @@ export default function LoginPage() {
           </span>
         </Link>
 
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="register">Cadastro</TabsTrigger>
